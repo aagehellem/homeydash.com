@@ -2,6 +2,12 @@
 /* === DARK THEME BASE === */
 
 body {
+  background: red !important;
+}
+
+
+body {
+  
   background: linear-gradient(to bottom, #111827, #1f2937);
   color: #ffffff;
   font-family: 'Segoe UI', sans-serif;
