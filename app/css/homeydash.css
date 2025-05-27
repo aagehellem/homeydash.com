@@ -758,3 +758,15 @@ body {
 }
 
 
+/* === Garage Tile Labels === */
+
+.device[data-id="7bfb95ee-653d-482b-a020-f8054d424fd5"] .device-name::after,
+.device[data-id="a74a489f-90d8-417f-92c6-c9c57c5175ad"] .device-name::after {
+  content: attr(data-status);
+  display: block;
+  font-size: 16px;
+  margin-top: 8px;
+  color: white;
+}
+
+
