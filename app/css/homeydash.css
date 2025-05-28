@@ -758,19 +758,6 @@ body {
 }
 
 
-/* === Garage Tile Labels === */
-
-#device\\:7bfb95ee-653d-482b-a020-f8054d424fd5::after,
-#device\\:a74a489f-90d8-417f-92c6-c9c57c5175ad::after {
-  content: attr(data-status);
-  display: block;
-  font-size: 16px;
-  color: white;
-  text-align: center;
-  margin-top: 8px;
-  min-height: 1em;
-  background-color: rgba(255, 255, 255, 0.05); /* temp for visibility */
-}
 
 
 
