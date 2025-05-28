@@ -424,23 +424,49 @@ window.addEventListener('load', function() {
 
           // Garage 1: show "Garage 1 – Open/Closed" label
           if (device.id === '7bfb95ee-653d-482b-a020-f8054d424fd5') {
-            device.makeCapabilityInstance('devicecapabilities_boolean.boolean1', function(value) {
-              var $deviceElement = document.getElementById('device:' + device.id);
-              if ($deviceElement) {
-                $deviceElement.setAttribute('data-status', value ? 'Garage 1 – Open' : 'Garage 1 – Closed');
+          device.makeCapabilityInstance('devicecapabilities_boolean.boolean1', function(value) {
+            var $deviceElement = document.getElementById('device:' + device.id);
+            if ($deviceElement) {
+              // Create or update label element
+              let labelId = 'garage-label-' + device.id;
+              let $existingLabel = document.getElementById(labelId);
+              if (!$existingLabel) {
+                $existingLabel = document.createElement('div');
+                $existingLabel.id = labelId;
+                $existingLabel.style.fontSize = '16px';
+                $existingLabel.style.color = 'white';
+                $existingLabel.style.textAlign = 'center';
+                $existingLabel.style.marginTop = '8px';
+                $deviceElement.appendChild($existingLabel);
               }
-            });
-          }
+              $existingLabel.textContent = value ? 'Garage 1 – Open' : 'Garage 1 – Closed';
+            }
+          });
+        }
+
           
           // Garage 2: show "Garage 2 – Open/Closed" label
           if (device.id === 'a74a489f-90d8-417f-92c6-c9c57c5175ad') {
             device.makeCapabilityInstance('devicecapabilities_boolean.boolean1', function(value) {
               var $deviceElement = document.getElementById('device:' + device.id);
               if ($deviceElement) {
-                $deviceElement.setAttribute('data-status', value ? 'Garage 2 – Open' : 'Garage 2 – Closed');
+                // Create or update label element
+                let labelId = 'garage-label-' + device.id;
+                let $existingLabel = document.getElementById(labelId);
+                if (!$existingLabel) {
+                  $existingLabel = document.createElement('div');
+                  $existingLabel.id = labelId;
+                  $existingLabel.style.fontSize = '16px';
+                  $existingLabel.style.color = 'white';
+                  $existingLabel.style.textAlign = 'center';
+                  $existingLabel.style.marginTop = '8px';
+                  $deviceElement.appendChild($existingLabel);
+                }
+                $existingLabel.textContent = value ? 'Garage 2 – Open' : 'Garage 2 – Closed';
               }
             });
           }
+
 
           
           if ( device.capabilitiesObj.alarm_connected ) {
