@@ -375,6 +375,8 @@ window.addEventListener('load', function() {
         // YR Weather Integration (based on driverUri)
         for (const id in devices) {
           const device = devices[id];
+
+          console.log("Device found:", device.name, "-", device.driverUri);
         
           if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
             // Use weather_description for icon
