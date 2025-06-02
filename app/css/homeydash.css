@@ -740,6 +740,14 @@ a {
           color: white !important;
         }
         
+        .device .icon,
+        .device .value,
+        .device .name {
+          color: white !important;
+          fill: white !important;
+        }
+
+        
         #header, #footer {
           background-color: #000000 !important;
           color: white !important;
