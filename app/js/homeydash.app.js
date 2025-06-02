@@ -1008,8 +1008,8 @@ window.addEventListener('load', function() {
       $weatherTemperature.innerHTML = Math.round(weather.temperature);
     }
     $weatherStateIcon.classList.add(weather.state.toLowerCase());
-    $weatherStateIcon.style.backgroundImage = 'url(img/weather/' + weather.state.toLowerCase() + dn + '.svg)';
-    $weatherStateIcon.style.webkitMaskImage = 'url(img/weather/' + weather.state.toLowerCase() + dn + '.svg)';
+    $weatherStateIcon.style.backgroundImage = 'url(img/weather/' + weather.state.toLowerCase() + '.svg)';
+    $weatherStateIcon.style.webkitMaskImage = 'url(img/weather/' + weather.state.toLowerCase() + '.svg)';
   }
   */
 
