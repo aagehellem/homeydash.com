@@ -382,7 +382,9 @@ window.addEventListener('load', function() {
               const condition = device.capabilitiesObj.weather_description.value
                 .toLowerCase()
                 .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
-        
+
+              console.log("YR condition:", condition);
+              
               $weatherStateIcon.classList.add(condition);
               $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
               $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
