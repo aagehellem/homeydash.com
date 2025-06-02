@@ -340,9 +340,12 @@ window.addEventListener('load', function() {
 
       renderImages();
 
+
+      /*
       homey.weather.getWeather().then(function(weather) {
         return renderWeather(weather);
       }).catch(console.error);
+      */
 
       homey.flow.getFlows().then(function(flows) {
         var favoriteFlows = me.properties.favoriteFlows.map(function(flowId){
@@ -368,6 +371,35 @@ window.addEventListener('load', function() {
           return true;
         });
 
+
+        // YR Weather Integration (based on driverUri)
+        for (const id in devices) {
+          const device = devices[id];
+        
+          if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
+            // Use weather_description for icon
+            if (device.capabilitiesObj.weather_description) {
+              const condition = device.capabilitiesObj.weather_description.value
+                .toLowerCase()
+                .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
+        
+              $weatherStateIcon.classList.add(condition);
+              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}${dn}.svg)`;
+              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}${dn}.svg)`;
+            }
+        
+            // Use measure_temperature for outdoor display
+            if (device.capabilitiesObj.measure_temperature) {
+              const temp = Math.round(device.capabilitiesObj.measure_temperature.value);
+              $weatherTemperature.innerHTML = temp;
+            }
+        
+            break; // no need to loop further once YR device is found
+          }
+        }
+        
+
+        
         favoriteDevices.forEach(function(device){
           // console.log(device.name)
           // console.log(device.capabilitiesObj)
@@ -970,6 +1002,7 @@ window.addEventListener('load', function() {
     $sunsettime.innerHTML = sunset;
   }
 
+  /*
   function renderWeather(weather) {
     if ( outdoortemperature == "homey" ) {
       $weatherTemperature.innerHTML = Math.round(weather.temperature);
@@ -978,6 +1011,7 @@ window.addEventListener('load', function() {
     $weatherStateIcon.style.backgroundImage = 'url(img/weather/' + weather.state.toLowerCase() + dn + '.svg)';
     $weatherStateIcon.style.webkitMaskImage = 'url(img/weather/' + weather.state.toLowerCase() + dn + '.svg)';
   }
+  */
 
   function renderAlarms(alarms) {
     if ( Object.keys(alarms).length != 0 ) {
