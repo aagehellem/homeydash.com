@@ -754,6 +754,13 @@ a {
           background-color: white !important;
         }
 
+        .device .name {
+          text-align: center !important;
+          left: 0 !important;
+          right: 0 !important;
+          width: 100% !important;
+        }
+
 
         
         #header, #footer {
