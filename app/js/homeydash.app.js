@@ -384,8 +384,8 @@ window.addEventListener('load', function() {
                 .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
         
               $weatherStateIcon.classList.add(condition);
-              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}${dn}.svg)`;
-              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}${dn}.svg)`;
+              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
+              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
             }
         
             // Use measure_temperature for outdoor display
