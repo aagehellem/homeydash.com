@@ -919,7 +919,7 @@ window.addEventListener('load', function() {
         $infopanelState.innerHTML = "";
         $infopanelState.classList.add('weather-state');
         var $icon = document.createElement('div');
-        $icon.id = 'weather-state-icon';
+        $icon.id = 'weather-state';
         $icon.classList.add(info.state.toLowerCase());
         $icon.style.backgroundImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
         $icon.style.webkitMaskImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
