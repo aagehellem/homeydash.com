@@ -727,3 +727,24 @@ a {
         .device .name.highlight {
           font-weight: 1000;
         }
+
+
+        body {
+          background: #111 !important;
+          color: white !important;
+        }
+        
+        .device {
+          background-color: #1c1c1c !important;
+          border: 1px solid #333 !important;
+          color: white !important;
+        }
+        
+        #header, #footer {
+          background-color: #000000 !important;
+          color: white !important;
+        }
+        
+        #time, #date {
+          color: white !important;
+        }
