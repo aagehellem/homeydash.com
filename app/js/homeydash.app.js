@@ -376,23 +376,27 @@ window.addEventListener('load', function() {
         for (const id in devices) {
           const device = devices[id];
         
-        if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
-          // Extract and normalise weather condition
-          if (device.capabilitiesObj.weather_description) {
-            const condition = device.capabilitiesObj.weather_description.value
-              .toLowerCase()
-              .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
+          if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
+            // Use weather_description for icon
+            if (device.capabilitiesObj.weather_description) {
+              const condition = device.capabilitiesObj.weather_description.value
+                .toLowerCase()
+                .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
         
-            console.log(`Using YR condition: ${condition}`); // Optional debug log
+              $weatherStateIcon.classList.add(condition);
+              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
+              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
+            }
         
-            $weatherStateIcon.classList.add(condition);
-            $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
-            $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
+            // Use measure_temperature for outdoor display
+            if (device.capabilitiesObj.measure_temperature) {
+              const temp = Math.round(device.capabilitiesObj.measure_temperature.value);
+              $weatherTemperature.innerHTML = temp;
+            }
+        
+            break; // no need to loop further once YR device is found
           }
-        
-          break; // Done after processing YR device
         }
-
         
 
         
@@ -780,6 +784,7 @@ window.addEventListener('load', function() {
         setBrightness(brightness)
         return renderDevices(favoriteDevices);        
 
+      }).catch(console.error);
     }).catch(console.error);
   }
 
@@ -914,7 +919,7 @@ window.addEventListener('load', function() {
         $infopanelState.innerHTML = "";
         $infopanelState.classList.add('weather-state');
         var $icon = document.createElement('div');
-        $icon.id = 'weather-state';
+        $icon.id = 'weather-state-icon';
         $icon.classList.add(info.state.toLowerCase());
         $icon.style.backgroundImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
         $icon.style.webkitMaskImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
