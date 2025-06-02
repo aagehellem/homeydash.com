@@ -747,6 +747,13 @@ a {
           fill: white !important;
         }
 
+        .device .icon,
+        .device .icon-capability,
+        .device .icon-capability-lock {
+          background-color: white !important;
+        }
+
+
         
         #header, #footer {
           background-color: #000000 !important;
