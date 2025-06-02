@@ -1294,12 +1294,10 @@ window.addEventListener('load', function() {
     var now = new Date();
     var hours = now.getHours();
     var minutes = now.getMinutes();
-    var seconds = now.getSeconds();
-
+    
     hours = (hours < 10) ? "0" + hours : hours;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
-    var currentTime = hours + ":" + minutes + ":" + seconds;
+    var currentTime = hours + ":" + minutes;
 
     var tod;
     if( hours >= 18 ) {
@@ -1317,7 +1315,7 @@ window.addEventListener('load', function() {
     } else {
       $textLarge.innerHTML = texts.text.good + tod + '!';
     }
-    $textSmall.innerHTML = texts.text.today + moment(now).format('dddd[, ' + texts.text.the + ' ]Do[ ' + texts.text.of + ' ]MMMM YYYY[.]');
+    $textSmall.innerHTML = texts.text.today + moment(now).format('D MMMM YYYY');
   }
 
   function renderValue ($value, capabilityId, capabilityValue, capabilityUnits) {
