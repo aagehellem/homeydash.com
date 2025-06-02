@@ -376,27 +376,23 @@ window.addEventListener('load', function() {
         for (const id in devices) {
           const device = devices[id];
         
-          if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
-            // Use weather_description for icon
-            if (device.capabilitiesObj.weather_description) {
-              const condition = device.capabilitiesObj.weather_description.value
-                .toLowerCase()
-                .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
+        if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
+          // Extract and normalise weather condition
+          if (device.capabilitiesObj.weather_description) {
+            const condition = device.capabilitiesObj.weather_description.value
+              .toLowerCase()
+              .replace(/\s+/g, ''); // e.g. "Partly cloudy" -> "partlycloudy"
         
-              $weatherStateIcon.classList.add(condition);
-              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
-              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
-            }
+            console.log(`Using YR condition: ${condition}`); // Optional debug log
         
-            // Use measure_temperature for outdoor display
-            if (device.capabilitiesObj.measure_temperature) {
-              const temp = Math.round(device.capabilitiesObj.measure_temperature.value);
-              $weatherTemperature.innerHTML = temp;
-            }
-        
-            break; // no need to loop further once YR device is found
+            $weatherStateIcon.classList.add(condition);
+            $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
+            $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
           }
+        
+          break; // Done after processing YR device
         }
+
         
 
         
