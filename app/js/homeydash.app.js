@@ -1315,7 +1315,7 @@ window.addEventListener('load', function() {
     } else {
       $textLarge.innerHTML = texts.text.good + tod + '!';
     }
-    $textSmall.innerHTML = texts.text.today + moment(now).format('D MMMM YYYY');
+    $textSmall.innerHTML = moment(now).format('D MMMM YYYY');
   }
 
   function renderValue ($value, capabilityId, capabilityValue, capabilityUnits) {
