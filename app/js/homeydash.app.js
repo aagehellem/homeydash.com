@@ -780,7 +780,6 @@ window.addEventListener('load', function() {
         setBrightness(brightness)
         return renderDevices(favoriteDevices);        
 
-      }).catch(console.error);
     }).catch(console.error);
   }
 
