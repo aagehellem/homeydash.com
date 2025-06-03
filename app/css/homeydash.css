@@ -793,7 +793,7 @@ a {
 
         
         #header, #footer {
-          background-color: transparent !important;
+          background-color: black !important;
           color: white !important;
         }
         
