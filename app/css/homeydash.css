@@ -324,6 +324,9 @@ a {
       background-image: url(../img/roof.png);
       visibility: hidden;
     }
+
+
+    /*
     #weather-temperature-inside {
       display: inline-block;
       margin-left: -5.5vw;
@@ -337,6 +340,26 @@ a {
       font-size: 3vw;
       /*vertical-align: top;*/
     }
+    */
+
+    #weather-temperature-inside {
+      display: inline-block;
+      font-size: 5vw;
+      font-weight: 600;
+      line-height: normal;
+      padding-top: 0.6vw;
+      margin-left: 1vw;
+      vertical-align: bottom;
+    }
+    
+    #weather-temperature-inside:after {
+      content: "°";
+      font-size: 3vw;
+      vertical-align: text-top;
+      margin-left: 0.5vw;
+    }
+
+
 
   #sun-events {
     display: inline-block;
