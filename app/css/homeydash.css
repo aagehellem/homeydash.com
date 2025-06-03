@@ -265,7 +265,7 @@ a {
     }
     #weather-state-icon {
       display: inline-block;
-      vertical-align: top;
+      vertical-align: middle;
       width: 4vw;
       height: 4vw;
       margin-left: 3vw;
