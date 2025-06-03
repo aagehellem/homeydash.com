@@ -277,7 +277,6 @@ a {
     }
 
 
-/*
     #weather-temperature {
       display: inline-block;
       margin-left: -7vw;
@@ -290,24 +289,8 @@ a {
       font-size: 3vw;
       vertical-align: text-top;
     }
-*/
 
-    #weather-temperature {
-      display: inline-block;
-      padding-top: 1.5vw;
-      vertical-align: bottom;
-      margin-left: -7vw;
-      font-size: 4vw;
-      line-height: 5vw;
-      font-weight: 500;
-    }
-    
-    #weather-temperature:after {
-      content: "°";
-      font-size: 3vw;
-      vertical-align: text-top;
-      margin-left: 0.2vw;
-    }
+
 
 
 
@@ -326,7 +309,6 @@ a {
     }
 
 
-    /*
     #weather-temperature-inside {
       display: inline-block;
       margin-left: -5.5vw;
@@ -340,24 +322,7 @@ a {
       font-size: 3vw;
       /*vertical-align: top;*/
     }
-    */
 
-    #weather-temperature-inside {
-      display: inline-flex;
-      align-items: flex-end;
-      font-weight: 500;
-      font-size: 4vw;
-      margin-left: -5.5vw;
-      white-space: nowrap;
-    }
-
-    
-    #weather-temperature-inside:after {
-      content: "°";
-      font-size: 3vw;
-      vertical-align: text-top;
-      margin-left: 0.2vw;
-    }
 
 
 
