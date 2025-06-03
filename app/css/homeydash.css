@@ -294,6 +294,7 @@ a {
 
     #weather-temperature {
       display: inline-block;
+      padding-top: 0.6vw;
       vertical-align: bottom;
       margin-left: -6vw;
       font-size: 5vw;
