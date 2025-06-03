@@ -385,9 +385,12 @@ window.addEventListener('load', function() {
       
               console.log("YR condition:", condition);
       
-              $weatherStateIcon.classList.add(condition);
-              $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
-              $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
+              if ($weatherStateIcon && condition) {
+                $weatherStateIcon.classList.add(condition);
+                $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
+                $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
+              }
+
             } else {
               console.warn("YR device has no weather_description capability at this time.");
             }
