@@ -302,9 +302,9 @@ a {
     
     #weather-temperature:after {
       content: "°";
-      font-size: 2vw;
+      font-size: 3vw;
       vertical-align: text-top;
-      margin-left: 0.2vw;
+      margin-left: 0.5vw;
     }
 
 
