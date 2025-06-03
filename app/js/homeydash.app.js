@@ -61,7 +61,7 @@ window.addEventListener('load', function() {
       var $weather = document.getElementById('weather');
         var $sunrisetime = document.getElementById('sunrise-time');
         var $sunsettime = document.getElementById('sunset-time');
-        var $weatherStateIcon = document.getElementById('weather-state');
+        var $weatherStateIcon = document.getElementById('weather-state-icon');
         var $weatherTemperature = document.getElementById('weather-temperature');
         var $weatherroof = document.getElementById('weather-roof');
         var $weathertemperatureinside = document.getElementById('weather-temperature-inside');
