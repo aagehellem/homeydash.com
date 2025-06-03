@@ -277,7 +277,7 @@ a {
     }
 
 
-
+/*
     #weather-temperature {
       display: inline-block;
       margin-left: -7vw;
@@ -290,8 +290,22 @@ a {
       font-size: 3vw;
       vertical-align: text-top;
     }
+*/
 
-
+    #weather-temperature {
+      display: inline-block;
+      margin-left: -6vw;
+      font-size: 5vw;
+      line-height: 5vw;
+      font-weight: 600;
+    }
+    
+    #weather-temperature:after {
+      content: "°";
+      font-size: 3vw;
+      vertical-align: text-top;
+      margin-left: 0.5vw;
+    }
 
 
 
@@ -308,9 +322,6 @@ a {
       background-image: url(../img/roof.png);
       visibility: hidden;
     }
-
-
-/*
     #weather-temperature-inside {
       display: inline-block;
       margin-left: -5.5vw;
@@ -324,25 +335,6 @@ a {
       font-size: 3vw;
       /*vertical-align: top;*/
     }
-*/
-
-
-
-    #weather-temperature-inside {
-      display: inline-block;
-      margin-left: -6vw;
-      font-size: 5vw;
-      line-height: 5vw;
-      font-weight: 600;
-    }
-    #weather-temperature-inside:after {
-      content: "°";
-      font-size: 3vw;
-      vertical-align: text-top;
-      margin-left: 0.5vw;
-    }
-
-
 
   #sun-events {
     display: inline-block;
