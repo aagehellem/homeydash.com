@@ -275,6 +275,9 @@ a {
       -webkit-mask-position: center center;
       background-size: 4vW 4vw;
     }
+
+
+/*
     #weather-temperature {
       display: inline-block;
       margin-left: -7vw;
@@ -287,6 +290,25 @@ a {
       font-size: 3vw;
       vertical-align: text-top;
     }
+*/
+
+#weather-temperature {
+  display: inline-block;
+  margin-left: -6vw;
+  font-size: 5vw;
+  line-height: 5vw;
+  font-weight: 600;
+}
+
+#weather-temperature:after {
+  content: "°";
+  font-size: 2vw;
+  vertical-align: super;
+  margin-left: 0.2vw;
+}
+
+
+
     #weather-roof {
       display: inline-block;
       vertical-align: top;
