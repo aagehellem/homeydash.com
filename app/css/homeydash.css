@@ -41,8 +41,8 @@ a {
 
   #header {
     display: flex;
-    height: 8vw;
-    margin-bottom: 2vw;
+    height: 10vw;
+    margin-bottom: 3vw;
   }
 
   .container-dark {
