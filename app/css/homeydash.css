@@ -343,21 +343,22 @@ a {
     */
 
     #weather-temperature-inside {
-      display: inline-block;
-      font-size: 5vw;
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 0.2vw;
       font-weight: 600;
-      line-height: normal;
-      padding-top: 0.6vw;
+      font-size: 5vw;
       margin-left: 1vw;
-      vertical-align: bottom;
+      white-space: nowrap;
     }
+
     
     #weather-temperature-inside:after {
       content: "°";
-      font-size: 3vw;
-      vertical-align: text-top;
-      margin-left: 0.5vw;
+      font-size: 2.2vw;
+      align-self: flex-start;
     }
+
 
 
 
