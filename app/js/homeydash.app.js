@@ -379,20 +379,20 @@ window.addEventListener('load', function() {
           console.log("Device found:", device.name, "-", device.driverUri);
         
           if (device.driverUri === "homey:app:no.yr:myr" && device.ready) {
-            console.log("📦 Found YR device");
+            console.log("Found YR device");
           
             if (device.capabilitiesObj.weather_description) {
               const condition = device.capabilitiesObj.weather_description.value
                 .toLowerCase()
                 .replace(/\s+/g, '');
           
-              console.log("✅ YR condition:", condition);
+              console.log("YR condition:", condition);
           
               $weatherStateIcon.classList.add(condition);
               $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
               $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
             } else {
-              console.warn("⚠️ YR device has no weather_description capability at this time.");
+              console.warn("YR device has no weather_description capability at this time.");
             }
           
             break;
@@ -407,7 +407,6 @@ window.addEventListener('load', function() {
         
             break; // no need to loop further once YR device is found
           }
-        }
         
 
         
