@@ -386,7 +386,7 @@ window.addEventListener('load', function() {
               console.log("YR condition:", condition);
       
               if ($weatherStateIcon && condition) {
-                $weatherStateIcon.classList.add(condition);
+                // $weatherStateIcon.classList.add(condition);
                 $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
                 $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
               }
