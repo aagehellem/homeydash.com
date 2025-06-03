@@ -265,7 +265,7 @@ a {
     }
     #weather-state-icon {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: top;
       width: 4vw;
       height: 4vw;
       margin-left: 3vw;
@@ -294,6 +294,7 @@ a {
 
     #weather-temperature {
       display: inline-block;
+      vertical-align: bottom;
       margin-left: -6vw;
       font-size: 5vw;
       line-height: 5vw;
