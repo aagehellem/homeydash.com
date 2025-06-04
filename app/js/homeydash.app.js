@@ -808,29 +808,33 @@ setTimeout(() => {
 
     if (!tile || !nameEl || !icon) return;
 
-    // Find matching device in current list
-    const device = homey.__devices?.[id];
-    if (!device || !device.capabilitiesObj?.onoff) return;
+    // Look up the device object in the rendered list
+    const device = [...document.querySelectorAll('.device')].find(d => d.id === 'device:' + id);
+    const devObj = homey.devices.getDevices().then(devices => {
+      const realDevice = devices[id];
+      if (!realDevice || !realDevice.capabilitiesObj?.onoff) return;
 
-    const isOpen = device.capabilitiesObj.onoff.value === true;
+      const isOpen = realDevice.capabilitiesObj.onoff.value === true;
 
-    nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
-    nameEl.style.color = isOpen ? 'white' : 'green';
-    tile.style.backgroundColor = isOpen ? 'red' : 'black';
+      nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+      nameEl.style.color = isOpen ? 'white' : 'green';
+      tile.style.backgroundColor = isOpen ? 'red' : 'black';
 
-    const iconPath = '/app/img/icons/';
-    icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
-    icon.style.filter = isOpen
-      ? 'invert(1)'
-      : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+      const iconPath = '/app/img/icons/';
+      icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
+      icon.style.filter = isOpen
+        ? 'invert(1)'
+        : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
 
-    tile.onclick = () => {
-      fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
-        method: 'POST'
-      });
-    };
+      tile.onclick = () => {
+        fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
+          method: 'POST'
+        });
+      };
+    });
   });
 }, 0);
+
 
 
         
