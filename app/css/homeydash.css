@@ -280,9 +280,9 @@ a {
     #weather-temperature {
       display: inline-block;
       margin-left: -7vw;
-      font-size: 4vw;
+      font-size: 3.5vw;
       line-height: 4vw;
-      font-weight: 500;
+      font-weight: 450;
     }
     #weather-temperature:after {
       content: "°";
@@ -290,17 +290,13 @@ a {
       vertical-align: text-top;
     }
 
-
-
-
-
     #weather-roof {
       display: inline-block;
       vertical-align: top;
       margin-top: 0vw;
-      width: 5vw;
-      height: 5vw;
-      margin-left: 1vw;
+      width: 4vw;
+      height: 4vw;
+      margin-left: 1.5vw;
       margin-right: auto;
       background: no-repeat center center;
       background-size: contain;
@@ -308,13 +304,12 @@ a {
       visibility: hidden;
     }
 
-
     #weather-temperature-inside {
       display: inline-block;
       margin-left: -5.5vw;
-      font-size: 3vw;
-      line-height: 3vw;
-      font-weight: 400;
+      font-size: 3.5vw;
+      line-height: 4vw;
+      font-weight: 450;
       visibility: hidden;
     }
     #weather-temperature-inside:after {
@@ -322,9 +317,6 @@ a {
       font-size: 3vw;
       /*vertical-align: top;*/
     }
-
-
-
 
 
   #sun-events {
