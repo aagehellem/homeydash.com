@@ -791,7 +791,7 @@ window.addEventListener('load', function() {
 
 setTimeout(() => {
 
-  const iconPath = '/img/icons/';
+  const iconPath = '/homeydash.com/app/img/icons/';
   
   console.log("🚀 Garage tile logic running on favoriteDevices");
 
@@ -814,9 +814,6 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
-    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
-    icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
-
     if (!device || !tile || !nameEl || !icon) {
       console.warn(`❌ Missing element(s) for ${label}`);
       return;
@@ -826,6 +823,11 @@ setTimeout(() => {
     const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
 
     const isOpen = device.capabilitiesObj[statusCap]?.value === true;
+
+    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
+    icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
+
+    
 
 nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
 
