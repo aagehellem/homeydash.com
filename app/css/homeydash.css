@@ -51,7 +51,7 @@ a {
   }
 
   .container-dark {
-    background-color: Black;
+    background-color: #1a1a1a;
     opacity: 0.5;
     transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
   }
