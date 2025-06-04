@@ -811,11 +811,15 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
-    if (!device) return console.warn(`❌ Device ${label} not found in favorites`);
-    if (!tile || !nameEl || !icon) return console.warn(`❌ Elements missing for ${label}`);
-    if (!device.capabilitiesObj?.onoff) return console.warn(`❌ No 'onoff' for ${label}`);
+    if (!device || !tile || !nameEl || !icon) {
+      console.warn(`❌ Missing element(s) for ${label}`);
+      return;
+    }
 
-    const isOpen = device.capabilitiesObj.onoff.value === true;
+    const statusCap = 'devicecapabilities_boolean.boolean1';
+    const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
+
+    const isOpen = device.capabilitiesObj[statusCap]?.value === true;
 
     nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
     nameEl.style.color = isOpen ? 'white' : 'green';
@@ -828,12 +832,12 @@ setTimeout(() => {
       : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
 
     tile.onclick = () => {
-      fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
+      fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
         method: 'POST'
       });
     };
 
-    console.log(`✅ Styled ${label} — ${isOpen ? 'Open' : 'Closed'}`);
+    console.log(`✅ Styled ${label} (${isOpen ? 'Open' : 'Closed'})`);
   });
 }, 0);
 
