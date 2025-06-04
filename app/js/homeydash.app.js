@@ -784,6 +784,44 @@ window.addEventListener('load', function() {
         setBrightness(brightness)
         return renderDevices(favoriteDevices);        
 
+// Modification to apply styling to the Garage Tiles (04/06/2025)
+
+    favoriteDevices.forEach(function(device) {
+      if (device.name === 'Garage 1' || device.name === 'Garage 2') {
+        const isOpen = device.capabilitiesObj.onoff?.value === true;
+        const tile = document.getElementById('device:' + device.id);
+        const label = document.getElementById('name:' + device.id);
+        const icon = document.getElementById('icon:' + device.id);
+    
+        if (tile && label && icon) {
+          label.textContent = `${device.name} ${isOpen ? 'Open' : 'Closed'}`;
+          tile.style.backgroundColor = isOpen ? 'red' : 'black';
+          label.style.color = isOpen ? 'white' : 'green';
+    
+          // SVG switch
+          const svgPath = '/app/img/icons/';
+          icon.style.backgroundImage = isOpen
+            ? `url('${svgPath}${device.name === 'Garage 1' ? 'BMW.svg' : 'Fiat.svg'}')`
+            : `url('${svgPath}Closed.svg')`;
+    
+          // Colour match
+          icon.style.filter = isOpen
+            ? 'invert(1)'
+            : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+        }
+    
+        // Toggle on click
+        tile.onclick = () => {
+          fetch(`/api/app/com.athom.homey/${device.id}/capability/onoff/toggle`, {
+            method: 'POST'
+          });
+        };
+      }
+    });
+
+        
+
+        
       }).catch(console.error);
     }).catch(console.error);
   }
