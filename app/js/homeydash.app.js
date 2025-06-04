@@ -826,10 +826,12 @@ setTimeout(() => {
 
     const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
 
-    icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
-    icon.style.backgroundSize = 'contain';
-    icon.style.backgroundRepeat = 'no-repeat';
-    icon.style.backgroundPosition = 'center';
+    requestAnimationFrame(() => {
+      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
+      icon.style.backgroundSize = 'contain';
+      icon.style.backgroundRepeat = 'no-repeat';
+      icon.style.backgroundPosition = 'center';
+    });
 
     
 
