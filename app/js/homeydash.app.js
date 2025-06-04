@@ -781,6 +781,9 @@ window.addEventListener('load', function() {
         }
 
         setBrightness(brightness)
+
+        console.log("📌 Reached before renderDevices");
+        
         return renderDevices(favoriteDevices);        
 
         
