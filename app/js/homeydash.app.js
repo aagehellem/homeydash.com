@@ -787,20 +787,59 @@ window.addEventListener('load', function() {
         renderDevices(favoriteDevices);        
 
         
-// Modification to apply styling to the Garage Tiles (04/06/2025)
+    // Modification to apply styling to the Garage Tiles (04/06/2025)
 
-setTimeout(() => {
-  console.log("🚀 Garage tile logic executing");
+    setTimeout(() => {
+      const garageTiles = [
+        {
+          id: '7bfb95ee-653d-482b-a020-f8054d424fd5', // Garage1
+          label: 'Garage 1',
+          svgOpen: 'BMW.svg'
+        },
+        {
+          id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad', // Garage2
+          label: 'Garage 2',
+          svgOpen: 'Fiat.svg'
+        }
+      ];
+    
+      homey.devices.getDevices().then(devices => {
+        garageTiles.forEach(({ id, label, svgOpen }) => {
+          const tile = document.getElementById('device:' + id);
+          const nameEl = document.getElementById('name:' + id);
+          const icon = document.getElementById('icon:' + id);
+          const device = devices[id];
+    
+          if (!tile || !nameEl || !icon || !device?.capabilitiesObj?.onoff) return;
+    
+          const isOpen = device.capabilitiesObj.onoff.value === true;
+    
+          // Update label
+          nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+          nameEl.style.color = isOpen ? 'white' : 'green';
+    
+          // Background
+          tile.style.backgroundColor = isOpen ? 'red' : 'black';
+    
+          // Icon
+          const iconPath = '/app/img/icons/';
+          icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
+    
+          // Match icon colour to text colour
+          icon.style.filter = isOpen
+            ? 'invert(1)'
+            : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+    
+          // Toggle action
+          tile.onclick = () => {
+            fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
+              method: 'POST'
+            });
+          };
+        });
+      });
+    }, 0);
 
-  const tile = document.getElementById('device:7bfb95ee-653d-482b-a020-f8054d424fd5');
-  if (!tile) {
-    console.warn("❌ Garage 1 tile not found");
-    return;
-  } else {
-    console.log("✅ Garage 1 tile found");
-    tile.style.backgroundColor = 'purple';
-  }
-}, 0);
 
 
         
