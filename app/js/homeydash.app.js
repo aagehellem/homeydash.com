@@ -1352,6 +1352,8 @@ window.addEventListener('load', function() {
     $textSmall.innerHTML = moment(now).format('D MMMM YYYY');
   }
 
+
+  /*
   function renderValue ($value, capabilityId, capabilityValue, capabilityUnits) {
     if ( capabilityUnits == null ) { capabilityUnits = "" }
     if ( capabilityUnits == "W/m^2" ) { capabilityUnits = "W/m²" }
@@ -1376,6 +1378,33 @@ window.addEventListener('load', function() {
       $value.innerHTML = capabilityValue + "<br /><sup>" + capabilityUnits + "</sup>"
     }
   }
+  */
+
+
+  function renderValue ($value, capabilityId, capabilityValue, capabilityUnits) {
+    if ( capabilityUnits == null ) { capabilityUnits = "" }
+    if ( capabilityUnits == "W/m^2" ) { capabilityUnits = "W/m²" }
+    if ( capabilityValue == null ) { capabilityValue = "-" }
+    
+if (capabilityId == "measure_temperature" ||
+    capabilityId == "target_temperature" ||
+    capabilityId == "measure_humidity") {
+
+  capabilityValue = (Math.round(capabilityValue * 10) / 10).toFixed(1); // Always show one decimal
+  let parts = capabilityValue.split(".");
+  let integer = parts[0];
+  let decimal = parts[1];
+
+  $value.innerHTML = integer + "<span id='decimal'>." + decimal + capabilityUnits.substring(0,1) + "</span>";
+  
+    } else if ( capabilityId == "measure_pressure" ) {
+      $value.innerHTML = Math.round(capabilityValue) + "<br /><sup>" + capabilityUnits + "</sup>"
+    } else if ( capabilityId == "dim" || capabilityId == "volume_set") {
+      $value.innerHTML = Math.round(capabilityValue*100) + "<br /><sup>" + capabilityUnits + "</sup>"
+    } else {
+      $value.innerHTML = capabilityValue + "<br /><sup>" + capabilityUnits + "</sup>"  
+
+  
 
   function renderName(device, elementToShow) {
     nameElement = document.getElementById('name:' + device.id)
