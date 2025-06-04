@@ -790,6 +790,9 @@ window.addEventListener('load', function() {
     // Modification to apply styling to the Garage Tiles (04/06/2025)
 
 setTimeout(() => {
+
+  const iconPath = '/img/icons/';
+  
   console.log("🚀 Garage tile logic running on favoriteDevices");
 
   const garageTiles = [
@@ -810,6 +813,9 @@ setTimeout(() => {
     const tile = document.getElementById('device:' + id);
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
+
+    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
+    icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
 
     if (!device || !tile || !nameEl || !icon) {
       console.warn(`❌ Missing element(s) for ${label}`);
