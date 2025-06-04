@@ -283,6 +283,7 @@ a {
       font-size: 3.5vw;
       line-height: 4vw;
       font-weight: 450;
+      padding-top: 1vw;
     }
     #weather-temperature:after {
       content: "°";
@@ -310,6 +311,7 @@ a {
       font-size: 3.5vw;
       line-height: 4vw;
       font-weight: 450;
+      padding-top: 1vw;
       visibility: hidden;
     }
     #weather-temperature-inside:after {
