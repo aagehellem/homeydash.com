@@ -788,18 +788,18 @@ window.addEventListener('load', function() {
 // Modification to apply styling to the Garage Tiles (04/06/2025)
 
 setTimeout(() => {
-  const garageTiles = [
-    {
-      id: '7bfb95ee-653d-482b-a020-f8054d424fd5', // Garage1
-      label: 'Garage 1',
-      svgOpen: 'BMW.svg'
-    },
-    {
-      id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad', // Garage2
-      label: 'Garage 2',
-      svgOpen: 'Fiat.svg'
-    }
-  ];
+  console.log("🚀 Custom garage tile logic running");
+
+  const tile = document.getElementById('device:7bfb95ee-653d-482b-a020-f8054d424fd5');
+  if (!tile) {
+    console.warn("❌ Garage 1 tile not found");
+    return;
+  } else {
+    console.log("✅ Garage 1 tile found:", tile);
+    tile.style.backgroundColor = 'purple'; // test colour
+  }
+}, 0);
+
 
   garageTiles.forEach(({ id, label, svgOpen }) => {
     const tile = document.getElementById('device:' + id);
