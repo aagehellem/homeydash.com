@@ -315,7 +315,7 @@ a {
     #weather-temperature-inside:after {
       content: "°";
       font-size: 3vw;
-      /*vertical-align: super;
+      vertical-align: super;
     }
 
 
