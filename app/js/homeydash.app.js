@@ -789,56 +789,54 @@ window.addEventListener('load', function() {
         
     // Modification to apply styling to the Garage Tiles (04/06/2025)
 
-    setTimeout(() => {
-      const garageTiles = [
-        {
-          id: '7bfb95ee-653d-482b-a020-f8054d424fd5', // Garage1
-          label: 'Garage 1',
-          svgOpen: 'BMW.svg'
-        },
-        {
-          id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad', // Garage2
-          label: 'Garage 2',
-          svgOpen: 'Fiat.svg'
-        }
-      ];
-    
-      homey.devices.getDevices().then(devices => {
-        garageTiles.forEach(({ id, label, svgOpen }) => {
-          const tile = document.getElementById('device:' + id);
-          const nameEl = document.getElementById('name:' + id);
-          const icon = document.getElementById('icon:' + id);
-          const device = devices[id];
-    
-          if (!tile || !nameEl || !icon || !device?.capabilitiesObj?.onoff) return;
-    
-          const isOpen = device.capabilitiesObj.onoff.value === true;
-    
-          // Update label
-          nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
-          nameEl.style.color = isOpen ? 'white' : 'green';
-    
-          // Background
-          tile.style.backgroundColor = isOpen ? 'red' : 'black';
-    
-          // Icon
-          const iconPath = '/app/img/icons/';
-          icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
-    
-          // Match icon colour to text colour
-          icon.style.filter = isOpen
-            ? 'invert(1)'
-            : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
-    
-          // Toggle action
-          tile.onclick = () => {
-            fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
-              method: 'POST'
-            });
-          };
-        });
+setTimeout(() => {
+  console.log("🚀 Garage tile logic running on favoriteDevices");
+
+  const garageTiles = [
+    {
+      id: '7bfb95ee-653d-482b-a020-f8054d424fd5',
+      label: 'Garage 1',
+      svgOpen: 'BMW.svg'
+    },
+    {
+      id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad',
+      label: 'Garage 2',
+      svgOpen: 'Fiat.svg'
+    }
+  ];
+
+  garageTiles.forEach(({ id, label, svgOpen }) => {
+    const device = favoriteDevices.find(d => d.id === id);
+    const tile = document.getElementById('device:' + id);
+    const nameEl = document.getElementById('name:' + id);
+    const icon = document.getElementById('icon:' + id);
+
+    if (!device) return console.warn(`❌ Device ${label} not found in favorites`);
+    if (!tile || !nameEl || !icon) return console.warn(`❌ Elements missing for ${label}`);
+    if (!device.capabilitiesObj?.onoff) return console.warn(`❌ No 'onoff' for ${label}`);
+
+    const isOpen = device.capabilitiesObj.onoff.value === true;
+
+    nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+    nameEl.style.color = isOpen ? 'white' : 'green';
+    tile.style.backgroundColor = isOpen ? 'red' : 'black';
+
+    const iconPath = '/app/img/icons/';
+    icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
+    icon.style.filter = isOpen
+      ? 'invert(1)'
+      : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+
+    tile.onclick = () => {
+      fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
+        method: 'POST'
       });
-    }, 0);
+    };
+
+    console.log(`✅ Styled ${label} — ${isOpen ? 'Open' : 'Closed'}`);
+  });
+}, 0);
+
 
 
 
