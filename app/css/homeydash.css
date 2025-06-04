@@ -787,3 +787,12 @@ a {
         #time, #date {
           color: white !important;
         }
+
+
+.device .icon {
+  background-image: none !important; /* clear Homey default */
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
