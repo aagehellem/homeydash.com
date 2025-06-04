@@ -791,7 +791,7 @@ window.addEventListener('load', function() {
 
 setTimeout(() => {
 
-  const iconPath = '/homeydash.com/app/img/icons/';
+  const iconPath = '/app/img/icons/';
   
   console.log("🚀 Garage tile logic running on favoriteDevices");
 
