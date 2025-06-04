@@ -284,6 +284,8 @@ a {
       line-height: 4vw;
       font-weight: 450;
       padding-top: 1vw;
+      vertical-align: bottom;
+      margin-bottom: -1vw;
     }
     #weather-temperature:after {
       content: "°";
@@ -312,6 +314,8 @@ a {
       line-height: 4vw;
       font-weight: 450;
       padding-top: 1vw;
+      vertical-align: bottom;
+      margin-bottom: -1vw;
       visibility: hidden;
     }
     #weather-temperature-inside:after {
