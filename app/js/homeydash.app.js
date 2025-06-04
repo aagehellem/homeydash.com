@@ -821,15 +821,18 @@ setTimeout(() => {
 
     const isOpen = device.capabilitiesObj[statusCap]?.value === true;
 
-    nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
-    nameEl.style.color = isOpen ? 'white' : 'green';
-    tile.style.backgroundColor = isOpen ? 'red' : 'black';
+nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
 
-    const iconPath = '/app/img/icons/';
-    icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
-    icon.style.filter = isOpen
-      ? 'invert(1)'
-      : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+if (isOpen) {
+  tile.style.backgroundColor = 'red';
+  nameEl.style.color = 'white';
+  icon.style.filter = 'invert(1)';
+} else {
+  tile.style.backgroundColor = 'black';
+  nameEl.style.color = '#00ff00'; // vivid green
+  icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
+}
+
 
     tile.onclick = () => {
       fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
