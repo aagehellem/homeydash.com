@@ -784,40 +784,54 @@ window.addEventListener('load', function() {
         setBrightness(brightness)
         return renderDevices(favoriteDevices);        
 
+        
 // Modification to apply styling to the Garage Tiles (04/06/2025)
 
-    favoriteDevices.forEach(function(device) {
-      if (device.name === 'Garage 1' || device.name === 'Garage 2') {
-        const isOpen = device.capabilitiesObj.onoff?.value === true;
-        const tile = document.getElementById('device:' + device.id);
-        const label = document.getElementById('name:' + device.id);
-        const icon = document.getElementById('icon:' + device.id);
-    
-        if (tile && label && icon) {
-          label.textContent = `${device.name} ${isOpen ? 'Open' : 'Closed'}`;
-          tile.style.backgroundColor = isOpen ? 'red' : 'black';
-          label.style.color = isOpen ? 'white' : 'green';
-    
-          // SVG switch
-          const svgPath = '/app/img/icons/';
-          icon.style.backgroundImage = isOpen
-            ? `url('${svgPath}${device.name === 'Garage 1' ? 'BMW.svg' : 'Fiat.svg'}')`
-            : `url('${svgPath}Closed.svg')`;
-    
-          // Colour match
-          icon.style.filter = isOpen
-            ? 'invert(1)'
-            : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
-        }
-    
-        // Toggle on click
-        tile.onclick = () => {
-          fetch(`/api/app/com.athom.homey/${device.id}/capability/onoff/toggle`, {
-            method: 'POST'
-          });
-        };
-      }
-    });
+setTimeout(() => {
+  const garageTiles = [
+    {
+      id: '7bfb95ee-653d-482b-a020-f8054d424fd5', // Garage1
+      label: 'Garage 1',
+      svgOpen: 'BMW.svg'
+    },
+    {
+      id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad', // Garage2
+      label: 'Garage 2',
+      svgOpen: 'Fiat.svg'
+    }
+  ];
+
+  garageTiles.forEach(({ id, label, svgOpen }) => {
+    const tile = document.getElementById('device:' + id);
+    const nameEl = document.getElementById('name:' + id);
+    const icon = document.getElementById('icon:' + id);
+
+    if (!tile || !nameEl || !icon) return;
+
+    // Find matching device in current list
+    const device = homey.__devices?.[id];
+    if (!device || !device.capabilitiesObj?.onoff) return;
+
+    const isOpen = device.capabilitiesObj.onoff.value === true;
+
+    nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+    nameEl.style.color = isOpen ? 'white' : 'green';
+    tile.style.backgroundColor = isOpen ? 'red' : 'black';
+
+    const iconPath = '/app/img/icons/';
+    icon.style.backgroundImage = `url('${iconPath}${isOpen ? svgOpen : 'Closed.svg'}')`;
+    icon.style.filter = isOpen
+      ? 'invert(1)'
+      : 'invert(47%) sepia(86%) saturate(749%) hue-rotate(88deg) brightness(94%) contrast(89%)';
+
+    tile.onclick = () => {
+      fetch(`/api/app/com.athom.homey/${id}/capability/onoff/toggle`, {
+        method: 'POST'
+      });
+    };
+  });
+}, 0);
+
 
         
 
