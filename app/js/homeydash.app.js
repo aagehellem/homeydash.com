@@ -825,7 +825,10 @@ setTimeout(() => {
     const isOpen = device.capabilitiesObj[statusCap]?.value === true;
 
     const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
-    icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
+
+    icon.setAttribute('data-icon-url', `${iconPath}${selectedSvg}`);
+    icon.classList.add('custom-svg');
+    
 
     
 
