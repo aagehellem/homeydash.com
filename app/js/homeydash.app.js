@@ -784,21 +784,21 @@ window.addEventListener('load', function() {
 
         console.log("📌 Reached before renderDevices");
         
-        return renderDevices(favoriteDevices);        
+        renderDevices(favoriteDevices);        
 
         
 // Modification to apply styling to the Garage Tiles (04/06/2025)
 
 setTimeout(() => {
-  console.log("🚀 Custom garage tile logic running");
+  console.log("🚀 Garage tile logic executing");
 
   const tile = document.getElementById('device:7bfb95ee-653d-482b-a020-f8054d424fd5');
   if (!tile) {
     console.warn("❌ Garage 1 tile not found");
     return;
   } else {
-    console.log("✅ Garage 1 tile found:", tile);
-    tile.style.backgroundColor = 'purple'; // test colour
+    console.log("✅ Garage 1 tile found");
+    tile.style.backgroundColor = 'purple';
   }
 }, 0);
 
