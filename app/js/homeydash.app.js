@@ -829,7 +829,7 @@ if (isOpen) {
   icon.style.color = 'white';
 //  icon.style.filter = 'invert(1)';
 } else {
-  tile.style.setProperty('background-color', 'black', 'important');
+  tile.style.setProperty('background-color', '#1a1a1a', 'important');
   nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
   icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
 }
