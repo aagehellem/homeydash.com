@@ -279,7 +279,7 @@ a {
 
     #weather-temperature {
       display: inline-block;
-      margin-left: -7vw;
+      margin-left: -6vw;
       font-size: 3.5vw;
       line-height: 4vw;
       font-weight: 450;
@@ -287,7 +287,7 @@ a {
     #weather-temperature:after {
       content: "°";
       font-size: 3vw;
-      vertical-align: text-top;
+      vertical-align: super;
     }
 
     #weather-roof {
@@ -315,7 +315,7 @@ a {
     #weather-temperature-inside:after {
       content: "°";
       font-size: 3vw;
-      /*vertical-align: top;*/
+      /*vertical-align: super;
     }
 
 
