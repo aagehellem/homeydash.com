@@ -831,6 +831,8 @@ setTimeout(() => {
       icon.style.backgroundSize = 'contain';
       icon.style.backgroundRepeat = 'no-repeat';
       icon.style.backgroundPosition = 'center';
+      icon.style.maskImage = 'none';
+      icon.style.webkitMaskImage = 'none';      
     }, 50);
 
 
