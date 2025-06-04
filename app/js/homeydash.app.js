@@ -826,7 +826,8 @@ nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
 if (isOpen) {
   tile.style.setProperty('background-color', 'red', 'important');
   nameEl.style.color = 'white';
-  icon.style.filter = 'invert(1)';
+  icon.style.color = 'white';
+//  icon.style.filter = 'invert(1)';
 } else {
   tile.style.setProperty('background-color', 'black', 'important');
   nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
