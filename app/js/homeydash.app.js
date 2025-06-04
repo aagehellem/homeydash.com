@@ -828,7 +828,7 @@ setTimeout(() => {
 
     setTimeout(() => {
 //      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
-      icon.style.backgroundImage = "url('https://homeydash.com/app/img/icons/Weather.svg')";
+      icon.style.backgroundImage = "url('https://homeydash.com/app/img/weather/clearsky.svg')";
       icon.style.backgroundSize = 'contain';
       icon.style.backgroundRepeat = 'no-repeat';
       icon.style.backgroundPosition = 'center';
