@@ -343,9 +343,9 @@ a {
     text-align: center;
   }
     #text-large {
-      font-size: 44px;
+      font-size: 52px;
       font-weight: 700;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     #text-large:after {
       content: "";
