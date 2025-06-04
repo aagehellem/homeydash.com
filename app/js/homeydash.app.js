@@ -373,8 +373,7 @@ window.addEventListener('load', function() {
         // Weather icon from YR device
         for (const id in devices) {
           const device = devices[id];
-          console.log("Device found:", device.name, "-", device.driverUri);
-      
+       
           if (device.driverUri === "homey:app:no.yr" && device.ready) {
             console.log("Found YR device");
       
