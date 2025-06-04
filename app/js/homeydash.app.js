@@ -1386,18 +1386,18 @@ window.addEventListener('load', function() {
     if ( capabilityUnits == "W/m^2" ) { capabilityUnits = "W/m²" }
     if ( capabilityValue == null ) { capabilityValue = "-" }
     
-if (capabilityId == "measure_temperature" ||
-    capabilityId == "target_temperature" ||
-    capabilityId == "measure_humidity") {
+if (capabilityId === "measure_temperature" ||
+    capabilityId === "target_temperature" ||
+    capabilityId === "measure_humidity") {
 
-  capabilityValue = (Math.round(capabilityValue * 10) / 10).toFixed(1); // Always show one decimal
-  let parts = capabilityValue.split(".");
-  let integer = parts[0];
-  let decimal = parts[1];
+  if (capabilityValue == null) capabilityValue = 0;
+
+  const fixedValue = (Math.round(capabilityValue * 10) / 10).toFixed(1); // Always one decimal
+  const [integer, decimal] = fixedValue.split(".");
 
   $value.innerHTML = integer + "<span id='decimal'>." + decimal + capabilityUnits.substring(0,1) + "</span>";
-  
-    } else if ( capabilityId == "measure_pressure" ) {
+  return;
+} else if ( capabilityId == "measure_pressure" ) {
       $value.innerHTML = Math.round(capabilityValue) + "<br /><sup>" + capabilityUnits + "</sup>"
     } else if ( capabilityId == "dim" || capabilityId == "volume_set") {
       $value.innerHTML = Math.round(capabilityValue*100) + "<br /><sup>" + capabilityUnits + "</sup>"
