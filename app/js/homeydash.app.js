@@ -814,6 +814,13 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
+    icon.style.webkitMaskImage = `url('${iconPath}${svgOpen}')`;
+    icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
+    icon.style.backgroundSize = 'contain';
+    icon.style.backgroundRepeat = 'no-repeat';
+    icon.style.backgroundPosition = 'center';
+    
+
     if (!device || !tile || !nameEl || !icon) {
       console.warn(`❌ Missing element(s) for ${label}`);
       return;
