@@ -822,7 +822,7 @@ setTimeout(() => {
     icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
     icon.style.backgroundSize = 'contain';
     icon.style.backgroundRepeat = 'no-repeat';
-    icon.style.backgroundPosition = 'center left';
+    icon.style.backgroundPosition = 'top left';
     icon.style.backgroundColor = 'transparent';
     
     // Set size and layout
