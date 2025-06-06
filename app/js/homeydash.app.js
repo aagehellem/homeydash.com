@@ -828,7 +828,7 @@ setTimeout(() => {
     // Set size and layout
     icon.style.width = '90px';
     icon.style.height = '90px';
-    icon.style.marginLeft = '0'
+    icon.style.marginLeft = '0';
     icon.style.marginRight = 'auto';
     icon.style.display = 'block';
 
