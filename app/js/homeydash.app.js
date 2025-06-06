@@ -852,7 +852,8 @@ setTimeout(() => {
 
     
 
-nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+//nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+  nameEl.textContent = label;
 
 if (isOpen) {
   tile.style.setProperty('background-color', 'red', 'important');
