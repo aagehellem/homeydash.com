@@ -814,24 +814,17 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
-    // Wipe inherited styles
-    icon.className = ''; // Removes default .icon class
-    icon.removeAttribute('style'); // Clears inline styles
-    
-    // Apply your custom icon using background-image
+    // Position the icon manually inside the tile
+    icon.style.position = 'absolute';
+    icon.style.top = '6px';        // adjust vertically (try 4–8px for fine tuning)
+    icon.style.left = '6px';       // adjust horizontally
+    icon.style.width = '90px';
+    icon.style.height = '90px';
     icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
     icon.style.backgroundSize = 'contain';
     icon.style.backgroundRepeat = 'no-repeat';
     icon.style.backgroundPosition = 'left top';
     icon.style.backgroundColor = 'transparent';
-    
-    // Set size and layout
-    icon.style.width = '90px';
-    icon.style.height = '90px';
-    icon.style.marginLeft = '-2';
-    icon.style.marginTop = '-2';
-    icon.style.marginRight = 'auto';
-    icon.style.display = 'block';
 
     
 
