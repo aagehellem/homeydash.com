@@ -814,28 +814,20 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
-    // Clean previous styles
-    icon.style.backgroundImage = '';
-    icon.style.backgroundColor = '';
-    icon.style.opacity = '1';
-    icon.style.filter = 'none';
+    // Wipe inherited styles
+    icon.className = ''; // Removes default .icon class
+    icon.removeAttribute('style'); // Clears inline styles
     
-    // Apply icon as a proper mask (like HomeyDash normally does)
-    icon.style.webkitMaskImage = `url('${iconPath}${svgOpen}')`;
-    icon.style.maskImage = `url('${iconPath}${svgOpen}')`; // fallback for non-WebKit
-    icon.style.webkitMaskRepeat = 'no-repeat';
-    icon.style.maskRepeat = 'no-repeat';
-    icon.style.webkitMaskPosition = 'center';
-    icon.style.maskPosition = 'center';
-    icon.style.webkitMaskSize = '100% 100%';
-    icon.style.maskSize = '100% 100%';
+    // Apply your custom icon using background-image
+    icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
+    icon.style.backgroundSize = 'contain';
+    icon.style.backgroundRepeat = 'no-repeat';
+    icon.style.backgroundPosition = 'center';
+    icon.style.backgroundColor = 'transparent';
+    
+    // Set size and layout
     icon.style.width = '70px';
     icon.style.height = '70px';
-    icon.style.backgroundColor = 'white'; // acts as icon "fill" colour
-    
-    // Size and layout
-    icon.style.width = '60px';
-    icon.style.height = '60px';
     icon.style.margin = 'auto';
     icon.style.display = 'block';
 
