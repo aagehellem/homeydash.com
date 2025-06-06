@@ -881,6 +881,41 @@ if (isOpen) {
 
     console.log(`✅ Styled ${label} (${isOpen ? 'Open' : 'Closed'})`);
   });
+
+
+  
+setInterval(() => {
+  garageTiles.forEach(({ id }) => {
+    const device = favoriteDevices.find(d => d.id === id);
+    const tile = document.getElementById('device:' + id);
+    const statusEl = document.getElementById(`status:${id}`);
+    const nameEl = document.getElementById('name:' + id);
+    const icon = document.getElementById('icon:' + id);
+
+    if (!device || !statusEl || !tile || !nameEl || !icon) return;
+
+    const statusCap = 'devicecapabilities_boolean.boolean1';
+    const isOpen = device.capabilitiesObj[statusCap].value === true;
+
+    statusEl.textContent = isOpen ? 'Open' : 'Closed';
+
+    if (isOpen) {
+      tile.style.setProperty('background-color', 'red', 'important');
+      nameEl.style.color = 'white';
+      icon.style.filter = 'invert(1)';
+      statusEl.style.color = 'white';
+    } else {
+      tile.style.setProperty('background-color', '#1a1a1a', 'important');
+      nameEl.style.setProperty('color', '#21f521', 'important');
+      icon.style.filter =
+        'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
+      statusEl.style.setProperty('color', '#21f521', 'important');
+    }
+  });
+}, 5000);
+
+  
+  
 }, 0);
 
 
