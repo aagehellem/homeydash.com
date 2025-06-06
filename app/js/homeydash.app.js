@@ -827,8 +827,10 @@ setTimeout(() => {
     icon.style.maskRepeat = 'no-repeat';
     icon.style.webkitMaskPosition = 'center';
     icon.style.maskPosition = 'center';
-    icon.style.webkitMaskSize = 'contain';
-    icon.style.maskSize = 'contain';
+    icon.style.webkitMaskSize = '100% 100%';
+    icon.style.maskSize = '100% 100%';
+    icon.style.width = '70px';
+    icon.style.height = '70px';
     icon.style.backgroundColor = 'white'; // acts as icon "fill" colour
     
     // Size and layout
