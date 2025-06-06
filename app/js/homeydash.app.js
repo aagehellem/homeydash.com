@@ -841,6 +841,7 @@ setTimeout(() => {
     statusEl.id = `status:${id}`;
     statusEl.className = 'value garage-status';
     statusEl.textContent = isOpen ? 'Open' : 'Closed';
+    statusEl.style.fontSize = '8px';
     tile.appendChild(statusEl);
 
 
