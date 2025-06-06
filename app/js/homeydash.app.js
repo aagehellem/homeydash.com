@@ -826,14 +826,16 @@ setTimeout(() => {
 
     const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
       icon.style.backgroundSize = 'contain';
       icon.style.backgroundRepeat = 'no-repeat';
       icon.style.backgroundPosition = 'center';
-    }, 50);
+    });
 
+    
 
+    
 
 nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
 
