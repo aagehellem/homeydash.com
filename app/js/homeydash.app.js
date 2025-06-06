@@ -819,6 +819,9 @@ setTimeout(() => {
     icon.style.backgroundSize = 'contain';
     icon.style.backgroundRepeat = 'no-repeat';
     icon.style.backgroundPosition = 'center';
+    icon.style.width = '60px';
+    icon.style.height = '60px';
+    icon.style.opacity = '1'; // Ensure full visibility
     
 
     if (!device || !tile || !nameEl || !icon) {
