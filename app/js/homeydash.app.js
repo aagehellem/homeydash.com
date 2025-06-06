@@ -814,14 +814,25 @@ setTimeout(() => {
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
 
-    icon.style.webkitMaskImage = `url('${iconPath}${svgOpen}')`;
+    // Clear existing styling first
+    icon.style.backgroundImage = '';
+    icon.style.webkitMaskImage = '';
+    icon.style.maskImage = '';
+    icon.style.opacity = '1';
+    icon.style.filter = 'none';
+    
+    // Apply your custom icon
     icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
     icon.style.backgroundSize = 'contain';
     icon.style.backgroundRepeat = 'no-repeat';
     icon.style.backgroundPosition = 'center';
+    icon.style.backgroundColor = 'white'; // essential for visible fill
+    
+    // Adjust size
     icon.style.width = '60px';
     icon.style.height = '60px';
-    icon.style.opacity = '1'; // Ensure full visibility
+    icon.style.margin = 'auto';
+    icon.style.display = 'block';
     
 
     if (!device || !tile || !nameEl || !icon) {
