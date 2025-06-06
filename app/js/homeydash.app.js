@@ -827,13 +827,10 @@ setTimeout(() => {
     const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
 
     setTimeout(() => {
-//      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
-      icon.style.backgroundImage = "url('https://homeydash.com/app/img/weather/clearsky.svg')";
+      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
       icon.style.backgroundSize = 'contain';
       icon.style.backgroundRepeat = 'no-repeat';
       icon.style.backgroundPosition = 'center';
-      icon.style.maskImage = 'none';
-      icon.style.webkitMaskImage = 'none';      
     }, 50);
 
 
@@ -844,11 +841,11 @@ if (isOpen) {
   tile.style.setProperty('background-color', 'red', 'important');
   nameEl.style.color = 'white';
   icon.style.color = 'white';
-  icon.style.filter = 'none';
+//  icon.style.filter = 'invert(1)';
 } else {
   tile.style.setProperty('background-color', '#1a1a1a', 'important');
   nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
-  icon.style.filter = 'none'; // green tint
+  icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
 }
 
 
