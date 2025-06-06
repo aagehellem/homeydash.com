@@ -834,7 +834,7 @@ setTimeout(() => {
     const statusCap = 'devicecapabilities_boolean.boolean1';
     const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
 
-    const isOpen = device.capabilitiesObj[statusCap]?.value === true;
+    const isClosed = device.capabilitiesObj[statusCap].value === false;
 
     // Inject status element (top-right)
     const statusEl = document.createElement('div');
@@ -912,7 +912,7 @@ setInterval(() => {
       statusEl.style.setProperty('color', '#21f521', 'important');
     }
   });
-}, 5000);
+}, 1000);
 
   
   
