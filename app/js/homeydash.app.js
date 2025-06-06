@@ -833,25 +833,51 @@ setTimeout(() => {
 
     const statusCap = 'devicecapabilities_boolean.boolean1';
     const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
-    
+
+    const isClosed = device.capabilitiesObj[statusCap].value === false;
+
     // Inject status element (top-right)
     const statusEl = document.createElement('div');
     statusEl.id = `status:${id}`;
     statusEl.className = 'value garage-status';
-    statusEl.textContent = ''; // Will be set in update loop
-    statusEl.style.fontSize = '10px';
+    statusEl.textContent = isOpen ? 'Open' : 'Closed';
+    statusEl.style.fontSize = '16px';
     tile.appendChild(statusEl);
-    
-    // Set label (but no status appended here)
-    nameEl.textContent = label;
-    
-    // Tile click handler
+
+
+    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
+
+    /*
+    requestAnimationFrame(() => {
+      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
+      icon.style.backgroundSize = 'contain';
+      icon.style.backgroundRepeat = 'no-repeat';
+      icon.style.backgroundPosition = 'center';
+    });
+    */
+
+//nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+  nameEl.textContent = label;
+
+if (isOpen) {
+  tile.style.setProperty('background-color', 'red', 'important');
+  nameEl.style.color = 'white';
+  statusEl.style.color = 'white';
+  icon.style.color = 'white';
+//  icon.style.filter = 'invert(1)';
+} else {
+  tile.style.setProperty('background-color', '#1a1a1a', 'important');
+  nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
+  statusEl.style.setProperty('color', '#21f521', 'important'); // match label
+  icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
+}
+
+
     tile.onclick = () => {
       fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
         method: 'POST'
       });
     };
-
 
     console.log(`✅ Styled ${label} (${isOpen ? 'Open' : 'Closed'})`);
   });
@@ -869,28 +895,31 @@ setInterval(() => {
     if (!device || !statusEl || !tile || !nameEl || !icon) return;
 
     const statusCap = 'devicecapabilities_boolean.boolean1';
-    const isClosed = device.capabilitiesObj[statusCap].value === false;
+    const isOpen = device.capabilitiesObj[statusCap].value === true;
 
-    // Update status label
-    statusEl.textContent = isClosed ? 'Closed' : 'Open';
+    statusEl.textContent = isOpen ? 'Open' : 'Closed';
 
-    if (isClosed) {
+    if (isOpen) {
+      tile.style.setProperty('background-color', 'red', 'important');
+      nameEl.style.color = 'white';
+      icon.style.filter = 'invert(1)';
+      statusEl.style.color = 'white';
+    } else {
       tile.style.setProperty('background-color', '#1a1a1a', 'important');
       nameEl.style.setProperty('color', '#21f521', 'important');
       icon.style.filter =
         'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
       statusEl.style.setProperty('color', '#21f521', 'important');
-    } else {
-      tile.style.setProperty('background-color', 'red', 'important');
-      nameEl.style.color = 'white';
-      icon.style.filter = 'invert(1)';
-      statusEl.style.color = 'white';
     }
   });
-}, 1000); // update every 1 second
+}, 1000);
+
   
   
 }, 0);
+
+
+
 
         
 
