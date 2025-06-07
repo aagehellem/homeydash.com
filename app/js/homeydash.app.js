@@ -912,7 +912,7 @@ setInterval(() => {
       statusEl.style.setProperty('color', '#21f521', 'important');
     }
   });
-}, 5000);
+}, 1000);
 
   
   
