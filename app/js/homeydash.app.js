@@ -834,7 +834,7 @@ setTimeout(() => {
     const statusCap = 'devicecapabilities_boolean.boolean1';
     const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
 
-    const isOpen = device.capabilitiesObj[statusCap]?.value === true;
+    const isClosed = device.capabilitiesObj[statusCap].value === false;
 
     // Inject status element (top-right)
     const statusEl = document.createElement('div');
@@ -859,17 +859,19 @@ setTimeout(() => {
 //nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
   nameEl.textContent = label;
 
-if (isOpen) {
+if (isClosed) {
+  tile.style.setProperty('background-color', '#1a1a1a', 'important');
+  nameEl.style.setProperty('color', '#21f521', 'important');
+  icon.style.filter =
+    'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
+  statusEl.style.setProperty('color', '#21f521', 'important');
+  statusEl.textContent = 'Closed';
+} else {
   tile.style.setProperty('background-color', 'red', 'important');
   nameEl.style.color = 'white';
+  icon.style.filter = 'invert(1)';
   statusEl.style.color = 'white';
-  icon.style.color = 'white';
-//  icon.style.filter = 'invert(1)';
-} else {
-  tile.style.setProperty('background-color', '#1a1a1a', 'important');
-  nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
-  statusEl.style.setProperty('color', '#21f521', 'important'); // match label
-  icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
+  statusEl.textContent = 'Open';
 }
 
 
@@ -895,22 +897,22 @@ setInterval(() => {
     if (!device || !statusEl || !tile || !nameEl || !icon) return;
 
     const statusCap = 'devicecapabilities_boolean.boolean1';
-    const isOpen = device.capabilitiesObj[statusCap].value === true;
+    const isClosed = device.capabilitiesObj[statusCap].value === false;
 
-    statusEl.textContent = isOpen ? 'Open' : 'Closed';
-
-    if (isOpen) {
-      tile.style.setProperty('background-color', 'red', 'important');
-      nameEl.style.color = 'white';
-      icon.style.filter = 'invert(1)';
-      statusEl.style.color = 'white';
-    } else {
-      tile.style.setProperty('background-color', '#1a1a1a', 'important');
-      nameEl.style.setProperty('color', '#21f521', 'important');
-      icon.style.filter =
-        'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
-      statusEl.style.setProperty('color', '#21f521', 'important');
-    }
+if (isClosed) {
+  tile.style.setProperty('background-color', '#1a1a1a', 'important');
+  nameEl.style.setProperty('color', '#21f521', 'important');
+  icon.style.filter =
+    'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
+  statusEl.style.setProperty('color', '#21f521', 'important');
+  statusEl.textContent = 'Closed';
+} else {
+  tile.style.setProperty('background-color', 'red', 'important');
+  nameEl.style.color = 'white';
+  icon.style.filter = 'invert(1)';
+  statusEl.style.color = 'white';
+  statusEl.textContent = 'Open';
+}
   });
 }, 5000);
 
