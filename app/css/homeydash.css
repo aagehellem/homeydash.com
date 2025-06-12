@@ -811,6 +811,7 @@ a {
 .custom-tile.on,
 .custom-tile.true,
 .custom-tile.active,
+.custom-tile.dimmed,
 .custom-tile:active {
   background-color: inherit !important;
   filter: none !important;
