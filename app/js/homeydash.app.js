@@ -813,6 +813,8 @@ setTimeout(() => {
     const tile = document.getElementById('device:' + id);
     const nameEl = document.getElementById('name:' + id);
     const icon = document.getElementById('icon:' + id);
+    
+    tile.classList.add('custom-tile');
 
     // Position the icon manually inside the tile
     icon.style.position = 'absolute';
