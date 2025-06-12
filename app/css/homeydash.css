@@ -819,3 +819,14 @@ a {
 }
 
 
+/* Global override: prevent HomeyDash from auto-dimming all tiles */
+.device.on,
+.device.true,
+.device.active {
+  filter: none !important;
+  opacity: 1 !important;
+  background-color: inherit !important;
+}
+
+
+
