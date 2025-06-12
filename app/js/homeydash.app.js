@@ -836,6 +836,28 @@ setTimeout(() => {
 
     const isOpen = device.capabilitiesObj[statusCap]?.value === true;
 
+    tile.onclick = () => {
+      // 1. Trigger toggle_door = true
+      fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
+        method: 'POST'
+      });
+    
+      // 2. Remove "dimmed" visual effect (some browsers apply after click)
+      tile.blur?.(); // optional: removes focus
+      tile.style.opacity = '1'; // if needed
+      tile.style.filter = 'none'; // clear browser tap styles
+    
+      // 3. Reset toggle_door = false after 1 second
+      setTimeout(() => {
+        fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: false })
+        });
+      }, 1000);
+    };
+    
+
     // Inject status element (top-right)
     const statusEl = document.createElement('div');
     statusEl.id = `status:${id}`;
