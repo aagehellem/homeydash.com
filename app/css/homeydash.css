@@ -806,5 +806,15 @@ a {
         }
 
 
+/* Custom tile overrides */
+
+.custom-tile.on,
+.custom-tile.true,
+.custom-tile.active,
+.custom-tile:active {
+  background-color: inherit !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
 
 
