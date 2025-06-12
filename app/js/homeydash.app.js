@@ -848,6 +848,8 @@ setTimeout(() => {
       tile.blur?.(); // optional: removes focus
       tile.style.opacity = '1'; // if needed
       tile.style.filter = 'none'; // clear browser tap styles
+      tile.blur?.();
+      tile.classList.remove('on', 'true', 'active', 'dimmed');
     
       // 3. Reset toggle_door = false after 1 second
       setTimeout(() => {
