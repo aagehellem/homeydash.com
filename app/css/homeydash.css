@@ -638,6 +638,12 @@ a {
         opacity: 0.5;
         -webkit-user-select: none;
       }
+
+        .device:active {
+          filter: none !important;
+          opacity: 1 !important;
+        }
+
         .device.on {
           opacity: 1;
         }
