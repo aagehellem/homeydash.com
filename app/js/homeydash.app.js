@@ -947,52 +947,47 @@ setInterval(() => {
 
   
 // -------------------------------------------------------------
-// CUSTOM WIND TILE (Åge – 16 Nov 2025) — FINAL VERSION
-// Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
+// WIND TILE (Åge – FINAL DOM-MATCHED VERSION)
 // -------------------------------------------------------------
 
-HomeyDashAPI.on('devices-ready', () => {
+(function() {
 
     const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
+
+    // Correct DOM IDs for your setup
+    const angleId = `value:${windDeviceId}:devicecapabilities_number.number1`;
+    const speedId = `value:${windDeviceId}:devicecapabilities_number.number2`;
+    const gustId  = `value:${windDeviceId}:devicecapabilities_number.number3`;
 
     function tryWindInject() {
 
         const tile = document.getElementById('device:' + windDeviceId);
-        if (!tile) return; // tile not created yet
+        if (!tile) return false;
 
-        // If already injected, skip
-        if (tile.querySelector('.wind-tile-wrapper')) return;
+        const angleNode = document.getElementById(angleId);
+        const speedNodeDom = document.getElementById(speedId);
+        const gustNodeDom  = document.getElementById(gustId);
 
-        // Check if HomeyDash has inserted all value nodes
-        const angleNode = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number1`);
-        const speedNodeDom = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number2`);
-        const gustNodeDom  = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number3`);
+        // If value nodes aren't ready yet, try again later
+        if (!angleNode || !speedNodeDom || !gustNodeDom) return false;
 
-        if (!angleNode || !speedNodeDom || !gustNodeDom) {
-            setTimeout(tryWindInject, 200);
-            return;
-        }
+        // Prevent duplicate
+        if (tile.querySelector('.wind-tile-wrapper')) return true;
 
-        // --- READY TO INJECT ---
-        tile.classList.add('tile-wind-custom');
-
-        // Hide default icon + values
+        // --- Hide default icon + values ---
         const iconNode = tile.querySelector('.icon');
         if (iconNode) iconNode.style.display = 'none';
 
-        const valueNodes = tile.querySelectorAll('.value');
-        valueNodes.forEach(n => n.style.display = 'none');
+        tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
 
-        // Set correct title
         const nameNode = tile.querySelector('.name');
         if (nameNode) nameNode.textContent = 'Wind (m/s)';
 
-        // Insert custom wrapper
+        // --- Inject custom UI ---
         const wrapper = document.createElement('div');
         wrapper.className = 'wind-tile-wrapper';
         wrapper.innerHTML = `
             <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-
             <div class="wind-data">
                 <svg class="wind-arrow-svg" viewBox="0 0 24 24">
                     <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
@@ -1005,27 +1000,35 @@ HomeyDashAPI.on('devices-ready', () => {
         const arrowNode = tile.querySelector('.wind-arrow-svg');
         const speedNode = tile.querySelector('.wind-speed');
 
-        // Live update loop
-        const updateWindTile = () => {
+        // --- Live value updates ---
+        setInterval(() => {
             const angle = Number(angleNode.childNodes[0].nodeValue.trim()) || 0;
             const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
             const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
 
             arrowNode.style.transform = `rotate(${angle}deg)`;
             speedNode.textContent = `${speed} (${gust})`;
-        };
+        }, 1000);
 
-        updateWindTile();
-        setInterval(updateWindTile, 1000);
+        return true;
     }
 
-    // Kick off retry loop
-    tryWindInject();
+    // MutationObserver ensures we run after HomeyDash finishes rendering
+    const observer = new MutationObserver(() => {
+        tryWindInject();
+    });
 
-});
+    observer.observe(document.getElementById('devices-inner'), {
+        childList: true,
+        subtree: true
+    });
 
-  
+    // Also try periodically until ready
+    const interval = setInterval(() => {
+        if (tryWindInject()) clearInterval(interval);
+    }, 500);
 
+})();
 
 
         
