@@ -968,9 +968,9 @@ setTimeout(() => {
         const wrapper = document.createElement('div');
         wrapper.className = 'wind-tile-wrapper';
         wrapper.innerHTML = `
-            <div class="wind-icon">
-                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-            </div>
+//            <div class="wind-icon">
+//                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
+//            </div>
 
             <div class="wind-data">
                 <div class="wind-arrow">▲</div>
