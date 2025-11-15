@@ -950,63 +950,65 @@ setTimeout(() => {
     const tile = document.getElementById('device:' + windDeviceId);
     if (!tile) return;
 
-    // Add custom class for CSS
+    // Add custom class
     tile.classList.add('tile-wind-custom');
 
-    // === 1) STYLE CLEANUP: remove default icon/value/title ===
-    const iconNode = tile.querySelector('.icon');
-    const valueNode = tile.querySelector('.value');
-    const titleNode = tile.querySelector('.name');
-
+    // === 1) Hide default icon/value ===
+    const iconNode = tile.querySelector('.device-icon, .icon, .device-icon--image');
     if (iconNode) iconNode.style.display = 'none';
+
+    const valueNode = tile.querySelector('.value');
     if (valueNode) valueNode.style.display = 'none';
+
+    // Override title
+    const titleNode = tile.querySelector('.name');
     if (titleNode) titleNode.textContent = 'Wind (m/s)';
 
-    // === 2) INSERT CUSTOM HTML STRUCTURE ===
-    // Only insert once
+    // === 2) Insert custom structure ===
     if (!tile.querySelector('.wind-tile-wrapper')) {
         const wrapper = document.createElement('div');
         wrapper.className = 'wind-tile-wrapper';
+
         wrapper.innerHTML = `
-//            <div class="wind-icon">
-//                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-//            </div>
+            <div class="wind-icon">
+                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
+            </div>
 
             <div class="wind-data">
-                <div class="wind-arrow">▲</div>
+                <svg class="wind-arrow-svg" viewBox="0 0 24 24">
+                    <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
+                </svg>
                 <div class="wind-speed"></div>
             </div>
         `;
         tile.appendChild(wrapper);
     }
 
-    const arrowNode = tile.querySelector('.wind-arrow');
+    const arrowNode = tile.querySelector('.wind-arrow-svg');
     const speedNode = tile.querySelector('.wind-speed');
 
-    // Capability IDs from your virtual device
+    // Capability IDs
     const capAngle = 'devicecapabilities_number.number1WindAngle';
     const capSpeed = 'devicecapabilities_number.number2WindSpeed';
     const capGust  = 'devicecapabilities_number.number3GustSpeed';
 
-    // === 3) LIVE UPDATE LOOP ===
     const updateWindTile = () => {
-        const windAngle = tile.querySelector(`#value\\:${windDeviceId}\\:${capAngle}`);
-        const windSpeed = tile.querySelector(`#value\\:${windDeviceId}\\:${capSpeed}`);
-        const windGust  = tile.querySelector(`#value\\:${windDeviceId}\\:${capGust}`);
+        const deviceObj = window._homeydash_devices[windDeviceId];
+        if (!deviceObj) return;
 
-        if (windAngle && arrowNode) {
-            const angleValue = Number(windAngle.textContent) || 0;
-            arrowNode.style.transform = `rotate(${angleValue}deg)`;
+        const angle = deviceObj.capabilitiesObj[capAngle]?.value || 0;
+        const speed = deviceObj.capabilitiesObj[capSpeed]?.value || 0;
+        const gust  = deviceObj.capabilitiesObj[capGust]?.value || 0;
+
+        if (arrowNode) {
+            arrowNode.style.transform = `rotate(${angle}deg)`;
         }
 
-        if (windSpeed && windGust && speedNode) {
-            const s = windSpeed.textContent.trim();
-            const g = windGust.textContent.trim();
-            speedNode.textContent = `${s} (${g})`;
+        if (speedNode) {
+            speedNode.textContent = `${speed} (${gust})`;
         }
     };
 
-    // Run initial update and every 1 second
     updateWindTile();
     setInterval(updateWindTile, 1000);
 
