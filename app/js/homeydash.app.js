@@ -940,6 +940,12 @@ setInterval(() => {
   });
 }, 1000);
 
+  
+}, 0);
+
+  
+
+  
 // -------------------------------------------------------------
 // CUSTOM WIND TILE (Åge – 16 Nov 2025) — FINAL VERSION
 // Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
@@ -1019,9 +1025,6 @@ HomeyDashAPI.on('devices-ready', () => {
 });
 
   
-  
-}, 0);
-
 
 
 
