@@ -941,94 +941,10 @@ setInterval(() => {
 }, 1000);
 
   
+  
 }, 0);
 
-  
 
-  
-// -------------------------------------------------------------
-// WIND TILE (Åge – FINAL DOM-MATCHED VERSION)
-// -------------------------------------------------------------
-
-(function() {
-
-    const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
-
-    // Correct DOM IDs for your setup
-    const angleId = `value:${windDeviceId}:devicecapabilities_number.number1`;
-    const speedId = `value:${windDeviceId}:devicecapabilities_number.number2`;
-    const gustId  = `value:${windDeviceId}:devicecapabilities_number.number3`;
-
-    function tryWindInject() {
-
-        const tile = document.getElementById('device:' + windDeviceId);
-        if (!tile) return false;
-
-        const angleNode = document.getElementById(angleId);
-        const speedNodeDom = document.getElementById(speedId);
-        const gustNodeDom  = document.getElementById(gustId);
-
-        // If value nodes aren't ready yet, try again later
-        if (!angleNode || !speedNodeDom || !gustNodeDom) return false;
-
-        // Prevent duplicate
-        if (tile.querySelector('.wind-tile-wrapper')) return true;
-
-        // --- Hide default icon + values ---
-        const iconNode = tile.querySelector('.icon');
-        if (iconNode) iconNode.style.display = 'none';
-
-        tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
-
-        const nameNode = tile.querySelector('.name');
-        if (nameNode) nameNode.textContent = 'Wind (m/s)';
-
-        // --- Inject custom UI ---
-        const wrapper = document.createElement('div');
-        wrapper.className = 'wind-tile-wrapper';
-        wrapper.innerHTML = `
-            <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-            <div class="wind-data">
-                <svg class="wind-arrow-svg" viewBox="0 0 24 24">
-                    <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
-                </svg>
-                <div class="wind-speed"></div>
-            </div>
-        `;
-        tile.appendChild(wrapper);
-
-        const arrowNode = tile.querySelector('.wind-arrow-svg');
-        const speedNode = tile.querySelector('.wind-speed');
-
-        // --- Live value updates ---
-        setInterval(() => {
-            const angle = Number(angleNode.childNodes[0].nodeValue.trim()) || 0;
-            const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
-            const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
-
-            arrowNode.style.transform = `rotate(${angle}deg)`;
-            speedNode.textContent = `${speed} (${gust})`;
-        }, 1000);
-
-        return true;
-    }
-
-    // MutationObserver ensures we run after HomeyDash finishes rendering
-    const observer = new MutationObserver(() => {
-        tryWindInject();
-    });
-
-    observer.observe(document.getElementById('devices-inner'), {
-        childList: true,
-        subtree: true
-    });
-
-    // Also try periodically until ready
-    const interval = setInterval(() => {
-        if (tryWindInject()) clearInterval(interval);
-    }, 500);
-
-})();
 
 
         
