@@ -831,51 +831,46 @@ a {
 
 
 /* -------------------------------------------------------------
-   CUSTOM WIND TILE (Åge – 16 Nov 2025)
+   CUSTOM WIND TILE
 ------------------------------------------------------------- */
 
 .tile-wind-custom {
-    position: relative;
     background: #000;
     color: #fff !important;
-    overflow: hidden;
+    position: relative;
 }
 
-/* Yr Icon, top-left */
+/* Yr logo top-left */
 .tile-wind-custom .wind-yr-logo {
     width: 32px;
-    opacity: 0.85;
+    opacity: 0.9;
     filter: brightness(0) invert(1);
-    margin: 8px;
+    position: absolute;
+    top: 8px;
+    left: 10px;
 }
 
-/* Arrow + stacked numbers, top-right */
+/* Data block top-right */
 .wind-tile-wrapper .wind-data {
     position: absolute;
     top: 6px;
     right: 10px;
     text-align: center;
-    font-family: inherit;
 }
 
-.wind-tile-wrapper .wind-arrow {
-    font-size: 20px;
-    margin: 0;
-    padding: 0;
-    transform-origin: center center;
+/* Arrow SVG */
+.wind-arrow-svg {
+    width: 22px;
+    height: 22px;
+    transform-origin: 50% 50%;
+    display: block;
+    margin: 0 auto;
 }
 
-.wind-tile-wrapper .wind-speed {
+/* Speed text */
+.wind-speed {
     font-size: 14px;
     margin-top: 4px;
-}
-
-/* Title at bottom (default name node remains visible) */
-.tile-wind-custom .name {
-    text-align: center;
-    font-size: 16px;
-    margin-top: 10px;
-    color: #fff !important;
 }
 
 
