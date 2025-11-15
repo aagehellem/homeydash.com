@@ -941,85 +941,83 @@ setInterval(() => {
 }, 1000);
 
 // -------------------------------------------------------------
-// CUSTOM WIND TILE (Åge – 16 Nov 2025) ✓ FINAL DOM-CORRECT VERSION
+// CUSTOM WIND TILE (Åge – 16 Nov 2025) — FINAL VERSION
 // Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
 // -------------------------------------------------------------
 
 HomeyDashAPI.on('devices-ready', () => {
 
-    setTimeout(() => {
+    const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
 
-        const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
+    function tryWindInject() {
+
         const tile = document.getElementById('device:' + windDeviceId);
-        if (!tile) return;
+        if (!tile) return; // tile not created yet
 
+        // If already injected, skip
+        if (tile.querySelector('.wind-tile-wrapper')) return;
+
+        // Check if HomeyDash has inserted all value nodes
+        const angleNode = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number1`);
+        const speedNodeDom = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number2`);
+        const gustNodeDom  = document.getElementById(`value:${windDeviceId}:devicecapabilities_number.number3`);
+
+        if (!angleNode || !speedNodeDom || !gustNodeDom) {
+            setTimeout(tryWindInject, 200);
+            return;
+        }
+
+        // --- READY TO INJECT ---
         tile.classList.add('tile-wind-custom');
 
-        // 1) Hide default icon + default values
-        const iconNode = tile.querySelector('.device-icon, .icon, .device-icon--image');
+        // Hide default icon + values
+        const iconNode = tile.querySelector('.icon');
         if (iconNode) iconNode.style.display = 'none';
 
-        const hiddenValues = tile.querySelectorAll('.value');
-        hiddenValues.forEach(v => v.style.display = 'none');
+        const valueNodes = tile.querySelectorAll('.value');
+        valueNodes.forEach(n => n.style.display = 'none');
 
         // Set correct title
-        const titleNode = tile.querySelector('.name');
-        if (titleNode) titleNode.textContent = 'Wind (m/s)';
+        const nameNode = tile.querySelector('.name');
+        if (nameNode) nameNode.textContent = 'Wind (m/s)';
 
-        // 2) Insert custom markup (once)
-        if (!tile.querySelector('.wind-tile-wrapper')) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'wind-tile-wrapper';
+        // Insert custom wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'wind-tile-wrapper';
+        wrapper.innerHTML = `
+            <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
 
-            wrapper.innerHTML = `
-                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-
-                <div class="wind-data">
-                    <svg class="wind-arrow-svg" viewBox="0 0 24 24">
-                        <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
-                    </svg>
-                    <div class="wind-speed"></div>
-                </div>
-            `;
-
-            tile.appendChild(wrapper);
-        }
+            <div class="wind-data">
+                <svg class="wind-arrow-svg" viewBox="0 0 24 24">
+                    <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
+                </svg>
+                <div class="wind-speed"></div>
+            </div>
+        `;
+        tile.appendChild(wrapper);
 
         const arrowNode = tile.querySelector('.wind-arrow-svg');
         const speedNode = tile.querySelector('.wind-speed');
 
-        // 3) DOM IDs for values (from your screenshot)
-        const angleId = `value:${windDeviceId}:devicecapabilities_number.number1`;
-        const speedId = `value:${windDeviceId}:devicecapabilities_number.number2`;
-        const gustId  = `value:${windDeviceId}:devicecapabilities_number.number3`;
-
+        // Live update loop
         const updateWindTile = () => {
+            const angle = Number(angleNode.childNodes[0].nodeValue.trim()) || 0;
+            const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
+            const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
 
-            const angleNode = document.getElementById(angleId);
-            const speedNodeDom = document.getElementById(speedId);
-            const gustNodeDom  = document.getElementById(gustId);
-
-            const angle = angleNode ? Number(angleNode.childNodes[0].nodeValue.trim()) : 0;
-            const speed = speedNodeDom ? Number(speedNodeDom.childNodes[0].nodeValue.trim()) : 0;
-            const gust  = gustNodeDom ? Number(gustNodeDom.childNodes[0].nodeValue.trim()) : 0;
-
-            if (arrowNode) {
-                arrowNode.style.transform = `rotate(${angle}deg)`;
-            }
-
-            if (speedNode) {
-                speedNode.textContent = `${speed} (${gust})`;
-            }
+            arrowNode.style.transform = `rotate(${angle}deg)`;
+            speedNode.textContent = `${speed} (${gust})`;
         };
 
         updateWindTile();
         setInterval(updateWindTile, 1000);
+    }
 
-    }, 300);
+    // Kick off retry loop
+    tryWindInject();
 
 });
 
-  
   
   
 }, 0);
