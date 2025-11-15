@@ -945,74 +945,70 @@ setInterval(() => {
 // Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
 // -------------------------------------------------------------
 
-setTimeout(() => {
-    const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
-    const tile = document.getElementById('device:' + windDeviceId);
-    if (!tile) return;
+HomeyDashAPI.on('devices-ready', () => {
 
-    // Add custom class
-    tile.classList.add('tile-wind-custom');
+    setTimeout(() => {
 
-    // === 1) Hide default icon/value ===
-    const iconNode = tile.querySelector('.device-icon, .icon, .device-icon--image');
-    if (iconNode) iconNode.style.display = 'none';
+        const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
+        const tile = document.getElementById('device:' + windDeviceId);
+        if (!tile) return;
 
-    const valueNode = tile.querySelector('.value');
-    if (valueNode) valueNode.style.display = 'none';
+        tile.classList.add('tile-wind-custom');
 
-    // Override title
-    const titleNode = tile.querySelector('.name');
-    if (titleNode) titleNode.textContent = 'Wind (m/s)';
+        // Hide default icon/value
+        const iconNode = tile.querySelector('.device-icon, .icon, .device-icon--image');
+        if (iconNode) iconNode.style.display = 'none';
 
-    // === 2) Insert custom structure ===
-    if (!tile.querySelector('.wind-tile-wrapper')) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'wind-tile-wrapper';
+        const valueNode = tile.querySelector('.value');
+        if (valueNode) valueNode.style.display = 'none';
 
-        wrapper.innerHTML = `
-            <div class="wind-icon">
+        const titleNode = tile.querySelector('.name');
+        if (titleNode) titleNode.textContent = 'Wind (m/s)';
+
+        // Insert custom HTML once
+        if (!tile.querySelector('.wind-tile-wrapper')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'wind-tile-wrapper';
+
+            wrapper.innerHTML = `
                 <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
-            </div>
 
-            <div class="wind-data">
-                <svg class="wind-arrow-svg" viewBox="0 0 24 24">
-                    <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
-                </svg>
-                <div class="wind-speed"></div>
-            </div>
-        `;
-        tile.appendChild(wrapper);
-    }
+                <div class="wind-data">
+                    <svg class="wind-arrow-svg" viewBox="0 0 24 24">
+                        <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
+                    </svg>
+                    <div class="wind-speed"></div>
+                </div>
+            `;
+            tile.appendChild(wrapper);
+        }
 
-    const arrowNode = tile.querySelector('.wind-arrow-svg');
-    const speedNode = tile.querySelector('.wind-speed');
+        const arrowNode = tile.querySelector('.wind-arrow-svg');
+        const speedNode = tile.querySelector('.wind-speed');
 
-    // Capability IDs
-    const capAngle = 'devicecapabilities_number.number1WindAngle';
-    const capSpeed = 'devicecapabilities_number.number2WindSpeed';
-    const capGust  = 'devicecapabilities_number.number3GustSpeed';
+        // Capability IDs
+        const capAngle = 'devicecapabilities_number.number1WindAngle';
+        const capSpeed = 'devicecapabilities_number.number2WindSpeed';
+        const capGust  = 'devicecapabilities_number.number3GustSpeed';
 
-    const updateWindTile = () => {
-        const deviceObj = window._homeydash_devices[windDeviceId];
-        if (!deviceObj) return;
+        const updateWindTile = () => {
+            const deviceObj = window._homeydash_devices[windDeviceId];
+            if (!deviceObj) return;
 
-        const angle = deviceObj.capabilitiesObj[capAngle]?.value || 0;
-        const speed = deviceObj.capabilitiesObj[capSpeed]?.value || 0;
-        const gust  = deviceObj.capabilitiesObj[capGust]?.value || 0;
+            const angle = deviceObj.capabilitiesObj[capAngle]?.value ?? 0;
+            const speed = deviceObj.capabilitiesObj[capSpeed]?.value ?? 0;
+            const gust  = deviceObj.capabilitiesObj[capGust]?.value ?? 0;
 
-        if (arrowNode) {
             arrowNode.style.transform = `rotate(${angle}deg)`;
-        }
-
-        if (speedNode) {
             speedNode.textContent = `${speed} (${gust})`;
-        }
-    };
+        };
 
-    updateWindTile();
-    setInterval(updateWindTile, 1000);
+        updateWindTile();
+        setInterval(updateWindTile, 1000);
 
-}, 1000);
+    }, 300);
+});
+
 
   
   
