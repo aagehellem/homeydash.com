@@ -940,6 +940,79 @@ setInterval(() => {
   });
 }, 1000);
 
+// -------------------------------------------------------------
+// CUSTOM WIND TILE (Åge – 16 Nov 2025)
+// Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
+// -------------------------------------------------------------
+
+setTimeout(() => {
+    const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
+    const tile = document.getElementById('device:' + windDeviceId);
+    if (!tile) return;
+
+    // Add custom class for CSS
+    tile.classList.add('tile-wind-custom');
+
+    // === 1) STYLE CLEANUP: remove default icon/value/title ===
+    const iconNode = tile.querySelector('.icon');
+    const valueNode = tile.querySelector('.value');
+    const titleNode = tile.querySelector('.name');
+
+    if (iconNode) iconNode.style.display = 'none';
+    if (valueNode) valueNode.style.display = 'none';
+    if (titleNode) titleNode.textContent = 'Wind (m/s)';
+
+    // === 2) INSERT CUSTOM HTML STRUCTURE ===
+    // Only insert once
+    if (!tile.querySelector('.wind-tile-wrapper')) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'wind-tile-wrapper';
+        wrapper.innerHTML = `
+            <div class="wind-icon">
+                <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
+            </div>
+
+            <div class="wind-data">
+                <div class="wind-arrow">▲</div>
+                <div class="wind-speed"></div>
+            </div>
+        `;
+        tile.appendChild(wrapper);
+    }
+
+    const arrowNode = tile.querySelector('.wind-arrow');
+    const speedNode = tile.querySelector('.wind-speed');
+
+    // Capability IDs from your virtual device
+    const capAngle = 'devicecapabilities_number.number1WindAngle';
+    const capSpeed = 'devicecapabilities_number.number2WindSpeed';
+    const capGust  = 'devicecapabilities_number.number3GustSpeed';
+
+    // === 3) LIVE UPDATE LOOP ===
+    const updateWindTile = () => {
+        const windAngle = tile.querySelector(`#value\\:${windDeviceId}\\:${capAngle}`);
+        const windSpeed = tile.querySelector(`#value\\:${windDeviceId}\\:${capSpeed}`);
+        const windGust  = tile.querySelector(`#value\\:${windDeviceId}\\:${capGust}`);
+
+        if (windAngle && arrowNode) {
+            const angleValue = Number(windAngle.textContent) || 0;
+            arrowNode.style.transform = `rotate(${angleValue}deg)`;
+        }
+
+        if (windSpeed && windGust && speedNode) {
+            const s = windSpeed.textContent.trim();
+            const g = windGust.textContent.trim();
+            speedNode.textContent = `${s} (${g})`;
+        }
+    };
+
+    // Run initial update and every 1 second
+    updateWindTile();
+    setInterval(updateWindTile, 1000);
+
+}, 1000);
+
+  
   
   
 }, 0);
