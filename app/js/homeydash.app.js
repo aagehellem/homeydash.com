@@ -941,7 +941,7 @@ setInterval(() => {
 }, 1000);
 
 // -------------------------------------------------------------
-// CUSTOM WIND TILE (Åge – 16 Nov 2025)
+// CUSTOM WIND TILE (Åge – 16 Nov 2025) ✓ FINAL DOM-CORRECT VERSION
 // Device ID: 9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52
 // -------------------------------------------------------------
 
@@ -955,17 +955,18 @@ HomeyDashAPI.on('devices-ready', () => {
 
         tile.classList.add('tile-wind-custom');
 
-        // Hide default icon/value
+        // 1) Hide default icon + default values
         const iconNode = tile.querySelector('.device-icon, .icon, .device-icon--image');
         if (iconNode) iconNode.style.display = 'none';
 
-        const valueNode = tile.querySelector('.value');
-        if (valueNode) valueNode.style.display = 'none';
+        const hiddenValues = tile.querySelectorAll('.value');
+        hiddenValues.forEach(v => v.style.display = 'none');
 
+        // Set correct title
         const titleNode = tile.querySelector('.name');
         if (titleNode) titleNode.textContent = 'Wind (m/s)';
 
-        // Insert custom HTML once
+        // 2) Insert custom markup (once)
         if (!tile.querySelector('.wind-tile-wrapper')) {
             const wrapper = document.createElement('div');
             wrapper.className = 'wind-tile-wrapper';
@@ -980,35 +981,43 @@ HomeyDashAPI.on('devices-ready', () => {
                     <div class="wind-speed"></div>
                 </div>
             `;
+
             tile.appendChild(wrapper);
         }
 
         const arrowNode = tile.querySelector('.wind-arrow-svg');
         const speedNode = tile.querySelector('.wind-speed');
 
-        // Capability IDs
-        const capAngle = 'devicecapabilities_number.number1WindAngle';
-        const capSpeed = 'devicecapabilities_number.number2WindSpeed';
-        const capGust  = 'devicecapabilities_number.number3GustSpeed';
+        // 3) DOM IDs for values (from your screenshot)
+        const angleId = `value:${windDeviceId}:devicecapabilities_number.number1`;
+        const speedId = `value:${windDeviceId}:devicecapabilities_number.number2`;
+        const gustId  = `value:${windDeviceId}:devicecapabilities_number.number3`;
 
         const updateWindTile = () => {
-            const deviceObj = window._homeydash_devices[windDeviceId];
-            if (!deviceObj) return;
 
-            const angle = deviceObj.capabilitiesObj[capAngle]?.value ?? 0;
-            const speed = deviceObj.capabilitiesObj[capSpeed]?.value ?? 0;
-            const gust  = deviceObj.capabilitiesObj[capGust]?.value ?? 0;
+            const angleNode = document.getElementById(angleId);
+            const speedNodeDom = document.getElementById(speedId);
+            const gustNodeDom  = document.getElementById(gustId);
 
-            arrowNode.style.transform = `rotate(${angle}deg)`;
-            speedNode.textContent = `${speed} (${gust})`;
+            const angle = angleNode ? Number(angleNode.childNodes[0].nodeValue.trim()) : 0;
+            const speed = speedNodeDom ? Number(speedNodeDom.childNodes[0].nodeValue.trim()) : 0;
+            const gust  = gustNodeDom ? Number(gustNodeDom.childNodes[0].nodeValue.trim()) : 0;
+
+            if (arrowNode) {
+                arrowNode.style.transform = `rotate(${angle}deg)`;
+            }
+
+            if (speedNode) {
+                speedNode.textContent = `${speed} (${gust})`;
+            }
         };
 
         updateWindTile();
         setInterval(updateWindTile, 1000);
 
     }, 300);
-});
 
+});
 
   
   
