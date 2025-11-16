@@ -944,17 +944,29 @@ setInterval(() => {
     }
   });
 
-  // --- Wind (m/s) tile update ---
-  const windDevice = Favoritedevices.find(d => d.id === windDeviceId);
-  if (windDevice) {
-  
-      const angle = windDevice.capabilitiesObj['devicecapabilities_number.number1']?.value || 0;
-      const speed = windDevice.capabilitiesObj['devicecapabilities_number.number2']?.value || 0;
-      const gust  = windDevice.capabilitiesObj['devicecapabilities_number.number3']?.value || 0;
-  
-      arrowNode.style.transform = `rotate(${angle + 90}deg)`;
-      speedNode.textContent = `${speed} (${gust})`;
-  }
+// --- Wind (m/s) tile update ---
+const windDevice = favoriteDevices.find(d => d.id === windDeviceId);
+console.log('Wind device in loop:', windDevice);
+
+if (windDevice && arrowNode && speedNode) {
+    const caps = windDevice.capabilitiesObj || {};
+
+    const angle = Number(
+        caps['devicecapabilities_number.number1']?.value ?? 0
+    );
+    const speed = Number(
+        caps['devicecapabilities_number.number2']?.value ?? 0
+    );
+    const gust  = Number(
+        caps['devicecapabilities_number.number3']?.value ?? 0
+    );
+
+    // Rotate arrow; +90 because your SVG points west by default
+    arrowNode.style.transform = `rotate(${angle + 90}deg)`;
+
+    // Always show "0 (0)" even when both are zero
+    speedNode.textContent = `${speed} (${gust})`;
+}
   
 }, 1000);
   
