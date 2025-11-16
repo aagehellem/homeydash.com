@@ -1003,13 +1003,22 @@ setInterval(() => {
 
         // --- Live value updates ---
         setInterval(() => {
+        
+            const angleNode = document.getElementById(angleId);
+            const speedNodeDom = document.getElementById(speedId);
+            const gustNodeDom  = document.getElementById(gustId);
+        
+            if (!angleNode || !speedNodeDom || !gustNodeDom) return;
+        
             const angle = Number(angleNode.childNodes[0].nodeValue.trim()) || 0;
             const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
             const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
-
-            arrowNode.style.transform = `rotate(${angle + 90}deg)`;
+        
+            arrowNode.style.transform = `rotate(${angle + 180}deg)`;
             speedNode.textContent = `${speed} (${gust})`;
+        
         }, 1000);
+
 
         return true;
     }
