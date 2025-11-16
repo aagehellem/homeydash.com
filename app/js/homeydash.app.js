@@ -911,6 +911,11 @@ if (isOpen) {
 
   
 setInterval(() => {
+
+    // DEBUG: show all favorite device IDs
+    console.log('favoriteDevices:', favoriteDevices.map(d => d.id));
+  
+  
   garageTiles.forEach(({ id }) => {
     const device = favoriteDevices.find(d => d.id === id);
     const tile = document.getElementById('device:' + id);
