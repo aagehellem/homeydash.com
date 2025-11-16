@@ -1007,7 +1007,7 @@ setInterval(() => {
             const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
             const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
 
-            arrowNode.style.transform = `rotate(${angle + 180}deg)`;
+            arrowNode.style.transform = `rotate(${angle + 90}deg)`;
             speedNode.textContent = `${speed} (${gust})`;
         }, 1000);
 
