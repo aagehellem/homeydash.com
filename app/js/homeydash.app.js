@@ -999,6 +999,10 @@ setInterval(() => {
 
   const windDevice = favoriteDevices.find(d => d.id === windDeviceId);
 
+  console.log("Wind update loop running…");
+  console.log("Found windDevice:", windDevice);
+  
+  
   if (windDevice && windArrowNode && windSpeedNode) {
     const caps = windDevice.capabilitiesObj || {};
 
