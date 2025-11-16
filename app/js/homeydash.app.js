@@ -990,11 +990,12 @@ setInterval(() => {
             <img src="/app/img/icons/yr-logo.svg" class="wind-yr-logo">
             <div class="wind-data">
                 <svg class="wind-arrow-svg" viewBox="0 0 24 24">
-                    <path d="M12 2L19 21H5L12 2Z" fill="white"></path>
+                    <path d="M6 12 L14 12 L14 9 L20 14 L14 19 L14 16 L6 16 Z" fill="white"/>
                 </svg>
                 <div class="wind-speed"></div>
             </div>
         `;
+
         tile.appendChild(wrapper);
 
         const arrowNode = tile.querySelector('.wind-arrow-svg');
@@ -1006,7 +1007,7 @@ setInterval(() => {
             const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
             const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
 
-            arrowNode.style.transform = `rotate(${angle}deg)`;
+            arrowNode.style.transform = `rotate(${angle + 180}deg)`;
             speedNode.textContent = `${speed} (${gust})`;
         }, 1000);
 
