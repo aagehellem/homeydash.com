@@ -1005,12 +1005,16 @@ setInterval(() => {
 
         setInterval(() => {
         
+            // Find the wind device in the same way the garage tiles find theirs
             const device = favoriteDevices.find(d => d.id === windDeviceId);
-            if (!device) return;
+            if (!device || !device.capabilitiesObj) return;
         
-            const angle = device.capabilitiesObj['devicecapabilities_number.number1']?.value || 0;
-            const speed = device.capabilitiesObj['devicecapabilities_number.number2']?.value || 0;
-            const gust  = device.capabilitiesObj['devicecapabilities_number.number3']?.value || 0;
+            const angle =
+              device.capabilitiesObj['devicecapabilities_number.number1']?.value ?? 0;
+            const speed =
+              device.capabilitiesObj['devicecapabilities_number.number2']?.value ?? 0;
+            const gust  =
+              device.capabilitiesObj['devicecapabilities_number.number3']?.value ?? 0;
         
             arrowNode.style.transform = `rotate(${angle + 90}deg)`;
             speedNode.textContent = `${speed} (${gust})`;
