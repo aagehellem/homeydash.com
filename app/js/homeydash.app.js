@@ -1002,6 +1002,7 @@ setInterval(() => {
         const speedNode = tile.querySelector('.wind-speed');
 
         // --- Live value updates ---
+
         setInterval(() => {
         
             const angleNode = document.getElementById(angleId);
@@ -1010,14 +1011,17 @@ setInterval(() => {
         
             if (!angleNode || !speedNodeDom || !gustNodeDom) return;
         
-            const angle = Number(angleNode.childNodes[0].nodeValue.trim()) || 0;
-            const speed = Number(speedNodeDom.childNodes[0].nodeValue.trim()) || 0;
-            const gust  = Number(gustNodeDom.childNodes[0].nodeValue.trim()) || 0;
+            const angle = Number(angleNode.textContent.trim()) || 0;
+            const speed = Number(speedNodeDom.textContent.trim()) || 0;
+            const gust  = Number(gustNodeDom.textContent.trim()) || 0;
         
+            // Correct rotation for your arrow SVG (Option C)
             arrowNode.style.transform = `rotate(${angle + 90}deg)`;
+        
             speedNode.textContent = `${speed} (${gust})`;
         
         }, 1000);
+
 
 
         return true;
