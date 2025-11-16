@@ -847,8 +847,8 @@ a {
     opacity: 0.95;
     filter: brightness(0) invert(1);
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 25px;
+    left: 25px;
 }
 
 /* Arrow + numbers group */
