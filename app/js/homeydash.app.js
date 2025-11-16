@@ -1005,19 +1005,14 @@ setInterval(() => {
 
         setInterval(() => {
         
-            const angleNode = document.getElementById(angleId);
-            const speedNodeDom = document.getElementById(speedId);
-            const gustNodeDom  = document.getElementById(gustId);
+            const device = favoriteDevices.find(d => d.id === windDeviceId);
+            if (!device) return;
         
-            if (!angleNode || !speedNodeDom || !gustNodeDom) return;
+            const angle = device.capabilitiesObj['devicecapabilities_number.number1']?.value || 0;
+            const speed = device.capabilitiesObj['devicecapabilities_number.number2']?.value || 0;
+            const gust  = device.capabilitiesObj['devicecapabilities_number.number3']?.value || 0;
         
-            const angle = Number(angleNode.textContent.trim()) || 0;
-            const speed = Number(speedNodeDom.textContent.trim()) || 0;
-            const gust  = Number(gustNodeDom.textContent.trim()) || 0;
-        
-            // Correct rotation for your arrow SVG (Option C)
             arrowNode.style.transform = `rotate(${angle + 90}deg)`;
-        
             speedNode.textContent = `${speed} (${gust})`;
         
         }, 1000);
