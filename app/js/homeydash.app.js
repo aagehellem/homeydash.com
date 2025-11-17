@@ -867,9 +867,9 @@ setTimeout(() => {
   // ---------------------------------------------------------
   // EV tiles (Ella / Elois) – DeviceCapabilities text field
   // ---------------------------------------------------------
-
+  
   console.log("🚗 EV tile logic running on favoriteDevices");
-
+  
   const evTiles = [
     {
       id: '6a1483c8-fa16-408b-94d7-3bb79ea5f364', // Ella
@@ -882,8 +882,7 @@ setTimeout(() => {
       brandIcon: 'BMW.svg'
     }
   ];
-
-  // Mapping from DC text value -> icon + CSS class + label
+  
   const evStateMap = {
     disconnected: {
       icon: 'Disconnected.svg',
@@ -911,49 +910,53 @@ setTimeout(() => {
       text: 'Error'
     }
   };
-
-  // One-time EV tile setup – structure + brand icon
+  
+  // One-time EV tile setup
   evTiles.forEach(({ id, label, brandIcon }) => {
+  
     const device = favoriteDevices.find(d => d.id === id);
     const tile   = document.getElementById('device:' + id);
     const nameEl = document.getElementById('name:' + id);
     const icon   = document.getElementById('icon:' + id);
-
+  
     if (!device || !tile || !nameEl || !icon) {
       console.warn(`❌ Missing element(s) for EV tile ${label}`);
       return;
     }
-
-    // Mark tile so CSS can position things
+  
     tile.classList.add('ev-tile');
-
-    // Use the built-in icon node as the manufacturer logo (Fiat / BMW)
-    icon.classList.add('ev-brand-icon');
-    icon.style.position = 'absolute';
-    icon.style.top = '6px';
-    icon.style.left = '6px';
-    icon.style.width = '90px';
-    icon.style.height = '90px';
-    icon.style.backgroundImage = `url('${iconPath}${brandIcon}')`;
-    icon.style.backgroundSize = 'contain';
-    icon.style.backgroundRepeat = 'no-repeat';
-    icon.style.backgroundPosition = 'left top';
-    icon.style.backgroundColor = 'transparent';
-
-    // State container in the top-right (icon + text)
+  
+    // Hide built-in icon completely
+    icon.style.backgroundImage = 'none';
+  
+    // Create manufacturer icon node
+    let brandNode = tile.querySelector('.ev-brand-icon-node');
+    if (!brandNode) {
+      brandNode = document.createElement('img');
+      brandNode.className = 'ev-brand-icon-node';
+      brandNode.src = `/app/img/icons/${brandIcon}`;
+      brandNode.style.position = 'absolute';
+      brandNode.style.top = '6px';
+      brandNode.style.left = '6px';
+      brandNode.style.width = '40px';
+      brandNode.style.height = '40px';
+      tile.appendChild(brandNode);
+    }
+  
+    // State container (right side)
     let stateContainer = tile.querySelector('.ev-state-container');
     if (!stateContainer) {
       stateContainer = document.createElement('div');
       stateContainer.className = 'ev-state-container';
       stateContainer.innerHTML = `
-        <div class="ev-state-icon"></div>
+        <div class="ev-state-icon" style="width:40px;height:40px;"></div>
         <div class="ev-state-text"></div>
       `;
       tile.appendChild(stateContainer);
     }
-
-    console.log(`✅ EV tile base setup for ${label}`);
-  });  
+  
+    console.log(`✅ EV tile base setup OK for ${label}`);
+  }); 
   
   
   
@@ -1090,41 +1093,30 @@ setInterval(() => {
   });
 
   
- // --- EV Tiles (Ella / Elois) ---
-  evTiles.forEach(({ id, label }) => {
+  // --- EV Tiles ---
+  evTiles.forEach(({ id }) => {
+  
     const device = favoriteDevices.find(d => d.id === id);
-    const tile   = document.getElementById('device:' + id);
+    const tile = document.getElementById('device:' + id);
     if (!device || !tile) return;
-
+  
     const stateContainer = tile.querySelector('.ev-state-container');
-    if (!stateContainer) return;
-
+    const iconEl = tile.querySelector('.ev-state-icon');
+    const textEl = tile.querySelector('.ev-state-text');
+    if (!stateContainer || !iconEl || !textEl) return;
+  
     const caps = device.capabilitiesObj || {};
     const raw  = caps['devicecapabilities_text.text1']?.value || '';
     const key  = raw.toString().trim().toLowerCase();
-
-    const cfg =
-      evStateMap[key] ||
-      evStateMap['disconnected']; // sensible fallback
-
-    const iconEl = stateContainer.querySelector('.ev-state-icon');
-    const textEl = stateContainer.querySelector('.ev-state-text');
-    if (!iconEl || !textEl) return;
-
-    // Update icon + text
-    iconEl.style.backgroundImage = `url('${iconPath}${cfg.icon}')`;
+  
+    const cfg = evStateMap[key] || evStateMap['disconnected'];
+  
+    iconEl.style.backgroundImage = `url('/app/img/icons/${cfg.icon}')`;
     textEl.textContent = cfg.text;
-
-    // Update state class (for future CSS tweaks if needed)
-    stateContainer.classList.remove(
-      'ev-state-disconnected',
-      'ev-state-connected',
-      'ev-state-charging',
-      'ev-state-completed',
-      'ev-state-error'
-    );
-    stateContainer.classList.add(cfg.className);
-  });  
+  
+    // Update CSS class
+    stateContainer.className = `ev-state-container ${cfg.className}`;
+  });
   
   
   
