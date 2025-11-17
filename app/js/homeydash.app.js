@@ -1016,6 +1016,8 @@ setInterval(() => {
       caps['devicecapabilities_number.number3']?.value ?? 0
     );
 
+    console.log("Wind values → angle:", angle, " speed:", speed, " gust:", gust);
+    
     windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
     windSpeedNode.textContent = `${speed} (${gust})`;
   }
