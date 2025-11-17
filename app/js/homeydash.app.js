@@ -992,35 +992,40 @@ setInterval(() => {
     }
   });
 
-  // Wind tile updates
-  if (!windArrowNode || !windSpeedNode) {
-    setupWindTile();
-  }
-
-  const windDevice = favoriteDevices.find(d => d.id === windDeviceId);
-
-  console.log("Wind update loop running…");
-  console.log("Found windDevice:", windDevice);
+  // Wind tile – poll Homey directly for fresh values
+  (async () => {
+    if (!windArrowNode || !windSpeedNode) return;
   
+    try {
+      // Always fetch the latest device object from Homey
+      const windDevice = await homey.devices.getDevice({ id: windDeviceId });
   
-  if (windDevice && windArrowNode && windSpeedNode) {
-    const caps = windDevice.capabilitiesObj || {};
-
-    const angle = Number(
-      caps['devicecapabilities_number.number1']?.value ?? 0
-    );
-    const speed = Number(
-      caps['devicecapabilities_number.number2']?.value ?? 0
-    );
-    const gust  = Number(
-      caps['devicecapabilities_number.number3']?.value ?? 0
-    );
-
-    console.log("Wind values → angle:", angle, " speed:", speed, " gust:", gust);
-    
-    windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
-    windSpeedNode.textContent = `${speed} (${gust})`;
-  }
+      if (!windDevice) {
+        console.warn("Wind: device not found for id", windDeviceId);
+        return;
+      }
+  
+      const caps = windDevice.capabilitiesObj || {};
+  
+      const angle = Number(
+        caps['devicecapabilities_number.number1']?.value ?? 0
+      );
+      const speed = Number(
+        caps['devicecapabilities_number.number2']?.value ?? 0
+      );
+      const gust = Number(
+        caps['devicecapabilities_number.number3']?.value ?? 0
+      );
+  
+      console.log("Wind (fresh) → angle:", angle, " speed:", speed, " gust:", gust);
+  
+      // Apply to tile – layout unchanged
+      windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
+      windSpeedNode.textContent = `${speed} (${gust})`;
+    } catch (err) {
+      console.error("Wind polling error:", err);
+    }
+  })();
   
 }, 1000);
   
