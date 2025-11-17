@@ -1007,6 +1007,21 @@ if (windArrowNode && windSpeedNode) {
     const speed = Math.round(rawSpeed);
     const gust  = Math.round(rawGust);    
 
+    // --- Arrow colour code (your thresholds) ---
+    let arrowColor = '#ffffff'; // fallback
+    
+    if (speed <= 3) {
+        arrowColor = '#23d160';            // green (0–3)
+    } else if (speed <= 10) {
+        arrowColor = '#ffdd57';            // yellow (4–10)
+    } else if (speed <= 20) {
+        arrowColor = '#ff8c00';            // amber (11–20)
+    } else {
+        arrowColor = '#ff3860';            // red (21+)
+    }
+    
+    windArrowNode.style.fill = arrowColor;    
+    
     // Apply rotation and text
     windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
     windSpeedNode.textContent = `${speed} (${gust})`;
