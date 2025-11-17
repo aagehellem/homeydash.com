@@ -1073,25 +1073,43 @@ if (windArrowNode && windSpeedNode) {
 // ------------------------------------------------------------
 const evDevices = [
   {
-    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775', // Ella
+    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775', // Easee Ella
     brandIcon: 'Fiat.svg'
   },
   {
-    id: 'e2d83fdf-a014-4cd3-a880-de909c543179', // Elois
+    id: 'e2d83fdf-a014-4cd3-a880-de909c543179', // Easee Elois
     brandIcon: 'BMW.svg'
   }
 ];
 
+console.log('🚗 EV tile logic running on favoriteDevices');
+
 evDevices.forEach(({ id, brandIcon }) => {
   const device = favoriteDevices.find(d => d.id === id);
-  if (!device || !device.capabilitiesObj || !device.capabilitiesObj.charger_status) return;
+  if (!device) {
+    console.log('  ⚠️ No device found for EV id', id);
+    return;
+  }
+
+  if (!device.capabilitiesObj || !device.capabilitiesObj.charger_status) {
+    console.log('  ⚠️ Device has no charger_status', device.name, device.capabilitiesObj);
+    return;
+  }
 
   const tile     = document.getElementById('device:' + id);
   const statusEl = document.getElementById('status:' + id);
   const iconEl   = document.getElementById('icon:' + id);
-  if (!tile || !statusEl || !iconEl) return;
 
-  // One-time initialisation
+  if (!tile || !statusEl || !iconEl) {
+    console.log('  ⚠️ Missing DOM element(s) for', device.name, {
+      tile: !!tile,
+      statusEl: !!statusEl,
+      iconEl: !!iconEl
+    });
+    return;
+  }
+
+  // One-time init
   if (!statusEl.classList.contains('ev-status')) {
     statusEl.classList.add('ev-status');
   }
@@ -1100,9 +1118,10 @@ evDevices.forEach(({ id, brandIcon }) => {
     iconEl.style.backgroundImage = `url('/app/img/icons/${brandIcon}')`;
   }
 
-  // --- Map Easee charger_status to our display state ---
   const raw = device.capabilitiesObj.charger_status.value;
   const key = (raw || '').toString().trim().toLowerCase();
+
+  console.log('  ✅ EV status for', device.name, '->', key);
 
   let stateClass = 'ev-disconnected';
   let text       = 'Disconnected';
@@ -1138,13 +1157,16 @@ evDevices.forEach(({ id, brandIcon }) => {
       break;
   }
 
-  // Update status text
   statusEl.textContent = text;
-
-  // Reset + apply state classes
-  statusEl.classList.remove('ev-disconnected', 'ev-connected', 'ev-charging', 'ev-completed', 'ev-error');
+  statusEl.classList.remove(
+    'ev-disconnected',
+    'ev-connected',
+    'ev-charging',
+    'ev-completed',
+    'ev-error'
+  );
   statusEl.classList.add(stateClass);
-});  
+}); 
   
   
   
