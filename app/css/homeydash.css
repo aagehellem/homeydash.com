@@ -930,3 +930,12 @@ a {
 /* The existing #icon element is used as the brand logo (Fiat/BMW),
    positioned from JS – no extra CSS needed here. */
 
+
+.ev-state-container {
+  z-index: 30 !important;
+}
+
+.ev-brand-icon-node {
+  z-index: 25 !important;
+}
+
