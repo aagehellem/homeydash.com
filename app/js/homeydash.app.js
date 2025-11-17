@@ -794,6 +794,8 @@ window.addEventListener('load', function() {
 
 setTimeout(() => {
 
+  const iconPath = '/homeydash.com/app/img/icons/';  
+  
 
   const windDeviceId = '5c7cc0e7-3343-40ca-9a13-dd89f636493e';
   let windArrowNode = null;
@@ -869,8 +871,6 @@ setTimeout(() => {
   // ---------------------------------------------------------
   
   console.log("🚗 EV tile logic running on favoriteDevices");
-  
-  const iconPath = '/app/img/icons/';  // same path your wind tile uses
   
   const evTiles = [
     {
