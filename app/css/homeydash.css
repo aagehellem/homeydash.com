@@ -889,3 +889,44 @@ a {
 .wind-arrow-shake {
   animation: wind-shake 0.25s infinite;
 }
+
+
+/* =========================================================
+   EV charger tiles (Ella / Elois)
+   ========================================================= */
+
+.ev-tile {
+  position: relative;
+}
+
+/* Container in the top-right for state icon + text */
+.ev-state-container {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* The state icon (Disconnected / Connected / Charging / Completed / Error) */
+.ev-state-icon {
+  width: 36px;
+  height: 36px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* The “Disconnected / Charging / …” text under the icon */
+.ev-state-text {
+  font-size: 14px;
+  line-height: 1.1;
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+}
+
+/* The existing #icon element is used as the brand logo (Fiat/BMW),
+   positioned from JS – no extra CSS needed here. */
+
