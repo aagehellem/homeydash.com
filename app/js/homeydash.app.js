@@ -865,10 +865,12 @@ setTimeout(() => {
 
 
   // ---------------------------------------------------------
-  // EV tiles (Ella / Elois) – DeviceCapabilities text field
+  // EV tiles (Ella / Elois)
   // ---------------------------------------------------------
   
   console.log("🚗 EV tile logic running on favoriteDevices");
+  
+  const iconPath = '/app/img/icons/';  // same path your wind tile uses
   
   const evTiles = [
     {
@@ -884,79 +886,50 @@ setTimeout(() => {
   ];
   
   const evStateMap = {
-    disconnected: {
-      icon: 'Disconnected.svg',
-      className: 'ev-state-disconnected',
-      text: 'Disconnected'
-    },
-    connected: {
-      icon: 'Connected.svg',
-      className: 'ev-state-connected',
-      text: 'Connected'
-    },
-    charging: {
-      icon: 'Charging.svg',
-      className: 'ev-state-charging',
-      text: 'Charging'
-    },
-    completed: {
-      icon: 'BatteryFull.svg',
-      className: 'ev-state-completed',
-      text: 'Completed'
-    },
-    error: {
-      icon: 'Warning.svg',
-      className: 'ev-state-error',
-      text: 'Error'
-    }
+    disconnected: { icon: 'Disconnected.svg', text: 'Disconnected' },
+    connected:    { icon: 'Connected.svg',    text: 'Connected' },
+    charging:     { icon: 'Charging.svg',     text: 'Charging' },
+    completed:    { icon: 'BatteryFull.svg',  text: 'Completed' },
+    error:        { icon: 'Warning.svg',      text: 'Error' }
   };
   
-  // One-time EV tile setup
-  evTiles.forEach(({ id, label, brandIcon }) => {
+  // One-time tile structure injection
+  evTiles.forEach(({ id, brandIcon }) => {
   
-    const device = favoriteDevices.find(d => d.id === id);
-    const tile   = document.getElementById('device:' + id);
-    const nameEl = document.getElementById('name:' + id);
-    const icon   = document.getElementById('icon:' + id);
+    const tile = document.getElementById('device:' + id);
+    const icon = document.getElementById('icon:' + id);
   
-    if (!device || !tile || !nameEl || !icon) {
-      console.warn(`❌ Missing element(s) for EV tile ${label}`);
+    if (!tile || !icon) {
+      console.warn("❌ EV tile element missing for:", id);
       return;
     }
   
     tile.classList.add('ev-tile');
   
-    // Hide built-in icon completely
+    // Hide default device icon
     icon.style.display = 'none';
   
-    // Create manufacturer icon node
-    let brandNode = tile.querySelector('.ev-brand-icon-node');
-    if (!brandNode) {
-      brandNode = document.createElement('img');
-      brandNode.className = 'ev-brand-icon-node';
-      brandNode.src = `/app/img/icons/${brandIcon}`;
-      brandNode.style.position = 'absolute';
-      brandNode.style.top = '6px';
-      brandNode.style.left = '6px';
-      brandNode.style.width = '40px';
-      brandNode.style.height = '40px';
-      tile.appendChild(brandNode);
+    // --- Brand logo (Fiat/BMW) ---
+    let brandImg = tile.querySelector('.ev-brand-img');
+    if (!brandImg) {
+      brandImg = document.createElement('img');
+      brandImg.className = 'ev-brand-img';
+      tile.appendChild(brandImg);
     }
+    brandImg.src = `${iconPath}${brandIcon}`;
   
-    // State container (right side)
+    // --- State container ---
     let stateContainer = tile.querySelector('.ev-state-container');
     if (!stateContainer) {
       stateContainer = document.createElement('div');
       stateContainer.className = 'ev-state-container';
       stateContainer.innerHTML = `
-        <div class="ev-state-icon" style="width:40px;height:40px;"></div>
+        <img class="ev-state-img">
         <div class="ev-state-text"></div>
       `;
       tile.appendChild(stateContainer);
     }
-  
-    console.log(`✅ EV tile base setup OK for ${label}`);
-  }); 
+  });
   
   
   
@@ -1093,29 +1066,27 @@ setInterval(() => {
   });
 
   
-  // --- EV Tiles ---
+  // --- EV Tile Updates ---
   evTiles.forEach(({ id }) => {
   
     const device = favoriteDevices.find(d => d.id === id);
     const tile = document.getElementById('device:' + id);
     if (!device || !tile) return;
   
-    const stateContainer = tile.querySelector('.ev-state-container');
-    const iconEl = tile.querySelector('.ev-state-icon');
-    const textEl = tile.querySelector('.ev-state-text');
-    if (!stateContainer || !iconEl || !textEl) return;
-  
     const caps = device.capabilitiesObj || {};
-    const raw  = caps['devicecapabilities_text.text1']?.value || '';
-    const key  = raw.toString().trim().toLowerCase();
+    const raw = caps['devicecapabilities_text.text1']?.value || '';
+    const key = raw.toString().trim().toLowerCase();
   
-    const cfg = evStateMap[key] || evStateMap['disconnected'];
+    const cfg = evStateMap[key] || evStateMap.disconnected;
   
-    iconEl.style.backgroundImage = `url('/app/img/icons/${cfg.icon}')`;
-    textEl.textContent = cfg.text;
+    // Update state icon + text
+    const stateImg = tile.querySelector('.ev-state-img');
+    const stateText = tile.querySelector('.ev-state-text');
   
-    // Update CSS class
-    stateContainer.className = `ev-state-container ${cfg.className}`;
+    if (stateImg && stateText) {
+      stateImg.src = `${iconPath}${cfg.icon}`;
+      stateText.textContent = cfg.text;
+    }
   });
   
   
