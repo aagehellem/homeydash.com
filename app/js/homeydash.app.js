@@ -1029,10 +1029,32 @@ if (windArrowNode && windSpeedNode) {
         el.style.fill = arrowColor;
         el.style.stroke = arrowColor;
     });    
+
+    
+    // --- Apply rotation (with CSS variable for animation) ---
+    const rotationDegrees = angle + 90;
+    
+    // Set CSS variable used by the shake animation
+    windArrowNode.style.setProperty("--wind-rotate", `${rotationDegrees}deg`);
+    
+    // Apply the rotation normally
+    windArrowNode.style.transform = `rotate(${rotationDegrees}deg)`;
+    
+    // --- Shake animation trigger ---
+    if (speed > 32) {
+        windArrowNode.classList.add("wind-arrow-shake");
+    } else {
+        windArrowNode.classList.remove("wind-arrow-shake");
+    }
+    
+    // --- Update text ---
+    windSpeedNode.textContent = `${speed} (${gust})`;    
+
+    
     
     // Apply rotation and text
-    windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
-    windSpeedNode.textContent = `${speed} (${gust})`;
+    // windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
+    // windSpeedNode.textContent = `${speed} (${gust})`;
   }
 }
   
