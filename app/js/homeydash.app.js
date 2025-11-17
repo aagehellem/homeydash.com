@@ -866,71 +866,6 @@ setTimeout(() => {
   ];
 
 
-  // ---------------------------------------------------------
-  // EV tiles (Ella / Elois)
-  // ---------------------------------------------------------
-  
-  console.log("🚗 EV tile logic running on favoriteDevices");
-  
-  const evTiles = [
-    {
-      id: '6a1483c8-fa16-408b-94d7-3bb79ea5f364', // Ella
-      label: 'Ella',
-      brandIcon: 'Fiat.svg'
-    },
-    {
-      id: '483d8cf5-07a3-4631-ab91-d2a425e3f4cb', // Elois
-      label: 'Elois',
-      brandIcon: 'BMW.svg'
-    }
-  ];
-  
-  const evStateMap = {
-    disconnected: { icon: 'Disconnected.svg', text: 'Disconnected' },
-    connected:    { icon: 'Connected.svg',    text: 'Connected' },
-    charging:     { icon: 'Charging.svg',     text: 'Charging' },
-    completed:    { icon: 'BatteryFull.svg',  text: 'Completed' },
-    error:        { icon: 'Warning.svg',      text: 'Error' }
-  };
-  
-  // One-time tile structure injection
-  evTiles.forEach(({ id, brandIcon }) => {
-  
-    const tile = document.getElementById('device:' + id);
-    const icon = document.getElementById('icon:' + id);
-  
-    if (!tile || !icon) {
-      console.warn("❌ EV tile element missing for:", id);
-      return;
-    }
-  
-    tile.classList.add('ev-tile');
-  
-    // Hide default device icon
-    icon.style.display = 'none';
-  
-    // --- Brand logo (Fiat/BMW) ---
-    let brandImg = tile.querySelector('.ev-brand-img');
-    if (!brandImg) {
-      brandImg = document.createElement('img');
-      brandImg.className = 'ev-brand-img';
-      tile.appendChild(brandImg);
-    }
-    brandImg.src = `${iconPath}${brandIcon}`;
-  
-    // --- State container ---
-    let stateContainer = tile.querySelector('.ev-state-container');
-    if (!stateContainer) {
-      stateContainer = document.createElement('div');
-      stateContainer.className = 'ev-state-container';
-      stateContainer.innerHTML = `
-        <img class="ev-state-img">
-        <div class="ev-state-text"></div>
-      `;
-      tile.appendChild(stateContainer);
-    }
-  });
-  
   
   
   garageTiles.forEach(({ id, label, svgOpen }) => {
@@ -1034,25 +969,6 @@ if (isOpen) {
   });
 
 
-  // ----------------------------------------------------------
-  // EV TILE LIVE UPDATER
-  // ----------------------------------------------------------
-  function updateEvTile(deviceId, rawValue) {
-      const tile = document.getElementById('device:' + deviceId);
-      if (!tile) return;
-  
-      const stateContainer = tile.querySelector('.ev-state-container');
-      const iconEl         = tile.querySelector('.ev-state-icon');
-      const textEl         = tile.querySelector('.ev-state-text');
-      if (!stateContainer || !iconEl || !textEl) return;
-  
-      const key = (rawValue || '').toString().trim().toLowerCase();
-      const cfg = evStateMap[key] || evStateMap['disconnected'];
-  
-      iconEl.style.backgroundImage = `url('/app/img/icons/${cfg.icon}')`;
-      textEl.textContent = cfg.text;
-      stateContainer.className = `ev-state-container ${cfg.className}`;
-  }
   
   
 setInterval(() => {
@@ -1519,16 +1435,7 @@ if (windArrowNode && windSpeedNode) {
       $devicesInner.appendChild($deviceElement);
 
       
-      // ----------------------------------------------------------
-      // EV LIVE UPDATE HOOK
-      // ----------------------------------------------------------
-      if (
-          device.capabilitiesObj &&
-          device.capabilitiesObj['devicecapabilities_text.text1']
-      ) {
-          const raw = device.capabilitiesObj['devicecapabilities_text.text1'].value;
-          updateEvTile(device.id, raw);
-      }      
+
       
       
       
