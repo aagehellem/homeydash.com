@@ -927,7 +927,7 @@ setTimeout(() => {
     tile.classList.add('ev-tile');
   
     // Hide built-in icon completely
-    icon.style.backgroundImage = 'none';
+    icon.style.display = 'none';
   
     // Create manufacturer icon node
     let brandNode = tile.querySelector('.ev-brand-icon-node');
