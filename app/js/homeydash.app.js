@@ -1020,7 +1020,10 @@ if (windArrowNode && windSpeedNode) {
         arrowColor = '#ff3860';            // red (21+)
     }
     
-    windArrowNode.style.stroke = arrowColor;    
+    windArrowNode.querySelectorAll('*').forEach(el => {
+        el.style.fill = arrowColor;
+        el.style.stroke = arrowColor;
+    });    
     
     // Apply rotation and text
     windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
