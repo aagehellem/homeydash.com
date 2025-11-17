@@ -1001,8 +1001,11 @@ if (windArrowNode && windSpeedNode) {
     const caps = windDevice.capabilitiesObj || {};
 
     const angle = caps['measure_wind_angle']?.value ?? 0;
-    const speed = caps['measure_wind_strength']?.value ?? 0;
-    const gust  = caps['measure_gust_strength']?.value ?? 0;
+    const rawSpeed = caps['measure_wind_strength']?.value ?? 0;
+    const rawGust  = caps['measure_gust_strength']?.value ?? 0;
+
+    const speed = Math.round(rawSpeed);
+    const gust  = Math.round(rawGust);    
 
     // Apply rotation and text
     windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
