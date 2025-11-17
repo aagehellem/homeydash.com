@@ -795,7 +795,7 @@ window.addEventListener('load', function() {
 setTimeout(() => {
 
 
-  const windDeviceId = '	5c7cc0e7-3343-40ca-9a13-dd89f636493e';
+  const windDeviceId = '5c7cc0e7-3343-40ca-9a13-dd89f636493e';
   let windArrowNode = null;
   let windSpeedNode = null;
 
