@@ -1065,6 +1065,88 @@ if (windArrowNode && windSpeedNode) {
     // windSpeedNode.textContent = `${speed} (${gust})`;
   }
 }
+
+  
+  
+// ------------------------------------------------------------
+// EV tiles (Easee Ella / Elois)
+// ------------------------------------------------------------
+const evDevices = [
+  {
+    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775', // Ella
+    brandIcon: 'Fiat.svg'
+  },
+  {
+    id: 'e2d83fdf-a014-4cd3-a880-de909c543179', // Elois
+    brandIcon: 'BMW.svg'
+  }
+];
+
+evDevices.forEach(({ id, brandIcon }) => {
+  const device = favoriteDevices.find(d => d.id === id);
+  if (!device || !device.capabilitiesObj || !device.capabilitiesObj.charger_status) return;
+
+  const tile     = document.getElementById('device:' + id);
+  const statusEl = document.getElementById('status:' + id);
+  const iconEl   = document.getElementById('icon:' + id);
+  if (!tile || !statusEl || !iconEl) return;
+
+  // One-time initialisation
+  if (!statusEl.classList.contains('ev-status')) {
+    statusEl.classList.add('ev-status');
+  }
+  if (!iconEl.classList.contains('ev-brand-icon')) {
+    iconEl.classList.add('ev-brand-icon');
+    iconEl.style.backgroundImage = `url('/app/img/icons/${brandIcon}')`;
+  }
+
+  // --- Map Easee charger_status to our display state ---
+  const raw = device.capabilitiesObj.charger_status.value;
+  const key = (raw || '').toString().trim().toLowerCase();
+
+  let stateClass = 'ev-disconnected';
+  let text       = 'Disconnected';
+
+  switch (key) {
+    case 'charging':
+      stateClass = 'ev-charging';
+      text = 'Charging';
+      break;
+
+    case 'completed':
+      stateClass = 'ev-completed';
+      text = 'Completed';
+      break;
+
+    case 'paused':
+    case 'car connected':
+    case 'car_connected':
+      stateClass = 'ev-connected';
+      text = 'Connected';
+      break;
+
+    case 'offline':
+    case 'error':
+      stateClass = 'ev-error';
+      text = 'Error';
+      break;
+
+    case 'standby':
+    default:
+      stateClass = 'ev-disconnected';
+      text = 'Disconnected';
+      break;
+  }
+
+  // Update status text
+  statusEl.textContent = text;
+
+  // Reset + apply state classes
+  statusEl.classList.remove('ev-disconnected', 'ev-connected', 'ev-charging', 'ev-completed', 'ev-error');
+  statusEl.classList.add(stateClass);
+});  
+  
+  
   
 }, 1000);
   
