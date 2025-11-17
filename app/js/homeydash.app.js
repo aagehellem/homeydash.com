@@ -809,6 +809,9 @@ setTimeout(() => {
     // Avoid duplicate wrapper
     if (tile.querySelector('.wind-tile-wrapper')) {
       windArrowNode = tile.querySelector('.wind-arrow-svg');
+      if (windArrowNode) {
+          windArrowNode.style.filter = 'none';
+      }      
       windSpeedNode = tile.querySelector('.wind-speed');
       return;
     }
@@ -1000,6 +1003,8 @@ if (windArrowNode && windSpeedNode) {
   if (windDevice) {
     const caps = windDevice.capabilitiesObj || {};
 
+    windArrowNode.style.filter = 'none';
+    
     const angle = caps['measure_wind_angle']?.value ?? 0;
     const rawSpeed = caps['measure_wind_strength']?.value ?? 0;
     const rawGust  = caps['measure_gust_strength']?.value ?? 0;
