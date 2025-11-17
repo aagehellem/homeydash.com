@@ -1034,6 +1034,26 @@ if (isOpen) {
   });
 
 
+  // ----------------------------------------------------------
+  // EV TILE LIVE UPDATER
+  // ----------------------------------------------------------
+  function updateEvTile(deviceId, rawValue) {
+      const tile = document.getElementById('device:' + deviceId);
+      if (!tile) return;
+  
+      const stateContainer = tile.querySelector('.ev-state-container');
+      const iconEl         = tile.querySelector('.ev-state-icon');
+      const textEl         = tile.querySelector('.ev-state-text');
+      if (!stateContainer || !iconEl || !textEl) return;
+  
+      const key = (rawValue || '').toString().trim().toLowerCase();
+      const cfg = evStateMap[key] || evStateMap['disconnected'];
+  
+      iconEl.style.backgroundImage = `url('/app/img/icons/${cfg.icon}')`;
+      textEl.textContent = cfg.text;
+      stateContainer.className = `ev-state-container ${cfg.className}`;
+  }
+  
   
 setInterval(() => {
   
@@ -1065,31 +1085,6 @@ setInterval(() => {
     }
   });
 
-  
-  // --- EV Tile Updates ---
-  console.log("🔄 EV updater tick");
-  evTiles.forEach(({ id }) => {
-  
-    const device = favoriteDevices.find(d => d.id === id);
-    const tile = document.getElementById('device:' + id);
-    if (!device || !tile) return;
-  
-    const caps = device.capabilitiesObj || {};
-    const raw = caps['devicecapabilities_text.text1']?.value || '';
-    const key = raw.toString().trim().toLowerCase();
-  
-    const cfg = evStateMap[key] || evStateMap.disconnected;
-  
-    // Update state icon + text
-    const stateImg = tile.querySelector('.ev-state-img');
-    const stateText = tile.querySelector('.ev-state-text');
-  
-    if (stateImg && stateText) {
-      stateImg.src = `${iconPath}${cfg.icon}`;
-      stateText.textContent = cfg.text;
-    }
-  });
-  
   
   
 // --- Wind Tile (AVD) ---
@@ -1523,6 +1518,20 @@ if (windArrowNode && windSpeedNode) {
       }
       $devicesInner.appendChild($deviceElement);
 
+      
+      // ----------------------------------------------------------
+      // EV LIVE UPDATE HOOK
+      // ----------------------------------------------------------
+      if (
+          device.capabilitiesObj &&
+          device.capabilitiesObj['devicecapabilities_text.text1']
+      ) {
+          const raw = device.capabilitiesObj['devicecapabilities_text.text1'].value;
+          updateEvTile(device.id, raw);
+      }      
+      
+      
+      
       if (device.capabilitiesObj && device.capabilitiesObj.alarm_generic && device.capabilitiesObj.alarm_generic.value ||
           device.capabilitiesObj && device.capabilitiesObj.alarm_motion && device.capabilitiesObj.alarm_motion.value ||
           device.capabilitiesObj && device.capabilitiesObj.alarm_contact && device.capabilitiesObj.alarm_contact.value ||
