@@ -410,6 +410,36 @@ window.addEventListener('load', function() {
             $sensordetails.classList.add('fault')
             return
           }
+
+          
+          // -----------------------------------------------------------
+          // EV OVERLAY INJECTOR (runs once per EV tile)
+          // -----------------------------------------------------------
+          if (device.id === '972ddbe2-b4d2-4e27-8c90-d958d4c06775' ||   // Easee Ella
+              device.id === 'e2d83fdf-a014-4cd3-a880-de909c543179') {   // Easee Elois
+          
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if ($deviceElement) {
+                  let overlay = $deviceElement.querySelector('.ev-overlay');
+                  if (!overlay) {
+                      overlay = document.createElement('div');
+                      overlay.classList.add('ev-overlay');
+          
+                      overlay.innerHTML = `
+                          <img class="ev-brand-icon" />
+                          <div class="ev-state-group">
+                              <img class="ev-state-icon" />
+                              <span class="ev-state-text"></span>
+                          </div>
+                      `;
+          
+                      $deviceElement.appendChild(overlay);
+                  }
+              }
+          }          
+          
+          
+          
           if ( device.ui.quickAction ) {
             device.makeCapabilityInstance(device.ui.quickAction, function(value){
               var $deviceElement = document.getElementById('device:' + device.id);
@@ -1068,105 +1098,58 @@ if (windArrowNode && windSpeedNode) {
 
   
   
-// ------------------------------------------------------------
-// EV tiles (Easee Ella / Elois)
-// ------------------------------------------------------------
+//-----------------------------------------------------
+// EV dynamic updater (runs every interval)
+//-----------------------------------------------------
 const evDevices = [
-  {
-    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775', // Easee Ella
-    brandIcon: 'Fiat.svg'
-  },
-  {
-    id: 'e2d83fdf-a014-4cd3-a880-de909c543179', // Easee Elois
-    brandIcon: 'BMW.svg'
-  }
+    {
+        id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775',  // Ella
+        brand: 'Fiat.svg'
+    },
+    {
+        id: 'e2d83fdf-a014-4cd3-a880-de909c543179',  // Elois
+        brand: 'BMW.svg'
+    }
 ];
 
-console.log('🚗 EV tile logic running on favoriteDevices');
+evDevices.forEach(ev => {
+    const tile = document.getElementById('device:' + ev.id);
+    if (!tile) return;
 
-evDevices.forEach(({ id, brandIcon }) => {
-  const device = favoriteDevices.find(d => d.id === id);
-  if (!device) {
-    console.log('  ⚠️ No device found for EV id', id);
-    return;
-  }
+    const overlay = tile.querySelector('.ev-overlay');
+    if (!overlay) return;
 
-  if (!device.capabilitiesObj || !device.capabilitiesObj.charger_status) {
-    console.log('  ⚠️ Device has no charger_status', device.name, device.capabilitiesObj);
-    return;
-  }
+    const brandEl = overlay.querySelector('.ev-brand-icon');
+    const stateIcon = overlay.querySelector('.ev-state-icon');
+    const stateText = overlay.querySelector('.ev-state-text');
 
-  const tile     = document.getElementById('device:' + id);
-  const statusEl = document.getElementById('status:' + id);
-  const iconEl   = document.getElementById('icon:' + id);
+    // Find the device snapshot inside favoriteDevices
+    const dev = favoriteDevices.find(d => d.id === ev.id);
+    if (!dev || !dev.capabilitiesObj) return;
 
-  if (!tile || !statusEl || !iconEl) {
-    console.log('  ⚠️ Missing DOM element(s) for', device.name, {
-      tile: !!tile,
-      statusEl: !!statusEl,
-      iconEl: !!iconEl
-    });
-    return;
-  }
+    const rawState = dev.capabilitiesObj.charger_status?.value || "";
+    const state = rawState.toLowerCase();
 
-  // One-time init
-  if (!statusEl.classList.contains('ev-status')) {
-    statusEl.classList.add('ev-status');
-  }
-  if (!iconEl.classList.contains('ev-brand-icon')) {
-    iconEl.classList.add('ev-brand-icon');
-    iconEl.style.backgroundImage = `url('/app/img/icons/${brandIcon}')`;
-  }
+    // Map Easee states to our icons and colours
+    const map = {
+        "disconnected": { icon: "Disconnected.svg", color: "#ff4c4c", text: "Disconnected" },
+        "car connected": { icon: "Connected.svg", color: "#ffbf00", text: "Connected" },
+        "paused":        { icon: "Connected.svg", color: "#ffbf00", text: "Connected" },
+        "charging":      { icon: "Charging.svg", color: "#4da6ff", text: "Charging" },
+        "completed":     { icon: "BatteryFull.svg", color: "#00cc66", text: "Completed" },
+        "error":         { icon: "Warning.svg", color: "#ff4c4c", text: "Error" }
+    };
 
-  const raw = device.capabilitiesObj.charger_status.value;
-  const key = (raw || '').toString().trim().toLowerCase();
+    const cfg = map[state] || map["disconnected"];
 
-  console.log('  ✅ EV status for', device.name, '->', key);
+    // Apply images
+    brandEl.src = `/app/img/icons/${ev.brand}`;
+    stateIcon.src = `/app/img/icons/${cfg.icon}`;
 
-  let stateClass = 'ev-disconnected';
-  let text       = 'Disconnected';
-
-  switch (key) {
-    case 'charging':
-      stateClass = 'ev-charging';
-      text = 'Charging';
-      break;
-
-    case 'completed':
-      stateClass = 'ev-completed';
-      text = 'Completed';
-      break;
-
-    case 'paused':
-    case 'car connected':
-    case 'car_connected':
-      stateClass = 'ev-connected';
-      text = 'Connected';
-      break;
-
-    case 'offline':
-    case 'error':
-      stateClass = 'ev-error';
-      text = 'Error';
-      break;
-
-    case 'standby':
-    default:
-      stateClass = 'ev-disconnected';
-      text = 'Disconnected';
-      break;
-  }
-
-  statusEl.textContent = text;
-  statusEl.classList.remove(
-    'ev-disconnected',
-    'ev-connected',
-    'ev-charging',
-    'ev-completed',
-    'ev-error'
-  );
-  statusEl.classList.add(stateClass);
-}); 
+    // Apply text & colour
+    stateText.textContent = cfg.text;
+    stateText.style.color = cfg.color;
+});
   
   
   
