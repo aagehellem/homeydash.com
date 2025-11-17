@@ -795,7 +795,7 @@ window.addEventListener('load', function() {
 setTimeout(() => {
 
 
-  const windDeviceId = '9a7e0e66-e9da-4f96-a9ad-8e71f86c3e52';
+  const windDeviceId = '	5c7cc0e7-3343-40ca-9a13-dd89f636493e';
   let windArrowNode = null;
   let windSpeedNode = null;
 
@@ -992,40 +992,23 @@ setInterval(() => {
     }
   });
 
-  // Wind tile – poll Homey directly for fresh values
-  (async () => {
-    if (!windArrowNode || !windSpeedNode) return;
-  
-    try {
-      // Always fetch the latest device object from Homey
-      const windDevice = await homey.devices.getDevice({ id: windDeviceId });
-  
-      if (!windDevice) {
-        console.warn("Wind: device not found for id", windDeviceId);
-        return;
-      }
-  
-      const caps = windDevice.capabilitiesObj || {};
-  
-      const angle = Number(
-        caps['devicecapabilities_number.number1']?.value ?? 0
-      );
-      const speed = Number(
-        caps['devicecapabilities_number.number2']?.value ?? 0
-      );
-      const gust = Number(
-        caps['devicecapabilities_number.number3']?.value ?? 0
-      );
-  
-      console.log("Wind (fresh) → angle:", angle, " speed:", speed, " gust:", gust);
-  
-      // Apply to tile – layout unchanged
-      windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
-      windSpeedNode.textContent = `${speed} (${gust})`;
-    } catch (err) {
-      console.error("Wind polling error:", err);
-    }
-  })();
+// --- Wind Tile (AVD) ---
+// Runs inside the same update loop as Garage/YR
+if (windArrowNode && windSpeedNode) {
+  const windDevice = favoriteDevices.find(d => d.id === windDeviceId);
+
+  if (windDevice) {
+    const caps = windDevice.capabilitiesObj || {};
+
+    const angle = caps['measure_wind_angle']?.value ?? 0;
+    const speed = caps['measure_wind_strength']?.value ?? 0;
+    const gust  = caps['measure_gust_strength']?.value ?? 0;
+
+    // Apply rotation and text
+    windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
+    windSpeedNode.textContent = `${speed} (${gust})`;
+  }
+}
   
 }, 1000);
   
