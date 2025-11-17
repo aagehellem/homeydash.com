@@ -934,3 +934,8 @@ a {
   text-shadow: 0 0 4px rgba(0,0,0,0.7);
 }
 
+.ev-brand-img,
+.ev-state-img {
+  filter: invert(1) brightness(1.8);
+}
+
