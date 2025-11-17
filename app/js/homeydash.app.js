@@ -863,6 +863,100 @@ setTimeout(() => {
     }
   ];
 
+
+  // ---------------------------------------------------------
+  // EV tiles (Ella / Elois) – DeviceCapabilities text field
+  // ---------------------------------------------------------
+
+  console.log("🚗 EV tile logic running on favoriteDevices");
+
+  const evTiles = [
+    {
+      id: '6a1483c8-fa16-408b-94d7-3bb79ea5f364', // Ella
+      label: 'Ella',
+      brandIcon: 'Fiat.svg'
+    },
+    {
+      id: '483d8cf5-07a3-4631-ab91-d2a425e3f4cb', // Elois
+      label: 'Elois',
+      brandIcon: 'BMW.svg'
+    }
+  ];
+
+  // Mapping from DC text value -> icon + CSS class + label
+  const evStateMap = {
+    disconnected: {
+      icon: 'Disconnected.svg',
+      className: 'ev-state-disconnected',
+      text: 'Disconnected'
+    },
+    connected: {
+      icon: 'Connected.svg',
+      className: 'ev-state-connected',
+      text: 'Connected'
+    },
+    charging: {
+      icon: 'Charging.svg',
+      className: 'ev-state-charging',
+      text: 'Charging'
+    },
+    completed: {
+      icon: 'BatteryFull.svg',
+      className: 'ev-state-completed',
+      text: 'Completed'
+    },
+    error: {
+      icon: 'Warning.svg',
+      className: 'ev-state-error',
+      text: 'Error'
+    }
+  };
+
+  // One-time EV tile setup – structure + brand icon
+  evTiles.forEach(({ id, label, brandIcon }) => {
+    const device = favoriteDevices.find(d => d.id === id);
+    const tile   = document.getElementById('device:' + id);
+    const nameEl = document.getElementById('name:' + id);
+    const icon   = document.getElementById('icon:' + id);
+
+    if (!device || !tile || !nameEl || !icon) {
+      console.warn(`❌ Missing element(s) for EV tile ${label}`);
+      return;
+    }
+
+    // Mark tile so CSS can position things
+    tile.classList.add('ev-tile');
+
+    // Use the built-in icon node as the manufacturer logo (Fiat / BMW)
+    icon.classList.add('ev-brand-icon');
+    icon.style.position = 'absolute';
+    icon.style.top = '6px';
+    icon.style.left = '6px';
+    icon.style.width = '90px';
+    icon.style.height = '90px';
+    icon.style.backgroundImage = `url('${iconPath}${brandIcon}')`;
+    icon.style.backgroundSize = 'contain';
+    icon.style.backgroundRepeat = 'no-repeat';
+    icon.style.backgroundPosition = 'left top';
+    icon.style.backgroundColor = 'transparent';
+
+    // State container in the top-right (icon + text)
+    let stateContainer = tile.querySelector('.ev-state-container');
+    if (!stateContainer) {
+      stateContainer = document.createElement('div');
+      stateContainer.className = 'ev-state-container';
+      stateContainer.innerHTML = `
+        <div class="ev-state-icon"></div>
+        <div class="ev-state-text"></div>
+      `;
+      tile.appendChild(stateContainer);
+    }
+
+    console.log(`✅ EV tile base setup for ${label}`);
+  });  
+  
+  
+  
   garageTiles.forEach(({ id, label, svgOpen }) => {
     const device = favoriteDevices.find(d => d.id === id);
     const tile = document.getElementById('device:' + id);
@@ -995,6 +1089,45 @@ setInterval(() => {
     }
   });
 
+  
+ // --- EV Tiles (Ella / Elois) ---
+  evTiles.forEach(({ id, label }) => {
+    const device = favoriteDevices.find(d => d.id === id);
+    const tile   = document.getElementById('device:' + id);
+    if (!device || !tile) return;
+
+    const stateContainer = tile.querySelector('.ev-state-container');
+    if (!stateContainer) return;
+
+    const caps = device.capabilitiesObj || {};
+    const raw  = caps['devicecapabilities_text.text1']?.value || '';
+    const key  = raw.toString().trim().toLowerCase();
+
+    const cfg =
+      evStateMap[key] ||
+      evStateMap['disconnected']; // sensible fallback
+
+    const iconEl = stateContainer.querySelector('.ev-state-icon');
+    const textEl = stateContainer.querySelector('.ev-state-text');
+    if (!iconEl || !textEl) return;
+
+    // Update icon + text
+    iconEl.style.backgroundImage = `url('${iconPath}${cfg.icon}')`;
+    textEl.textContent = cfg.text;
+
+    // Update state class (for future CSS tweaks if needed)
+    stateContainer.classList.remove(
+      'ev-state-disconnected',
+      'ev-state-connected',
+      'ev-state-charging',
+      'ev-state-completed',
+      'ev-state-error'
+    );
+    stateContainer.classList.add(cfg.className);
+  });  
+  
+  
+  
 // --- Wind Tile (AVD) ---
 // Runs inside the same update loop as Garage/YR
 if (windArrowNode && windSpeedNode) {
