@@ -1067,6 +1067,7 @@ setInterval(() => {
 
   
   // --- EV Tile Updates ---
+  console.log("🔄 EV updater tick");
   evTiles.forEach(({ id }) => {
   
     const device = favoriteDevices.find(d => d.id === id);
