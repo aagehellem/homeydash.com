@@ -1246,6 +1246,11 @@ favoriteDevices.forEach(device => {
   );
   overlay.classList.add('ev-state-' + state.key);
 
+  
+  // --- Find state elements ---
+  const stateIcon = overlay.querySelector('.ev-state-icon');
+  const stateText = overlay.querySelector('.ev-state-text');  
+  
 
   // --- State icon: 
   if (stateIcon) {
