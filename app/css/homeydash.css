@@ -959,6 +959,61 @@ a {
     filter: brightness(0) invert(1);
 }
 
+/* BMW: do NOT invert (shows correctly without filter) */
+.ev-brand-icon[src$="BMW.svg"] {
+    filter: none !important;
+}
+
+/* Fiat: keep inverted (black logo → white on dark background) */
+.ev-brand-icon[src$="Fiat.svg"] {
+    filter: brightness(0) invert(1) !important;
+}
+
+
+/* ------------------------------------------------------
+   EV tile colour coding by state (updated mapping)
+------------------------------------------------------ */
+
+/* Charging → Blue */
+.ev-state-charging .ev-state-icon,
+.ev-state-charging .ev-state-text {
+    filter: none !important;
+    color: #4da6ff !important;   /* blue */
+    fill: #4da6ff !important;
+}
+
+/* Connected → Yellow */
+.ev-state-connected .ev-state-icon,
+.ev-state-connected .ev-state-text {
+    filter: none !important;
+    color: #ffd500 !important;   /* bright yellow */
+    fill: #ffd500 !important;
+}
+
+/* Completed → Green */
+.ev-state-completed .ev-state-icon,
+.ev-state-completed .ev-state-text {
+    filter: none !important;
+    color: #00cc66 !important;   /* green */
+    fill: #00cc66 !important;
+}
+
+/* Disconnected → Red */
+.ev-state-disconnected .ev-state-icon,
+.ev-state-disconnected .ev-state-text {
+    filter: none !important;
+    color: #ff4c4c !important;   /* red */
+    fill: #ff4c4c !important;
+}
+
+/* Warning → Amber */
+.ev-state-warning .ev-state-icon,
+.ev-state-warning .ev-state-text {
+    filter: none !important;
+    color: #ff9f00 !important;   /* amber */
+    fill: #ff9f00 !important;
+}
+
 
 
 /* Future colours (currently inactive)
