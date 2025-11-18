@@ -893,40 +893,15 @@ a {
 
 
 
-.ev-overlay {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
+/* Hide EVERYTHING related to Easee default icons */
+#device\:972ddbe2-b4d2-4e27-8c90-d958d4c06775 .icon,
+#device\:972ddbe2-b4d2-4e27-8c90-d958d4c06775 .icon-capability,
+#device\:972ddbe2-b4d2-4e27-8c90-d958d4c06775 div[id^="icon"],
+
+#device\:e2d83fdf-a014-4cd3-a880-de909c543179 .icon,
+#device\:e2d83fdf-a014-4cd3-a880-de909c543179 .icon-capability,
+#device\:e2d83fdf-a014-4cd3-a880-de909c543179 div[id^="icon"] {
+    display: none !important;
 }
-
-.ev-brand {
-  width: 32px;
-  height: 32px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  /* temp colour box so we see it even without logos */
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.ev-status-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid white;
-  margin-right: 6px;
-}
-
-.ev-status-text {
-  color: white;
-  font-size: 14px;
-}
-
-
 
 
