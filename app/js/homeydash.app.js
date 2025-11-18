@@ -1522,7 +1522,35 @@ evDevices.forEach(ev => {
       $devicesInner.appendChild($deviceElement);
 
       
-
+      // --- EV tiles (Easee Ella / Easee Elois) ---
+      if (
+        device.id === '972ddbe2-b4d2-4e27-8c90-d958d4c06775' || // Easee Ella
+        device.id === 'e2d83fdf-a014-4cd3-a880-de909c543179'    // Easee Elois
+      ) {
+        console.log('🔌 Setting up EV overlay for', device.name, device.id);
+      
+        // Avoid double-injection
+        if (!$deviceElement.querySelector('.ev-overlay')) {
+          const overlay = document.createElement('div');
+          overlay.className = 'ev-overlay';
+      
+          overlay.innerHTML = `
+            <div class="ev-brand"></div>
+            <div class="ev-status-icon"></div>
+            <div class="ev-status-text"></div>
+          `;
+      
+          $deviceElement.appendChild(overlay);
+      
+          // Initial text from charger_status (just to prove it works)
+          const caps = device.capabilitiesObj || {};
+          const status =
+            (caps.charger_status && caps.charger_status.value) || 'Unknown';
+      
+          const textEl = overlay.querySelector('.ev-status-text');
+          if (textEl) textEl.textContent = status;
+        }
+      }
       
       
       
