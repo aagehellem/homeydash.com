@@ -926,16 +926,16 @@ a {
 
 .ev-brand-icon {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 20px;
+  left: 20px;
   width: 40px;
   height: 40px;
 }
 
 .ev-state-container {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 20px;
+  right: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
