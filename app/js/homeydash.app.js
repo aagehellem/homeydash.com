@@ -49,74 +49,62 @@ function getEvState(device) {
   const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
   const power = caps['measure_power']?.value ?? 0;
 
-  // ---------------------------------------------
-  // 1) Charging → BLUE
-  // ---------------------------------------------
-  if (raw === 'charging' || power > 0) {
+  // Charging
+  if (raw === "charging" || power > 0) {
     return {
-      key:   'charging',
-      label: 'Charging',
-      icon:  '/homeydash.com/app/img/icons/Charging.svg',
-      color: '#4da6ff'   // blue
+      key: "charging",
+      label: "Charging",
+      icon: evIcon_charging,
+      color: "#4da6ff"   // blue
     };
   }
 
-  // ---------------------------------------------
-  // 2) Completed → GREEN
-  // ---------------------------------------------
-  if (raw === 'completed') {
+  // Completed
+  if (raw === "completed") {
     return {
-      key:   'completed',
-      label: 'Completed',
-      icon:  '/homeydash.com/app/img/icons/BatteryFull.svg',
-      color: '#00cc66'   // green
+      key: "completed",
+      label: "Completed",
+      icon: evIcon_completed,
+      color: "#00cc66"  // green
     };
   }
 
-  // ---------------------------------------------
-  // 3) Connected → AMBER
-  // ---------------------------------------------
-  if (raw === 'car connected' || raw === 'paused') {
+  // Connected (plugged in but not charging)
+  if (raw === "car connected" || raw === "paused") {
     return {
-      key:   'connected',
-      label: 'Connected',
-      icon:  '/homeydash.com/app/img/icons/Connected.svg',
-      color: '#ffbf00'   // amber
+      key: "connected",
+      label: "Connected",
+      icon: evIcon_connected,
+      color: "#ffd500"  // yellow
     };
   }
 
-  // ---------------------------------------------
-  // 4) Warning → RED
-  // ---------------------------------------------
-  if (raw === 'error' || raw === 'offline') {
+  // Warning (error / offline)
+  if (raw === "error" || raw === "offline") {
     return {
-      key:   'warning',
-      label: 'Warning',
-      icon:  '/homeydash.com/app/img/icons/Warning.svg',
-      color: '#ff4c4c'   // red
+      key: "warning",
+      label: "Warning",
+      icon: evIcon_warning,
+      color: "#ff9f00"  // amber
     };
   }
 
-  // ---------------------------------------------
-  // 5) Disconnected (Standby) → RED
-  // ---------------------------------------------
-  if (raw === 'standby') {
+  // Disconnected (standby)
+  if (raw === "standby") {
     return {
-      key:   'disconnected',
-      label: 'Disconnected',
-      icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
-      color: '#ff4c4c'   // red
+      key: "disconnected",
+      label: "Disconnected",
+      icon: evIcon_disconnected,
+      color: "#ff4c4c"   // red
     };
   }
 
-  // ---------------------------------------------
-  // 6) Fallback → Disconnected
-  // ---------------------------------------------
+  // Default → Warning
   return {
-    key:   'disconnected',
-    label: 'Disconnected',
-    icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
-    color: '#ff4c4c'  // red
+    key: "warning",
+    label: "Warning",
+    icon: evIcon_warning,
+    color: "#ff9f00"  // amber
   };
 }
 
@@ -1259,21 +1247,10 @@ favoriteDevices.forEach(device => {
   overlay.classList.add('ev-state-' + state.key);
 
 
-  // --- State icon: apply SVG as mask + colour tint ---
+  // --- State icon: 
   if (stateIcon) {
-  
-      const iconUrl = state.icon;
-      const fullUrl = `https://aagehellem.github.io${iconUrl}`;
-  
-      // Update the mask image only if changed
-      if (stateIcon.dataset.icon !== fullUrl) {
-          stateIcon.style.webkitMaskImage = `url("${fullUrl}")`;
-          stateIcon.style.maskImage = `url("${fullUrl}")`;
-          stateIcon.dataset.icon = fullUrl;
-      }
-  
-      // Colour
-      stateIcon.style.backgroundColor = state.color;
+      stateIcon.innerHTML = state.icon;
+      stateIcon.style.color = state.color;   // will work after Step 5
   }
   
   // --- State text ---
