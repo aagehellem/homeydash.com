@@ -1229,15 +1229,16 @@ favoriteDevices.forEach(device => {
   if (stateIcon) {
   
       const iconUrl = state.icon;
+      const fullUrl = `https://aagehellem.github.io${iconUrl}`;
   
-      // Update mask only if it changed
-      if (stateIcon.dataset.icon !== iconUrl) {
-          stateIcon.style.webkitMaskImage = `url(${iconUrl})`;
-          stateIcon.style.maskImage = `url(${iconUrl})`;
-          stateIcon.dataset.icon = iconUrl;
+      // Update the mask image only if changed
+      if (stateIcon.dataset.icon !== fullUrl) {
+          stateIcon.style.webkitMaskImage = `url("${fullUrl}")`;
+          stateIcon.style.maskImage = `url("${fullUrl}")`;
+          stateIcon.dataset.icon = fullUrl;
       }
   
-      // Apply tint colour (red / yellow / blue / green / amber)
+      // Colour
       stateIcon.style.backgroundColor = state.color;
   }
   
