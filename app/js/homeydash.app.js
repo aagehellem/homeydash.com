@@ -1224,8 +1224,31 @@ favoriteDevices.forEach(device => {
   );
   overlay.classList.add('ev-state-' + state.key);
 
-  if (stateIcon) stateIcon.src = state.icon;
-  if (stateText) stateText.textContent = state.label;
+
+  // --- State icon: apply SVG as mask + colour tint ---
+  if (stateIcon) {
+  
+      const iconUrl = state.icon;
+  
+      // Update mask only if it changed
+      if (stateIcon.dataset.icon !== iconUrl) {
+          stateIcon.style.webkitMaskImage = `url(${iconUrl})`;
+          stateIcon.style.maskImage = `url(${iconUrl})`;
+          stateIcon.dataset.icon = iconUrl;
+      }
+  
+      // Apply tint colour (red / yellow / blue / green / amber)
+      stateIcon.style.backgroundColor = state.color;
+  }
+  
+  // --- State text ---
+  if (stateText) {
+      stateText.textContent = state.label;
+      stateText.style.color = state.color;
+  }
+
+  
+  
 });
 
   
