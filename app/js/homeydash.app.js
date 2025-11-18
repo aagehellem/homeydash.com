@@ -34,9 +34,14 @@ function isEvCharger(device) {
 }
 
 function getEvBrandIcon(device) {
+  const base = '/homeydash.com/app/img/icons/';
   const name = (device.name || device.title || '').toLowerCase();
-  if (name.includes('ella') || name.includes('fiat')) return '/app/img/icons/Fiat.svg';
-  return '/app/img/icons/BMW.svg';
+
+  if (name.includes('ella') || name.includes('fiat')) {
+    return base + 'Fiat.svg';
+  }
+
+  return base + 'BMW.svg';
 }
 
 function getEvState(device) {
