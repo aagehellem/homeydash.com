@@ -412,31 +412,7 @@ window.addEventListener('load', function() {
           }
 
           
-          // -----------------------------------------------------------
-          // EV OVERLAY INJECTOR (runs once per EV tile)
-          // -----------------------------------------------------------
-          if (device.id === '972ddbe2-b4d2-4e27-8c90-d958d4c06775' ||   // Easee Ella
-              device.id === 'e2d83fdf-a014-4cd3-a880-de909c543179') {   // Easee Elois
-          
-              var $deviceElement = document.getElementById('device:' + device.id);
-              if ($deviceElement) {
-                  let overlay = $deviceElement.querySelector('.ev-overlay');
-                  if (!overlay) {
-                      overlay = document.createElement('div');
-                      overlay.classList.add('ev-overlay');
-          
-                      overlay.innerHTML = `
-                          <img class="ev-brand-icon" />
-                          <div class="ev-state-group">
-                              <img class="ev-state-icon" />
-                              <span class="ev-state-text"></span>
-                          </div>
-                      `;
-          
-                      $deviceElement.appendChild(overlay);
-                  }
-              }
-          }          
+
           
           
           
