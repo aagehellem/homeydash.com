@@ -22,6 +22,50 @@ if ( lang ) {
 var texts = getTexts(locale)
 loadScript(locale, setLocale)
 
+
+// ------------------------------------------------------
+// EV HELPER FUNCTIONS
+// ------------------------------------------------------
+
+function isEvCharger(device) {
+  const uri = (device.driverUri || '').toLowerCase();
+  const cls = (device.class || '').toLowerCase();
+  return uri.includes('easee') || cls === 'evcharger' || cls === 'charger';
+}
+
+function getEvBrandIcon(device) {
+  const name = (device.name || device.title || '').toLowerCase();
+  if (name.includes('ella') || name.includes('fiat')) return '/app/img/icons/Fiat.svg';
+  return '/app/img/icons/BMW.svg';
+}
+
+function getEvState(device) {
+  const caps = device.capabilitiesObj || {};
+  const power = caps['measure_power']?.value ?? 0;
+  const plugged = caps['charger_status']?.value?.toLowerCase() ?? '';
+
+  if (power > 0 || plugged === 'charging') {
+    return { key: 'charging', label: 'Charging', icon: '/app/img/icons/Charging.svg' };
+  }
+
+  if (plugged.includes('connected') || plugged.includes('paused')) {
+    return { key: 'connected', label: 'Connected', icon: '/app/img/icons/Connected.svg' };
+  }
+
+  if (plugged.includes('completed')) {
+    return { key: 'completed', label: 'Completed', icon: '/app/img/icons/BatteryFull.svg' };
+  }
+
+  if (plugged.includes('error')) {
+    return { key: 'error', label: 'Error', icon: '/app/img/icons/Warning.svg' };
+  }
+
+  return { key: 'unplugged', label: 'Unplugged', icon: '/app/img/icons/Disconnected.svg' };
+}
+
+
+
+
 window.addEventListener('load', function() {
 
   //var homey;
@@ -1088,44 +1132,47 @@ const evDevices = [
     }
 ];
 
-evDevices.forEach(ev => {
-    const tile = document.getElementById('device:' + ev.id);
-    if (!tile) return;
+// ------------------------------------------------------
+// EV OVERLAY UPDATER
+// ------------------------------------------------------
+favoriteDevices.forEach(device => {
 
-    const overlay = tile.querySelector('.ev-overlay');
-    if (!overlay) return;
+  if (!isEvCharger(device)) return;
 
-    const brandEl = overlay.querySelector('.ev-brand-icon');
-    const stateIcon = overlay.querySelector('.ev-state-icon');
-    const stateText = overlay.querySelector('.ev-state-text');
+  const tile = document.getElementById('device:' + device.id);
+  if (!tile) return;
 
-    // Find the device snapshot inside favoriteDevices
-    const dev = favoriteDevices.find(d => d.id === ev.id);
-    if (!dev || !dev.capabilitiesObj) return;
+  const overlay = tile.querySelector('.ev-overlay');
+  if (!overlay) return;
 
-    const rawState = dev.capabilitiesObj.charger_status?.value || "";
-    const state = rawState.toLowerCase();
+  const brandEl = overlay.querySelector('.ev-brand-icon');
+  const stateIcon = overlay.querySelector('.ev-state-icon');
+  const stateText = overlay.querySelector('.ev-state-text');
 
-    // Map Easee states to our icons and colours
-    const map = {
-        "disconnected": { icon: "Disconnected.svg", color: "#ff4c4c", text: "Disconnected" },
-        "car connected": { icon: "Connected.svg", color: "#ffbf00", text: "Connected" },
-        "paused":        { icon: "Connected.svg", color: "#ffbf00", text: "Connected" },
-        "charging":      { icon: "Charging.svg", color: "#4da6ff", text: "Charging" },
-        "completed":     { icon: "BatteryFull.svg", color: "#00cc66", text: "Completed" },
-        "error":         { icon: "Warning.svg", color: "#ff4c4c", text: "Error" }
-    };
+  // Update brand icon (in case device names change)
+  const newBrand = getEvBrandIcon(device);
+  if (brandEl && brandEl.src !== newBrand) {
+    brandEl.src = newBrand;
+  }
 
-    const cfg = map[state] || map["disconnected"];
+  // Get state
+  const state = getEvState(device);
 
-    // Apply images
-    brandEl.src = `/app/img/icons/${ev.brand}`;
-    stateIcon.src = `/app/img/icons/${cfg.icon}`;
+  overlay.classList.remove(
+      'ev-state-charging',
+      'ev-state-connected',
+      'ev-state-unplugged',
+      'ev-state-completed',
+      'ev-state-error'
+  );
+  overlay.classList.add('ev-state-' + state.key);
 
-    // Apply text & colour
-    stateText.textContent = cfg.text;
-    stateText.style.color = cfg.color;
+  if (stateIcon) stateIcon.src = state.icon;
+  if (stateText) stateText.textContent = state.label;
 });
+
+  
+  
   
   
   
@@ -1489,6 +1536,39 @@ evDevices.forEach(ev => {
     devices.forEach(function(device) {
       if (!device.ready) {return}
       var $deviceElement = document.createElement('div');
+
+      
+
+      // ------------------------------------------------------
+      // EV OVERLAY INITIALISER (runs once per EV tile)
+      // ------------------------------------------------------
+      if (isEvCharger(device)) {
+      
+        const tile = $deviceElement;
+      
+        // Avoid double injection
+        if (!tile.querySelector('.ev-overlay')) {
+      
+          const overlay = document.createElement('div');
+          overlay.classList.add('ev-overlay');
+      
+          overlay.innerHTML = `
+            <div class="ev-bg"></div>
+      
+            <img class="ev-brand-icon" src="${getEvBrandIcon(device)}" />
+      
+            <div class="ev-state-container">
+              <img class="ev-state-icon" src="/app/img/icons/Connected.svg" />
+              <span class="ev-state-text">Connected</span>
+            </div>
+          `;
+      
+          tile.appendChild(overlay);
+        }
+      }      
+      
+      
+      
       $deviceElement.id = 'device:' + device.id;
       $deviceElement.classList.add('device');
       $deviceElement.classList.toggle('on', device.capabilitiesObj && device.capabilitiesObj[device.ui.quickAction] && device.capabilitiesObj[device.ui.quickAction].value === true);
@@ -1498,35 +1578,7 @@ evDevices.forEach(ev => {
       $devicesInner.appendChild($deviceElement);
 
       
-      // --- EV tiles (Easee Ella / Easee Elois) ---
-      if (
-        device.id === '972ddbe2-b4d2-4e27-8c90-d958d4c06775' || // Easee Ella
-        device.id === 'e2d83fdf-a014-4cd3-a880-de909c543179'    // Easee Elois
-      ) {
-        console.log('🔌 Setting up EV overlay for', device.name, device.id);
-      
-        // Avoid double-injection
-        if (!$deviceElement.querySelector('.ev-overlay')) {
-          const overlay = document.createElement('div');
-          overlay.className = 'ev-overlay';
-      
-          overlay.innerHTML = `
-            <div class="ev-brand"></div>
-            <div class="ev-status-icon"></div>
-            <div class="ev-status-text"></div>
-          `;
-      
-          $deviceElement.appendChild(overlay);
-      
-          // Initial text from charger_status (just to prove it works)
-          const caps = device.capabilitiesObj || {};
-          const status =
-            (caps.charger_status && caps.charger_status.value) || 'Unknown';
-      
-          const textEl = overlay.querySelector('.ev-status-text');
-          if (textEl) textEl.textContent = status;
-        }
-      }
+
       
       
       
