@@ -1015,6 +1015,15 @@ a {
 }
 
 
+/* ------------------------------------------------------
+   EV state icon colour fix: remove global invert
+------------------------------------------------------ */
+.ev-state-icon {
+    filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
 
 /* Future colours (currently inactive)
 .ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
