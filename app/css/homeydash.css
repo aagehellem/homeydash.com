@@ -942,54 +942,30 @@ a {
   gap: 4px;
 }
 
-
-
-/* BMW: do NOT invert (shows correctly without filter) */
-.ev-brand-icon[src$="BMW.svg"] {
-    filter: none !important;
-}
-
-/* Fiat: keep inverted (black logo → white on dark background) */
-.ev-brand-icon[src$="Fiat.svg"] {
-    filter: brightness(0) invert(1) !important;
-}
-
-
-
-/* --- EV state container (centered stack) --- */
-.ev-state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* --- Inline SVG container --- */
 .ev-state-icon {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none !important;
-    filter: none !important;
+  width: 32px;
+  height: 32px;
 }
 
-/* --- Inline SVG (take colour from JS via currentColor) --- */
-.ev-state-icon svg {
-    width: 36px;
-    height: 36px;
-    fill: currentColor;
-}
-
-/* --- State text --- */
 .ev-state-text {
-    margin-top: 6px;
-    font-size: 14px;
-    text-align: center;
+  font-size: 0.75rem;
+  text-align: center;
+  color: white;
 }
 
 
-  
+.ev-state-icon,
+.ev-brand-icon {
+    filter: brightness(0) invert(1);
+}
+
+
+
+/* Future colours (currently inactive)
+.ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
+.ev-state-unplugged .ev-bg { background: rgba(255,0,0,0.2); }
+*/
+
 
 
 
