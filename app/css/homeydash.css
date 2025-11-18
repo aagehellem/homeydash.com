@@ -1048,6 +1048,28 @@ a {
 
 
 
+/* ------------------------------------------------------
+   FORCE EV state icons to use mask (override HomeyDash)
+------------------------------------------------------ */
+
+.device .ev-overlay .ev-state-icon {
+    width: 32px;
+    height: 32px;
+
+    /* critical: override built-in mask rules */
+    -webkit-mask-size: contain !important;
+    -webkit-mask-repeat: no-repeat !important;
+    -webkit-mask-position: center !important;
+
+    mask-size: contain !important;
+    mask-repeat: no-repeat !important;
+    mask-position: center !important;
+
+    background-color: white; /* will be overwritten via JS */
+}  
+
+  
+
 
 /* Future colours (currently inactive)
 .ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
