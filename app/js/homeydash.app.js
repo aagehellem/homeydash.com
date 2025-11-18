@@ -34,14 +34,9 @@ function isEvCharger(device) {
 }
 
 function getEvBrandIcon(device) {
-  const base = '/homeydash.com/app/img/icons/';
   const name = (device.name || device.title || '').toLowerCase();
-
-  if (name.includes('ella') || name.includes('fiat')) {
-    return base + 'Fiat.svg';
-  }
-
-  return base + 'BMW.svg';
+  if (name.includes('ella') || name.includes('fiat')) return '/app/img/icons/Fiat.svg';
+  return '/app/img/icons/BMW.svg';
 }
 
 function getEvState(device) {
@@ -49,100 +44,78 @@ function getEvState(device) {
   const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
   const power = caps['measure_power']?.value ?? 0;
 
-  // Charging
-  if (raw === "charging" || power > 0) {
+  // ---------------------------------------------
+  // 1) Charging → BLUE
+  // ---------------------------------------------
+  if (raw === 'charging' || power > 0) {
     return {
-      key: "charging",
-      label: "Charging",
-      icon: evIcon_charging,
-      color: "#4da6ff"   // blue
+      key:   'charging',
+      label: 'Charging',
+      icon:  '/homeydash.com/app/img/icons/Charging.svg',
+      color: '#4da6ff'   // blue
     };
   }
 
-  // Completed
-  if (raw === "completed") {
+  // ---------------------------------------------
+  // 2) Completed → GREEN
+  // ---------------------------------------------
+  if (raw === 'completed') {
     return {
-      key: "completed",
-      label: "Completed",
-      icon: evIcon_completed,
-      color: "#00cc66"  // green
+      key:   'completed',
+      label: 'Completed',
+      icon:  '/homeydash.com/app/img/icons/BatteryFull.svg',
+      color: '#00cc66'   // green
     };
   }
 
-  // Connected (plugged in but not charging)
-  if (raw === "car connected" || raw === "paused") {
+  // ---------------------------------------------
+  // 3) Connected → AMBER
+  // ---------------------------------------------
+  if (raw === 'car connected' || raw === 'paused') {
     return {
-      key: "connected",
-      label: "Connected",
-      icon: evIcon_connected,
-      color: "#ffd500"  // yellow
+      key:   'connected',
+      label: 'Connected',
+      icon:  '/homeydash.com/app/img/icons/Connected.svg',
+      color: '#ffbf00'   // amber
     };
   }
 
-  // Warning (error / offline)
-  if (raw === "error" || raw === "offline") {
+  // ---------------------------------------------
+  // 4) Warning → RED
+  // ---------------------------------------------
+  if (raw === 'error' || raw === 'offline') {
     return {
-      key: "warning",
-      label: "Warning",
-      icon: evIcon_warning,
-      color: "#ff9f00"  // amber
+      key:   'warning',
+      label: 'Warning',
+      icon:  '/homeydash.com/app/img/icons/Warning.svg',
+      color: '#ff4c4c'   // red
     };
   }
 
-  // Disconnected (standby)
-  if (raw === "standby") {
+  // ---------------------------------------------
+  // 5) Disconnected (Standby) → RED
+  // ---------------------------------------------
+  if (raw === 'standby') {
     return {
-      key: "disconnected",
-      label: "Disconnected",
-      icon: evIcon_disconnected,
-      color: "#ff4c4c"   // red
+      key:   'disconnected',
+      label: 'Disconnected',
+      icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+      color: '#ff4c4c'   // red
     };
   }
 
-  // Default → Warning
+  // ---------------------------------------------
+  // 6) Fallback → Disconnected
+  // ---------------------------------------------
   return {
-    key: "warning",
-    label: "Warning",
-    icon: evIcon_warning,
-    color: "#ff9f00"  // amber
+    key:   'disconnected',
+    label: 'Disconnected',
+    icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+    color: '#ff4c4c'  // red
   };
 }
 
 
-// ------------------------------------------------------
-// EV INLINE SVG ICONS (36x36, tintable via CSS)
-// ------------------------------------------------------
-
-const evIcon_disconnected = `
-<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20 6h8v12h4v6H16v-6h4V6z"/>
-  <path d="M18 24h12v6H18z"/>
-  <path d="M30 30l6 6m0-6l-6 6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-</svg>`;
-
-const evIcon_connected = `
-<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20 6h8v12h4v6H16v-6h4V6z"/>
-  <path d="M18 24h12v6H18z"/>
-</svg>`;
-
-const evIcon_charging = `
-<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M28 4L12 26h12l-4 18 16-22H24z"/>
-</svg>`;
-
-const evIcon_completed = `
-<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <rect x="6" y="14" width="32" height="20" rx="3"/>
-  <rect x="38" y="20" width="4" height="8" rx="1"/>
-</svg>`;
-
-const evIcon_warning = `
-<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M24 6L6 42h36L24 6z"/>
-  <rect x="22" y="18" width="4" height="12" fill="white"/>
-  <rect x="22" y="34" width="4" height="4" fill="white"/>
-</svg>`;
 
 
 window.addEventListener('load', function() {
@@ -1246,26 +1219,8 @@ favoriteDevices.forEach(device => {
   );
   overlay.classList.add('ev-state-' + state.key);
 
-  
-  // --- Find state elements ---
-  const stateIcon = overlay.querySelector('.ev-state-icon');
-  const stateText = overlay.querySelector('.ev-state-text');  
-  
-
-  // --- State icon: 
-  if (stateIcon) {
-      stateIcon.innerHTML = state.icon;
-      stateIcon.style.color = state.color;   // will work after Step 5
-  }
-  
-  // --- State text ---
-  if (stateText) {
-      stateText.textContent = state.label;
-      stateText.style.color = state.color;
-  }
-
-  
-  
+  if (stateIcon) stateIcon.src = state.icon;
+  if (stateText) stateText.textContent = state.label;
 });
 
   
@@ -1655,7 +1610,7 @@ favoriteDevices.forEach(device => {
             <img class="ev-brand-icon" src="${getEvBrandIcon(device)}" />
       
             <div class="ev-state-container">
-              <div class="ev-state-icon"></div>
+              <img class="ev-state-icon" src="/app/img/icons/Connected.svg" />
               <span class="ev-state-text">Connected</span>
             </div>
           `;
