@@ -1615,7 +1615,7 @@ favoriteDevices.forEach(device => {
             <img class="ev-brand-icon" src="${getEvBrandIcon(device)}" />
       
             <div class="ev-state-container">
-              <img class="ev-state-icon" src="/app/img/icons/Connected.svg" />
+              <div class="ev-state-icon"></div>
               <span class="ev-state-text">Connected</span>
             </div>
           `;
