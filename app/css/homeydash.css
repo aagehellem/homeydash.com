@@ -891,78 +891,42 @@ a {
 }
 
 
-/* =========================================
-   EV tiles (Easee Ella / Elois)
-   ========================================= */
 
-.ev-status {
+
+.ev-overlay {
   position: absolute;
   top: 8px;
-  right: 10px;
-  font-size: 14px;
+  left: 8px;
+  right: 8px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 4px;
+  pointer-events: none;
 }
 
-.ev-status::before {
-  content: '';
-  width: 20px;
-  height: 20px;
+.ev-brand {
+  width: 32px;
+  height: 32px;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  /* temp colour box so we see it even without logos */
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Base colour for text – overridden per state if you like */
-.ev-status {
-  color: #ffffff;
+.ev-status-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-right: 6px;
 }
 
-/* Disconnected */
-.ev-disconnected {
-  color: #ff4d4d;
-}
-.ev-disconnected::before {
-  background-image: url('/app/img/icons/Disconnected.svg');
+.ev-status-text {
+  color: white;
+  font-size: 14px;
 }
 
-/* Connected (car plugged in, not charging) */
-.ev-connected {
-  color: #ffbf40; /* amber */
-}
-.ev-connected::before {
-  background-image: url('/app/img/icons/Connected.svg');
-}
 
-/* Charging */
-.ev-charging {
-  color: #4db3ff; /* blue */
-}
-.ev-charging::before {
-  background-image: url('/app/img/icons/Charging.svg');
-}
 
-/* Completed */
-.ev-completed {
-  color: #3ddc5c; /* green */
-}
-.ev-completed::before {
-  background-image: url('/app/img/icons/BatteryFull.svg');
-}
-
-/* Error / Offline */
-.ev-error {
-  color: #ff4d4d;
-}
-.ev-error::before {
-  background-image: url('/app/img/icons/Warning.svg');
-}
-
-/* Brand logo: make sure the tile icon looks nice */
-.ev-brand-icon {
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: 10px 10px !important;
-}
 
