@@ -970,6 +970,52 @@ a {
 }
 
 
+/* ------------------------------------------------------
+   EV tile colour coding by state (updated mapping)
+------------------------------------------------------ */
+
+/* Charging → Blue */
+.ev-state-charging .ev-state-icon,
+.ev-state-charging .ev-state-text {
+    filter: none !important;
+    color: #4da6ff !important;   /* blue */
+    fill: #4da6ff !important;
+}
+
+/* Connected → Yellow */
+.ev-state-connected .ev-state-icon,
+.ev-state-connected .ev-state-text {
+    filter: none !important;
+    color: #ffd500 !important;   /* bright yellow */
+    fill: #ffd500 !important;
+}
+
+/* Completed → Green */
+.ev-state-completed .ev-state-icon,
+.ev-state-completed .ev-state-text {
+    filter: none !important;
+    color: #00cc66 !important;   /* green */
+    fill: #00cc66 !important;
+}
+
+/* Disconnected → Red */
+.ev-state-disconnected .ev-state-icon,
+.ev-state-disconnected .ev-state-text {
+    filter: none !important;
+    color: #ff4c4c !important;   /* red */
+    fill: #ff4c4c !important;
+}
+
+/* Warning → Amber */
+.ev-state-warning .ev-state-icon,
+.ev-state-warning .ev-state-text {
+    filter: none !important;
+    color: #ff9f00 !important;   /* amber */
+    fill: #ff9f00 !important;
+}
+
+
+
 /* Future colours (currently inactive)
 .ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
 .ev-state-unplugged .ev-bg { background: rgba(255,0,0,0.2); }
