@@ -121,6 +121,40 @@ function getEvState(device) {
 }
 
 
+// ------------------------------------------------------
+// EV INLINE SVG ICONS (36x36, tintable via CSS)
+// ------------------------------------------------------
+
+const evIcon_disconnected = `
+<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 6h8v12h4v6H16v-6h4V6z"/>
+  <path d="M18 24h12v6H18z"/>
+  <path d="M30 30l6 6m0-6l-6 6" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+</svg>`;
+
+const evIcon_connected = `
+<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 6h8v12h4v6H16v-6h4V6z"/>
+  <path d="M18 24h12v6H18z"/>
+</svg>`;
+
+const evIcon_charging = `
+<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M28 4L12 26h12l-4 18 16-22H24z"/>
+</svg>`;
+
+const evIcon_completed = `
+<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <rect x="6" y="14" width="32" height="20" rx="3"/>
+  <rect x="38" y="20" width="4" height="8" rx="1"/>
+</svg>`;
+
+const evIcon_warning = `
+<svg viewBox="0 0 48 48" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M24 6L6 42h36L24 6z"/>
+  <rect x="22" y="18" width="4" height="12" fill="white"/>
+  <rect x="22" y="34" width="4" height="4" fill="white"/>
+</svg>`;
 
 
 window.addEventListener('load', function() {
