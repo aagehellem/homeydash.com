@@ -41,26 +41,78 @@ function getEvBrandIcon(device) {
 
 function getEvState(device) {
   const caps = device.capabilitiesObj || {};
+  const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
   const power = caps['measure_power']?.value ?? 0;
-  const plugged = caps['charger_status']?.value?.toLowerCase() ?? '';
 
-  if (power > 0 || plugged === 'charging') {
-    return { key: 'charging', label: 'Charging', icon: '/app/img/icons/Charging.svg' };
+  // ---------------------------------------------
+  // 1) Charging → BLUE
+  // ---------------------------------------------
+  if (raw === 'charging' || power > 0) {
+    return {
+      key:   'charging',
+      label: 'Charging',
+      icon:  '/homeydash.com/app/img/icons/Charging.svg',
+      color: '#4da6ff'   // blue
+    };
   }
 
-  if (plugged.includes('connected') || plugged.includes('paused')) {
-    return { key: 'connected', label: 'Connected', icon: '/app/img/icons/Connected.svg' };
+  // ---------------------------------------------
+  // 2) Completed → GREEN
+  // ---------------------------------------------
+  if (raw === 'completed') {
+    return {
+      key:   'completed',
+      label: 'Completed',
+      icon:  '/homeydash.com/app/img/icons/BatteryFull.svg',
+      color: '#00cc66'   // green
+    };
   }
 
-  if (plugged.includes('completed')) {
-    return { key: 'completed', label: 'Completed', icon: '/app/img/icons/BatteryFull.svg' };
+  // ---------------------------------------------
+  // 3) Connected → AMBER
+  // ---------------------------------------------
+  if (raw === 'car connected' || raw === 'paused') {
+    return {
+      key:   'connected',
+      label: 'Connected',
+      icon:  '/homeydash.com/app/img/icons/Connected.svg',
+      color: '#ffbf00'   // amber
+    };
   }
 
-  if (plugged.includes('error')) {
-    return { key: 'error', label: 'Error', icon: '/app/img/icons/Warning.svg' };
+  // ---------------------------------------------
+  // 4) Warning → RED
+  // ---------------------------------------------
+  if (raw === 'error' || raw === 'offline') {
+    return {
+      key:   'warning',
+      label: 'Warning',
+      icon:  '/homeydash.com/app/img/icons/Warning.svg',
+      color: '#ff4c4c'   // red
+    };
   }
 
-  return { key: 'unplugged', label: 'Unplugged', icon: '/app/img/icons/Disconnected.svg' };
+  // ---------------------------------------------
+  // 5) Disconnected (Standby) → RED
+  // ---------------------------------------------
+  if (raw === 'standby') {
+    return {
+      key:   'disconnected',
+      label: 'Disconnected',
+      icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+      color: '#ff4c4c'   // red
+    };
+  }
+
+  // ---------------------------------------------
+  // 6) Fallback → Disconnected
+  // ---------------------------------------------
+  return {
+    key:   'disconnected',
+    label: 'Disconnected',
+    icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+    color: '#ff4c4c'  // red
+  };
 }
 
 
