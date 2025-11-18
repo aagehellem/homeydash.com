@@ -905,3 +905,59 @@ a {
 }
 
 
+
+/* --------------------------------------------------
+   EV TILE OVERLAY
+-------------------------------------------------- */
+
+.ev-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.ev-overlay .ev-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.ev-brand-icon {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 40px;
+  height: 40px;
+}
+
+.ev-state-container {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ev-state-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.ev-state-text {
+  font-size: 0.75rem;
+  text-align: center;
+  color: white;
+}
+
+/* Future colours (currently inactive)
+.ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
+.ev-state-unplugged .ev-bg { background: rgba(255,0,0,0.2); }
+*/
+
+
+
+
