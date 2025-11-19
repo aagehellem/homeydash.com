@@ -1009,7 +1009,7 @@ garageTiles.forEach(({ id, label }) => {
 favoriteDevices.forEach(device => {
   const capabilities = Object.keys(device.capabilitiesObj || {});
 
-  if (capabilities.includes("measure_temperature"))
+  if (capabilities.includes("measure_temperature")) {
 
     const tile = document.getElementById('device:' + device.id);
     if (!tile) return;
