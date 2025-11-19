@@ -1055,11 +1055,11 @@ a {
 
 .temp-state-container {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 70px;
-    height: 58px; 
-    text-align: right;
+    top: 20px;
+    right: 10px;
+    width: 60px;
+    height: 60px; 
+    text-align: center;
     font-weight: 300;
     display: flex;
     flex-direction: column;
