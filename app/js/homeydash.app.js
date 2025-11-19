@@ -954,8 +954,10 @@ setTimeout(() => {
   // Try once after initial render; the update loop can retry if needed
   setupWindTile();  
   
-  
-  
+// ===========================================
+// Garage Tile setup
+// ===========================================
+    
 console.log("🚗 Garage tile EV-style state setup");
 
 const garageTiles = [
@@ -1000,7 +1002,48 @@ garageTiles.forEach(({ id, label }) => {
   }
 });
 
+
+// ===========================================
+// Temperature tile setup (Dogs + Wine Cellar)
+// ===========================================
+
+if (device.virtualClass === "sensor" && (capabilities.includes("measure_temperature"))) {
+
+    const tile = document.getElementById(device.id);
+    if (!tile) return;
+
+    // Create container once
+    let stateContainer = tile.querySelector(".temp-state-container");
+    if (!stateContainer) {
+        stateContainer = document.createElement("div");
+        stateContainer.classList.add("temp-state-container");
+        tile.appendChild(stateContainer);
+    }
+
+    // Clear previous
+    stateContainer.innerHTML = "";
+
+    // Insert temperature line
+    const tempEl = document.createElement("div");
+    tempEl.classList.add("temp-value");
+    tempEl.textContent = "--°C";
+    stateContainer.appendChild(tempEl);
+
+    // Insert humidity line only for Wine Cellar
+    if (capabilities.includes("measure_humidity")) {
+        const humEl = document.createElement("div");
+        humEl.classList.add("humidity-value");
+        humEl.textContent = "--%";
+        stateContainer.appendChild(humEl);
+    }
+}  
   
+  
+
+//-----------------------------------------------------
+// START OF UPDATE LOOP FOR ALL TILE TYPES
+//-----------------------------------------------------
+
   
 setInterval(() => {
 
@@ -1173,11 +1216,56 @@ if (stateContainer) {
         stateContainer.classList.remove('night-alert');
     }
 }  
-  
-  
-  
 });
 
+
+// ===========================================
+// Temperature tile update logic
+// ===========================================
+
+if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
+
+    const tile = document.getElementById(device.id);
+    if (!tile) continue;
+
+    const stateContainer = tile.querySelector(".temp-state-container");
+    if (!stateContainer) continue;
+
+    const tempEl = stateContainer.querySelector(".temp-value");
+    const humEl = stateContainer.querySelector(".humidity-value");
+
+    // ---- Temperature ----
+    let temp = device.capabilitiesObj.measure_temperature?.value;
+    if (temp !== null && temp !== undefined) {
+        temp = Math.round(temp * 10) / 10;
+        tempEl.textContent = `${temp}°C`;
+    }
+
+    // Apply colour thresholds
+    if (device.name.includes("Dogs") || device.name.includes("Dog")) {
+        // Dogs' Flat thresholds: 20–25 normal
+        if (temp < 20) tempEl.style.color = "#5ab8ff";       // blue
+        else if (temp > 25) tempEl.style.color = "#ff4d4d";  // red
+        else tempEl.style.color = "#ffffff";                 // normal
+    }
+
+    if (device.name.includes("Wine") || capabilities.includes("measure_humidity")) {
+        // Wine Cellar thresholds: 10–16 normal
+        if (temp < 10) tempEl.style.color = "#5ab8ff";       // blue
+        else if (temp > 16) tempEl.style.color = "#ff4d4d";  // red
+        else tempEl.style.color = "#ffffff";                 // normal
+    }
+
+    // ---- Humidity (optional line) ----
+    if (humEl) {
+        let humidity = device.capabilitiesObj.measure_humidity?.value;
+        if (humidity !== null && humidity !== undefined) {
+            humidity = Math.round(humidity);
+            humEl.textContent = `${humidity}%`;
+        }
+    }
+}
+  
   
   
 }, 1000);
