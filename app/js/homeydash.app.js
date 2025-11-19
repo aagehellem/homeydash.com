@@ -1006,37 +1006,40 @@ garageTiles.forEach(({ id, label }) => {
 // ===========================================
 // Temperature tile setup (Dogs + Wine Cellar)
 // ===========================================
+favoriteDevices.forEach(device => {
+  const capabilities = Object.keys(device.capabilitiesObj || {});
 
-if (device.virtualClass === "sensor" && (capabilities.includes("measure_temperature"))) {
+  if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
 
-    const tile = document.getElementById(device.id);
+    const tile = document.getElementById('device:' + device.id);
     if (!tile) return;
 
     // Create container once
     let stateContainer = tile.querySelector(".temp-state-container");
     if (!stateContainer) {
-        stateContainer = document.createElement("div");
-        stateContainer.classList.add("temp-state-container");
-        tile.appendChild(stateContainer);
+      stateContainer = document.createElement("div");
+      stateContainer.classList.add("temp-state-container");
+      tile.appendChild(stateContainer);
     }
 
-    // Clear previous
+    // Clear previous content
     stateContainer.innerHTML = "";
 
-    // Insert temperature line
+    // Temperature line
     const tempEl = document.createElement("div");
     tempEl.classList.add("temp-value");
     tempEl.textContent = "--°C";
     stateContainer.appendChild(tempEl);
 
-    // Insert humidity line only for Wine Cellar
+    // Humidity line only for Wine Cellar
     if (capabilities.includes("measure_humidity")) {
-        const humEl = document.createElement("div");
-        humEl.classList.add("humidity-value");
-        humEl.textContent = "--%";
-        stateContainer.appendChild(humEl);
+      const humEl = document.createElement("div");
+      humEl.classList.add("humidity-value");
+      humEl.textContent = "--%";
+      stateContainer.appendChild(humEl);
     }
-}  
+  }
+});
   
   
 
@@ -1145,126 +1148,112 @@ if (windArrowNode && windSpeedNode) {
   
   
 //-----------------------------------------------------
-// EV dynamic updater (runs every interval)
+// EV + Temperature dynamic updater (runs every interval)
 //-----------------------------------------------------
 const evDevices = [
-    {
-        id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775',  // Ella
-        brand: 'Fiat.svg'
-    },
-    {
-        id: 'e2d83fdf-a014-4cd3-a880-de909c543179',  // Elois
-        brand: 'BMW.svg'
-    }
+  {
+    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775',  // Ella
+    brand: 'Fiat.svg'
+  },
+  {
+    id: 'e2d83fdf-a014-4cd3-a880-de909c543179',  // Elois
+    brand: 'BMW.svg'
+  }
 ];
 
-// ------------------------------------------------------
-// EV OVERLAY UPDATER
-// ------------------------------------------------------
 favoriteDevices.forEach(device => {
-
-  if (!isEvCharger(device)) return;
-
   const tile = document.getElementById('device:' + device.id);
   if (!tile) return;
 
-  const overlay = tile.querySelector('.ev-overlay');
-  if (!overlay) return;
+  const capabilities = Object.keys(device.capabilitiesObj || {});
 
-  const brandEl = overlay.querySelector('.ev-brand-icon');
-  const stateIcon = overlay.querySelector('.ev-state-icon');
-  const stateText = overlay.querySelector('.ev-state-text');
+  // ---------------------------
+  // EV overlay update
+  // ---------------------------
+  if (isEvCharger(device)) {
+    const overlay    = tile.querySelector('.ev-overlay');
+    if (overlay) {
+      const brandEl   = overlay.querySelector('.ev-brand-icon');
+      const stateIcon = overlay.querySelector('.ev-state-icon');
+      const stateText = overlay.querySelector('.ev-state-text');
 
-  // Update brand icon (in case device names change)
-  const newBrand = getEvBrandIcon(device);
-  if (brandEl && brandEl.src !== newBrand) {
-    brandEl.src = newBrand;
-  }
+      const newBrand = getEvBrandIcon(device);
+      if (brandEl && brandEl.src !== newBrand) {
+        brandEl.src = newBrand;
+      }
 
-  // Get state
-  const state = getEvState(device);
+      const state = getEvState(device);
 
-  overlay.classList.remove(
-      'ev-state-charging',
-      'ev-state-connected',
-      'ev-state-unplugged',
-      'ev-state-completed',
-      'ev-state-error'
-  );
-  
-  overlay.classList.add('ev-state-' + state.key);
+      overlay.classList.remove(
+        'ev-state-charging',
+        'ev-state-connected',
+        'ev-state-unplugged',
+        'ev-state-completed',
+        'ev-state-error'
+      );
+      overlay.classList.add('ev-state-' + state.key);
 
-  if (stateIcon) stateIcon.src = state.icon;
-  if (stateText) {
-      stateText.textContent = state.label;
-      stateText.style.color = state.color;
-  }
+      if (stateIcon) stateIcon.src = state.icon;
+      if (stateText) {
+        stateText.textContent = state.label;
+        stateText.style.color = state.color;
+      }
 
-  // Set frame colour using CSS variable
-  overlay.style.setProperty('--ev-state-colour', state.color);
+      const stateContainer = tile.querySelector('.ev-state-container');
+      const hour = new Date().getHours();
+      const isNight = (hour >= 22 || hour < 4);
 
-  
-// Nighttime alert if disconnected
-const hour = new Date().getHours();
-const isNight = (hour >= 22 || hour < 4);    // for testing
+      if (stateContainer) {
+        if (state.key === 'disconnected' && isNight) {
+          stateContainer.classList.add('night-alert');
+        } else {
+          stateContainer.classList.remove('night-alert');
+        }
+      }
 
-const stateContainer = tile.querySelector('.ev-state-container');
-if (stateContainer) {
-    if (state.key === 'disconnected' && isNight) {
-        stateContainer.classList.add('night-alert');
-    } else {
-        stateContainer.classList.remove('night-alert');
+      overlay.style.setProperty('--ev-state-colour', state.color);
     }
-}  
-});
+  }
 
-
-// ===========================================
-// Temperature tile update logic
-// ===========================================
-
-if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
-
-    const tile = document.getElementById(device.id);
-    if (!tile) continue;
-
+  // ---------------------------
+  // Temperature update (Dogs + Wine)
+  // ---------------------------
+  if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
     const stateContainer = tile.querySelector(".temp-state-container");
-    if (!stateContainer) continue;
+    if (!stateContainer) return;
 
     const tempEl = stateContainer.querySelector(".temp-value");
-    const humEl = stateContainer.querySelector(".humidity-value");
+    const humEl  = stateContainer.querySelector(".humidity-value");
 
-    // ---- Temperature ----
     let temp = device.capabilitiesObj.measure_temperature?.value;
     if (temp !== null && temp !== undefined) {
-        temp = Math.round(temp * 10) / 10;
-        tempEl.textContent = `${temp}°C`;
+      temp = Math.round(temp * 10) / 10;
+      if (tempEl) tempEl.textContent = `${temp}°C`;
     }
 
-    // Apply colour thresholds
+    // Colour thresholds
     if (device.name.includes("Dogs") || device.name.includes("Dog")) {
-        // Dogs' Flat thresholds: 20–25 normal
-        if (temp < 20) tempEl.style.color = "#5ab8ff";       // blue
-        else if (temp > 25) tempEl.style.color = "#ff4d4d";  // red
-        else tempEl.style.color = "#ffffff";                 // normal
+      if (temp < 20)      tempEl.style.color = "#5ab8ff";  // blue
+      else if (temp > 25) tempEl.style.color = "#ff4d4d";  // red
+      else                tempEl.style.color = "#ffffff";  // normal
     }
 
     if (device.name.includes("Wine") || capabilities.includes("measure_humidity")) {
-        // Wine Cellar thresholds: 10–16 normal
-        if (temp < 10) tempEl.style.color = "#5ab8ff";       // blue
-        else if (temp > 16) tempEl.style.color = "#ff4d4d";  // red
-        else tempEl.style.color = "#ffffff";                 // normal
+      if (temp < 10)      tempEl.style.color = "#5ab8ff";  // blue
+      else if (temp > 16) tempEl.style.color = "#ff4d4d";  // red
+      else                tempEl.style.color = "#ffffff";  // normal
     }
 
-    // ---- Humidity (optional line) ----
     if (humEl) {
-        let humidity = device.capabilitiesObj.measure_humidity?.value;
-        if (humidity !== null && humidity !== undefined) {
-            humidity = Math.round(humidity);
-            humEl.textContent = `${humidity}%`;
-        }
+      let humidity = device.capabilitiesObj.measure_humidity?.value;
+      if (humidity !== null && humidity !== undefined) {
+        humidity = Math.round(humidity);
+        humEl.textContent = `${humidity}%`;
+      }
+      // colour of humidity stays subtle grey via CSS
     }
-}
+  }
+});
   
   
   
