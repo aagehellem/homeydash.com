@@ -81,7 +81,7 @@ function getEvState(device) {
       key:   'connected',
       label: 'Connected',
       icon:  '/homeydash.com/app/img/icons/Connected.svg',
-      color: '#ffbf00'   // amber
+      color: '#ffd500'      // yellow
     };
   }
 
@@ -93,7 +93,7 @@ function getEvState(device) {
       key:   'warning',
       label: 'Warning',
       icon:  '/homeydash.com/app/img/icons/Warning.svg',
-      color: '#ff4c4c'   // red
+      color: '#ffbf00'   // amber
     };
   }
 
@@ -1225,12 +1225,15 @@ favoriteDevices.forEach(device => {
   overlay.classList.add('ev-state-' + state.key);
 
   if (stateIcon) stateIcon.src = state.icon;
-  if (stateText) stateText.textContent = state.label;
+  if (stateText) {
+      stateText.textContent = state.label;
+      stateText.style.color = state.color;
+  }
+
+  overlay.style.setProperty('--ev-state-colour', state.color);
+  
 });
 
-  
-  
-  
   
   
 }, 1000);
