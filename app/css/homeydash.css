@@ -955,6 +955,10 @@ a {
     color: white;               /* ensures text stays readable */
 }
 
+/* Night alert – force text white */
+.ev-state-container.night-alert .ev-state-text {
+    color: white !important;
+}
 
 .ev-state-icon {
   width: 32px;
