@@ -833,48 +833,44 @@ a {
   align-items: center;
   gap: 4px;
 
-  border: 1px solid transparent;     /* green/red applied by state */
+  border: 1px solid transparent;
   border-radius: 8px;
   padding: 3px 4px;
-
-  pointer-events: none;               /* avoids blocking tile clicks */
 }
 
 /* State icon — identical size to EV icons */
 .garage-state-icon {
   width: 32px;
   height: 32px;
-  filter: brightness(0) invert(1);    /* pure white */
+  filter: brightness(0) invert(1);  /* white */
 }
 
-/* Text styling — identical to EV text */
+/* Default (closed) text */
 .garage-state-text {
   font-size: 0.75rem;
   text-align: center;
-  color: white;                       /* default, overwritten below */
+  color: white;
 }
 
-/* ---------- CLOSED STATE ---------- */
+/* ---------- CLOSED ---------- */
 .device.garage-tile.garage-closed .garage-state-container {
-  border-color: #21f521;              /* vivid green border */
+  border-color: #21f521;    /* green border */
+  background: transparent;  /* no fill */
 }
 
 .device.garage-tile.garage-closed .garage-state-text {
-  color: #21f521;                     /* green text */
+  color: #21f521;           /* green text */
 }
 
-/* ---------- OPEN STATE ---------- */
-.device.garage-tile.garage-open {
-  background-color: #ff3333 !important;   /* full-tile alarm */
-}
-
+/* ---------- OPEN ---------- */
 .device.garage-tile.garage-open .garage-state-container {
-  border-color: #ff3333;              /* white border (matches EV alert style) */
+  border-color: #ff3333;    /* red border */
+  background: #ff3333;      /* red fill (alarm) */
 }
 
 .device.garage-tile.garage-open .garage-state-text {
-  color: white;                       /* ensure good contrast */
-}|
+  color: white;
+}
 
 
 
