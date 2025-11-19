@@ -824,7 +824,7 @@ a {
 
 .ev-state-container,
 .garage-state-container {
-  width: 80px;        /* fixed width wide enough for “Disconnected” */
+  width: 70px;        /* fixed width wide enough for “Disconnected” */
   box-sizing: border-box;
 }
 
