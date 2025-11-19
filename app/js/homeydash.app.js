@@ -1097,6 +1097,9 @@ setInterval(() => {
 
     statusEl.textContent = isOpen ? 'Open' : 'Closed';
 
+    
+// Commenting out this section to get rid of the custom styling of the garage tiles    
+/*
     if (isOpen) {
       tile.style.setProperty('background-color', 'red', 'important');
       nameEl.style.color = 'white';
@@ -1110,6 +1113,7 @@ setInterval(() => {
       statusEl.style.setProperty('color', '#21f521', 'important');
     }
   });
+*/  
 
   
   
