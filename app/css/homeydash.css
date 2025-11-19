@@ -943,9 +943,9 @@ a {
     gap: 4px;
 
     /* NEW — thin, rounded frame */
-    border: 2px solid var(--ev-state-colour, white);
+    border: 1px solid var(--ev-state-colour, white);
     border-radius: 8px;
-    padding: 6px 8px;
+    padding: 3px 4px;
 }
 
 .ev-state-icon {
