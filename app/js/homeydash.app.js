@@ -1237,7 +1237,7 @@ favoriteDevices.forEach(device => {
   
   // Nighttime alert if disconnected
   const hour = new Date().getHours();
-  const isNight = (hour >= 22 || hour < 4);
+  const isNight = (hour >= 17 || hour < 4);
   
   const stateContainer = overlay.querySelector('.ev-state-container');
   if (stateContainer) {
