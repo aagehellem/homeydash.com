@@ -1052,6 +1052,8 @@ setTimeout(() => {
 //nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
   nameEl.textContent = label;
 
+// Commenting out this section to get rid of the custom styling of the garage tiles    
+/*
 if (isOpen) {
   tile.style.setProperty('background-color', 'red', 'important');
   nameEl.style.color = 'white';
@@ -1064,6 +1066,7 @@ if (isOpen) {
   statusEl.style.setProperty('color', '#21f521', 'important'); // match label
   icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
 }
+*/
 
 
     tile.onclick = () => {
