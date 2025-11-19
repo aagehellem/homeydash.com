@@ -979,10 +979,11 @@ setTimeout(() => {
     const device = favoriteDevices.find(d => d.id === id);
     const tile = document.getElementById('device:' + id);
     const nameEl = document.getElementById('name:' + id);
-    const icon = document.getElementById('icon:' + id);
+//    const icon = document.getElementById('icon:' + id);
     
     tile.classList.add('custom-tile');
 
+/*
     // Position the icon manually inside the tile
     icon.style.position = 'absolute';
     icon.style.top = '6px';        // adjust vertically (try 4–8px for fine tuning)
@@ -994,8 +995,9 @@ setTimeout(() => {
     icon.style.backgroundRepeat = 'no-repeat';
     icon.style.backgroundPosition = 'left top';
     icon.style.backgroundColor = 'transparent';
-
-    if (!device || !tile || !nameEl || !icon) {
+*/
+    
+    if (!device || !tile || !nameEl) {
       console.warn(`❌ Missing element(s) for ${label}`);
       return;
     }
@@ -1038,7 +1040,7 @@ setTimeout(() => {
     tile.appendChild(statusEl);
 
 
-    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
+//    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
 
     /*
     requestAnimationFrame(() => {
@@ -1088,9 +1090,9 @@ setInterval(() => {
     const tile = document.getElementById('device:' + id);
     const statusEl = document.getElementById(`status:${id}`);
     const nameEl = document.getElementById('name:' + id);
-    const icon = document.getElementById('icon:' + id);
+//    const icon = document.getElementById('icon:' + id);
 
-    if (!device || !statusEl || !tile || !nameEl || !icon) return;
+    if (!device || !statusEl || !tile || !nameEl) return;
 
     const statusCap = 'devicecapabilities_boolean.boolean1';
     const isOpen = device.capabilitiesObj[statusCap].value === true;
