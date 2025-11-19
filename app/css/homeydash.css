@@ -1049,10 +1049,33 @@ a {
 }
 
 
-/* Future colours (currently inactive)
-.ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
-.ev-state-unplugged .ev-bg { background: rgba(255,0,0,0.2); }
-*/
+/* ============================
+   Temperature Tiles – Shared
+   ============================ */
+
+.temp-state-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 70px;
+    text-align: right;
+    font-weight: 300;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px; /* space between temp + humidity */
+}
+
+/* Temperature (primary metric) */
+.temp-value {
+    font-size: 20px;
+}
+
+/* Humidity (secondary metric) */
+.humidity-value {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.65);
+}
 
 
 
