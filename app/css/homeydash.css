@@ -750,17 +750,6 @@ a {
           font-weight: 1000;
         }
 
-         
-        .garage-status {
-          position: absolute;
-          top: 10px;
-          right: 8px;
-          font-size: 8px !important!;
-          font-weight: 700;
-          text-align: right;
-          z-index: 2;
-        }
-
 
         body {
           background: #111 !important;
@@ -827,6 +816,66 @@ a {
   opacity: 1 !important;
   background-color: inherit !important;
 }
+
+
+
+/* -----------------------------------------------------------
+   GARAGE TILE — EV-STYLE STATE CONTAINER (TOP-RIGHT)
+   ----------------------------------------------------------- */
+
+.garage-state-container {
+  position: absolute;
+  top: 20px;
+  right: 10px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  border: 1px solid transparent;     /* green/red applied by state */
+  border-radius: 8px;
+  padding: 3px 4px;
+
+  pointer-events: none;               /* avoids blocking tile clicks */
+}
+
+/* State icon — identical size to EV icons */
+.garage-state-icon {
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);    /* pure white */
+}
+
+/* Text styling — identical to EV text */
+.garage-state-text {
+  font-size: 0.75rem;
+  text-align: center;
+  color: white;                       /* default, overwritten below */
+}
+
+/* ---------- CLOSED STATE ---------- */
+.device.garage-tile.garage-closed .garage-state-container {
+  border-color: #21f521;              /* vivid green border */
+}
+
+.device.garage-tile.garage-closed .garage-state-text {
+  color: #21f521;                     /* green text */
+}
+
+/* ---------- OPEN STATE ---------- */
+.device.garage-tile.garage-open {
+  background-color: #ff3333 !important;   /* full-tile alarm */
+}
+
+.device.garage-tile.garage-open .garage-state-container {
+  border-color: #ff3333;              /* white border (matches EV alert style) */
+}
+
+.device.garage-tile.garage-open .garage-state-text {
+  color: white;                       /* ensure good contrast */
+}|
+
 
 
 
