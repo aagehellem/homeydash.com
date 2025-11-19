@@ -1009,7 +1009,7 @@ garageTiles.forEach(({ id, label }) => {
 favoriteDevices.forEach(device => {
   const capabilities = Object.keys(device.capabilitiesObj || {});
 
-  if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
+  if (capabilities.includes("measure_temperature"))
 
     const tile = document.getElementById('device:' + device.id);
     if (!tile) return;
@@ -1218,7 +1218,7 @@ favoriteDevices.forEach(device => {
   // ---------------------------
   // Temperature update (Dogs + Wine)
   // ---------------------------
-  if (device.virtualClass === "sensor" && capabilities.includes("measure_temperature")) {
+  if (capabilities.includes("measure_temperature")) {
     const stateContainer = tile.querySelector(".temp-state-container");
     if (!stateContainer) return;
 
