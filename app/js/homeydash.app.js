@@ -1222,6 +1222,7 @@ favoriteDevices.forEach(device => {
       'ev-state-completed',
       'ev-state-error'
   );
+  
   overlay.classList.add('ev-state-' + state.key);
 
   if (stateIcon) stateIcon.src = state.icon;
@@ -1230,7 +1231,24 @@ favoriteDevices.forEach(device => {
       stateText.style.color = state.color;
   }
 
+  // Set frame colour using CSS variable
   overlay.style.setProperty('--ev-state-colour', state.color);
+
+  
+  // Nighttime alert if disconnected
+  const hour = new Date().getHours();
+  const isNight = (hour >= 22 || hour < 4);
+  
+  const stateContainer = overlay.querySelector('.ev-state-container');
+  if (stateContainer) {
+      if (state.key === 'disconnected' && isNight) {
+          stateContainer.classList.add('night-alert');
+      } else {
+          stateContainer.classList.remove('night-alert');
+      }
+  }  
+  
+  
   
 });
 
