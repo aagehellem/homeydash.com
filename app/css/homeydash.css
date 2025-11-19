@@ -933,13 +933,19 @@ a {
 }
 
 .ev-state-container {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+    position: absolute;
+    top: 20px;
+    right: 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    /* NEW — thin, rounded frame */
+    border: 2px solid var(--ev-state-colour, white);
+    border-radius: 8px;
+    padding: 6px 8px;
 }
 
 .ev-state-icon {
