@@ -897,7 +897,6 @@ window.addEventListener('load', function() {
         renderDevices(favoriteDevices);        
 
         
-    // Modification to apply styling to the Garage Tiles (04/06/2025)
 
 setTimeout(() => {
 
@@ -957,166 +956,84 @@ setTimeout(() => {
   
   
   
-  console.log("🚀 Garage tile logic running on favoriteDevices");
+console.log("🚗 Garage tile EV-style state setup");
 
-  const garageTiles = [
-    {
-      id: '7bfb95ee-653d-482b-a020-f8054d424fd5',
-      label: 'Garage 1',
-      svgOpen: 'BMW.svg'
-    },
-    {
-      id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad',
-      label: 'Garage 2',
-      svgOpen: 'Fiat.svg'
-    }
-  ];
+const garageTiles = [
+  {
+    id: '7bfb95ee-653d-482b-a020-f8054d424fd5',
+    label: 'Garage 1'
+  },
+  {
+    id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad',
+    label: 'Garage 2'
+  }
+];
 
+garageTiles.forEach(({ id, label }) => {
+  const tile   = document.getElementById('device:' + id);
+  const nameEl = document.getElementById('name:' + id);
 
-  
-  
-  garageTiles.forEach(({ id, label, svgOpen }) => {
-    const device = favoriteDevices.find(d => d.id === id);
-    const tile = document.getElementById('device:' + id);
-    const nameEl = document.getElementById('name:' + id);
-//    const icon = document.getElementById('icon:' + id);
-    
-    tile.classList.add('custom-tile');
+  if (!tile || !nameEl) return;
 
-/*
-    // Position the icon manually inside the tile
-    icon.style.position = 'absolute';
-    icon.style.top = '6px';        // adjust vertically (try 4–8px for fine tuning)
-    icon.style.left = '6px';       // adjust horizontally
-    icon.style.width = '90px';
-    icon.style.height = '90px';
-    icon.style.backgroundImage = `url('${iconPath}${svgOpen}')`;
-    icon.style.backgroundSize = 'contain';
-    icon.style.backgroundRepeat = 'no-repeat';
-    icon.style.backgroundPosition = 'left top';
-    icon.style.backgroundColor = 'transparent';
-*/
-    
-    if (!device || !tile || !nameEl) {
-      console.warn(`❌ Missing element(s) for ${label}`);
-      return;
-    }
-
-    const statusCap = 'devicecapabilities_boolean.boolean1';
-    const toggleCap = 'onoffbuttontab_devicecapabilities_button.button1';
-
-    const isOpen = device.capabilitiesObj[statusCap]?.value === true;
-
-    tile.onclick = () => {
-      // 1. Trigger toggle_door = true
-      fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
-        method: 'POST'
-      });
-    
-      // 2. Remove "dimmed" visual effect (some browsers apply after click)
-      tile.blur?.(); // optional: removes focus
-      tile.style.opacity = '1'; // if needed
-      tile.style.filter = 'none'; // clear browser tap styles
-      tile.blur?.();
-      tile.classList.remove('on', 'true', 'active', 'dimmed');
-    
-      // 3. Reset toggle_door = false after 1 second
-      setTimeout(() => {
-        fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: false })
-        });
-      }, 1000);
-    };
-    
-
-    // Inject status element (top-right)
-    const statusEl = document.createElement('div');
-    statusEl.id = `status:${id}`;
-    statusEl.className = 'value garage-status';
-    statusEl.textContent = isOpen ? 'Open' : 'Closed';
-    statusEl.style.fontSize = '16px';
-    tile.appendChild(statusEl);
-
-
-//    const selectedSvg = isOpen ? svgOpen : 'Closed.svg';
-
-    /*
-    requestAnimationFrame(() => {
-      icon.style.backgroundImage = `url('${iconPath}${selectedSvg}')`;
-      icon.style.backgroundSize = 'contain';
-      icon.style.backgroundRepeat = 'no-repeat';
-      icon.style.backgroundPosition = 'center';
-    });
-    */
-
-//nameEl.textContent = `${label} ${isOpen ? 'Open' : 'Closed'}`;
+  tile.classList.add('garage-tile');
   nameEl.textContent = label;
-
-// Commenting out this section to get rid of the custom styling of the garage tiles    
-/*
-if (isOpen) {
-  tile.style.setProperty('background-color', 'red', 'important');
   nameEl.style.color = 'white';
-  statusEl.style.color = 'white';
-  icon.style.color = 'white';
-//  icon.style.filter = 'invert(1)';
-} else {
-  tile.style.setProperty('background-color', '#1a1a1a', 'important');
-  nameEl.style.setProperty('color', '#21f521', 'important'); // vivid green
-  statusEl.style.setProperty('color', '#21f521', 'important'); // match label
-  icon.style.filter = 'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)'; // green tint
-}
-*/
 
+  tile.style.removeProperty('background-color');
 
-    tile.onclick = () => {
-      fetch(`/api/app/com.athom.homey/${id}/capability/${toggleCap}/toggle`, {
-        method: 'POST'
-      });
-    };
+  /* STATE CONTAINER */
+  let stateContainer = tile.querySelector('.garage-state-container');
+  if (!stateContainer) {
+    stateContainer = document.createElement('div');
+    stateContainer.className = 'garage-state-container';
 
-    console.log(`✅ Styled ${label} (${isOpen ? 'Open' : 'Closed'})`);
-  });
+    const iconEl = document.createElement('img');
+    iconEl.className = 'garage-state-icon';
 
+    const textEl = document.createElement('span');
+    textEl.className = 'garage-state-text';
+
+    stateContainer.appendChild(iconEl);
+    stateContainer.appendChild(textEl);
+
+    tile.appendChild(stateContainer);
+  }
+});
 
   
   
 setInterval(() => {
+
+//-----------------------------------------------------
+// Garage tiles dynamic updater (runs every interval)
+//-----------------------------------------------------
   
-  garageTiles.forEach(({ id }) => {
-    const device = favoriteDevices.find(d => d.id === id);
-    const tile = document.getElementById('device:' + id);
-    const statusEl = document.getElementById(`status:${id}`);
-    const nameEl = document.getElementById('name:' + id);
-//    const icon = document.getElementById('icon:' + id);
+garageTiles.forEach(({ id }) => {
+  const device = favoriteDevices.find(d => d.id === id);
+  if (!device) return;
 
-    if (!device || !statusEl || !tile || !nameEl) return;
+  const tile           = document.getElementById('device:' + id);
+  const stateContainer = tile?.querySelector('.garage-state-container');
+  const iconEl         = stateContainer?.querySelector('.garage-state-icon');
+  const textEl         = stateContainer?.querySelector('.garage-state-text');
 
-    const statusCap = 'devicecapabilities_boolean.boolean1';
-    const isOpen = device.capabilitiesObj[statusCap].value === true;
+  if (!tile || !stateContainer || !iconEl || !textEl) return;
 
-    statusEl.textContent = isOpen ? 'Open' : 'Closed';
+  const statusCap = 'devicecapabilities_boolean.boolean1';
+  const isOpen = device.capabilitiesObj?.[statusCap]?.value === true;
 
-    
-// Commenting out this section to get rid of the custom styling of the garage tiles    
-/*
-    if (isOpen) {
-      tile.style.setProperty('background-color', 'red', 'important');
-      nameEl.style.color = 'white';
-      icon.style.filter = 'invert(1)';
-      statusEl.style.color = 'white';
-    } else {
-      tile.style.setProperty('background-color', '#1a1a1a', 'important');
-      nameEl.style.setProperty('color', '#21f521', 'important');
-      icon.style.filter =
-        'brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(702%) hue-rotate(88deg) brightness(90%) contrast(86%)';
-      statusEl.style.setProperty('color', '#21f521', 'important');
-    }
-*/  
+  tile.classList.remove('garage-open', 'garage-closed');
 
-  });
+  if (isOpen) {
+    tile.classList.add('garage-open');
+    textEl.textContent = 'Open';
+    iconEl.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+  } else {
+    tile.classList.add('garage-closed');
+    textEl.textContent = 'Closed';
+    iconEl.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+  }
+});
   
   
 // --- Wind Tile (AVD) ---
