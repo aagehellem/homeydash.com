@@ -818,6 +818,22 @@ a {
 }
 
 
+/* -----------------------------------------------------------
+   CONSISTENT WIDTH FOR ALL STATE CONTAINERS (EV + Garage)
+   ----------------------------------------------------------- */
+
+.ev-state-container,
+.garage-state-container {
+  width: 100px;        /* fixed width wide enough for “Disconnected” */
+  box-sizing: border-box;
+}
+
+.ev-state-text,
+.garage-state-text {
+  text-align: center;
+  white-space: nowrap;
+}
+
 
 /* -----------------------------------------------------------
    GARAGE TILE — EV-STYLE STATE CONTAINER (TOP-RIGHT)
