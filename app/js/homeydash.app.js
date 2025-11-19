@@ -1235,18 +1235,18 @@ favoriteDevices.forEach(device => {
   overlay.style.setProperty('--ev-state-colour', state.color);
 
   
-  // Nighttime alert if disconnected
-  const hour = new Date().getHours();
-  const isNight = (hour >= 17 || hour < 4);
-  
-  const stateContainer = overlay.querySelector('.ev-state-container');
-  if (stateContainer) {
-      if (state.key === 'disconnected' && isNight) {
-          stateContainer.classList.add('night-alert');
-      } else {
-          stateContainer.classList.remove('night-alert');
-      }
-  }  
+// Nighttime alert if disconnected
+const hour = new Date().getHours();
+const isNight = (hour >= 17 || hour < 4);    // for testing
+
+const stateContainer = tile.querySelector('.ev-state-container');
+if (stateContainer) {
+    if (state.key === 'disconnected' && isNight) {
+        stateContainer.classList.add('night-alert');
+    } else {
+        stateContainer.classList.remove('night-alert');
+    }
+}  
   
   
   
