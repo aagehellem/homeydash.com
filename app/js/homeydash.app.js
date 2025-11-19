@@ -1237,7 +1237,7 @@ favoriteDevices.forEach(device => {
   
 // Nighttime alert if disconnected
 const hour = new Date().getHours();
-const isNight = (hour >= 18 || hour < 4);    // for testing
+const isNight = (hour >= 22 || hour < 4);    // for testing
 
 const stateContainer = tile.querySelector('.ev-state-container');
 if (stateContainer) {
