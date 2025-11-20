@@ -848,19 +848,23 @@ window.addEventListener('load', function() {
           if ( device.ready ) {
               if ( device.id == indoortemperature ) {
                 if ( device.capabilitiesObj.measure_temperature ) {
-                  value = device.capabilitiesObj.measure_temperature.value
-                  renderValue($weathertemperatureinside, 'measure_temperature', value)
+                  const rawInside = device.capabilitiesObj.measure_temperature.value;
+                  const formattedInside = formatOneDecimal(rawInside);
+                  $weathertemperatureinside.innerHTML = `${formattedInside}°`;
                   device.makeCapabilityInstance('measure_temperature', function(value){
-                    renderValue($weathertemperatureinside, 'measure_temperature', value)
+                    const formattedInside = formatOneDecimal(value);
+                    $weathertemperatureinside.innerHTML = `${formattedInside}°`;
                   });
                 }
               }
               if ( device.id == outdoortemperature ) {
                 if ( device.capabilitiesObj.measure_temperature ) {
-                  value = device.capabilitiesObj.measure_temperature.value
-                  renderValue($weatherTemperature, 'measure_temperature', value)
+                  const rawOutside = device.capabilitiesObj.measure_temperature.value;
+                  const formattedOutside = formatOneDecimal(rawOutside);
+                  $weatherTemperature.innerHTML = `${formattedOutside}°`;
                   device.makeCapabilityInstance('measure_temperature', function(value){
-                    renderValue($weatherTemperature, 'measure_temperature', value)
+                    const formattedOutside = formatOneDecimal(value);
+                    $weatherTemperature.innerHTML = `${formattedOutside}°`;
                   });
                 }
               }
