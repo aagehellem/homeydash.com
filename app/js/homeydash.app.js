@@ -1103,7 +1103,7 @@ if (windArrowNode && windSpeedNode) {
     let arrowColor = '#ffffff'; // fallback
     
     if (speed <= 3) {
-        arrowColor = '#23d160';            // green (0–3)
+        arrowColor = '#00cc66';            // green (0–3)
     } else if (speed <= 10) {
         arrowColor = '#ffdd57';            // yellow (4–10)
     } else if (speed <= 20) {
