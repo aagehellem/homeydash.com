@@ -1228,7 +1228,8 @@ favoriteDevices.forEach(device => {
     let temp = device.capabilitiesObj.measure_temperature?.value;
     if (temp !== null && temp !== undefined) {
       temp = Math.round(temp * 10) / 10;
-      if (tempEl) tempEl.textContent = `${temp}°C`;
+      const formattedTemp = temp.toFixed(1);
+      if (tempEl) tempEl.textContent = `${formattedTemp}°C`;
     }
 
     // Colour thresholds
