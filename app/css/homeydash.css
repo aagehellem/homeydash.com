@@ -821,8 +821,8 @@ a {
    ---------- Normalize default tile icon size ---------------
 /* -----------------------------------------------------------
 
-.tile .icon img,
-.tile .icon svg {
+.tile .device-icon img,
+.tile .device-icon svg {
     width: 40px !important;
     height: 40px !important;
     max-width: 40px !important;
@@ -832,15 +832,15 @@ a {
     object-fit: contain !important;
 }
 
-/* Absolute positioning for all native HomeyDash icons */
-.tile .icon {
+/* Absolute positioning to match EV tile icons */
+.tile .device-icon {
     position: absolute !important;
     top: 10px !important;
     left: 10px !important;
     width: 40px !important;
     height: 40px !important;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
 }
 
 
