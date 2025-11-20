@@ -1894,6 +1894,13 @@ favoriteDevices.forEach(device => {
       $value.innerHTML = capabilityValue + "<br /><sup>" + capabilityUnits + "</sup>"
     }
   }
+
+  function formatOneDecimal(value) {
+    if (value === null || value === undefined) return "-";
+    const num = Number(value);
+    if (isNaN(num)) return "-";
+    return num.toFixed(1);
+  }
   
 
   function renderName(device, elementToShow) {
