@@ -1081,5 +1081,13 @@ a {
 }
 
 
+.weather-decimal {
+  font-size: 0.5em;
+  vertical-align: super;
+  margin-left: 1px;
+}
+
+
+
 
 
