@@ -870,12 +870,12 @@ a {
 
 /* ---------- CLOSED ---------- */
 .device.garage-tile.garage-closed .garage-state-container {
-  border-color: #21f521;    /* green border */
+  border-color: #00cc66;    /* green border */
   background: transparent;  /* no fill */
 }
 
 .device.garage-tile.garage-closed .garage-state-text {
-  color: #21f521;           /* green text */
+  color: #00cc66;           /* green text */
 }
 
 /* ---------- OPEN ---------- */
