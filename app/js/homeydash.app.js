@@ -1040,6 +1040,43 @@ favoriteDevices.forEach(device => {
     }
   }
 });
+
+//-----------------------------------------------------
+// ---------- Weather tiles configuration ----------
+//-----------------------------------------------------  
+
+const WEATHER_TILES = [
+  {
+    key: 'uv',
+    deviceId: 'f470dd76-96d5-4d8f-a251-78e9961d0815',
+    capability: 'measure_ultraviolet',
+    title: 'UV level',
+    unit: '', // UV index has no unit suffix
+  },
+  {
+    key: 'precip30',
+    deviceId: 'a6be1609-9230-4259-9a41-9af4a8dee5cb',
+    capability: 'measure_rain',
+    title: 'Precip next 30 min',
+    unit: 'mm',
+  },
+  {
+    key: 'precip1h',
+    deviceId: '9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5',
+    capability: 'measure_rain_intensity',
+    title: 'Precip next hour',
+    unit: 'mm',
+  },
+  {
+    key: 'precip6h',
+    deviceId: '8047feb8-7795-489c-8861-c32671c76624',
+    capability: 'meter_rain',
+    title: 'Precip next 6 hours',
+    unit: 'mm',
+  },
+];
+
+
   
   
 
