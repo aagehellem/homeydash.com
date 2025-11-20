@@ -750,6 +750,17 @@ a {
           font-weight: 1000;
         }
 
+         
+        .garage-status {
+          position: absolute;
+          top: 10px;
+          right: 8px;
+          font-size: 8px !important!;
+          font-weight: 700;
+          text-align: right;
+          z-index: 2;
+        }
+
 
         body {
           background: #111 !important;
@@ -818,78 +829,6 @@ a {
 }
 
 
-/* -----------------------------------------------------------
-   CONSISTENT WIDTH FOR ALL STATE CONTAINERS (EV + Garage)
-   ----------------------------------------------------------- */
-
-.ev-state-container,
-.garage-state-container {
-  width: 80px;        /* fixed width wide enough for “Disconnected” */
-  box-sizing: border-box;
-}
-
-.ev-state-text,
-.garage-state-text {
-  text-align: center;
-  white-space: nowrap;
-}
-
-
-/* -----------------------------------------------------------
-   GARAGE TILE — EV-STYLE STATE CONTAINER (TOP-RIGHT)
-   ----------------------------------------------------------- */
-
-.garage-state-container {
-  position: absolute;
-  top: 20px;
-  right: 10px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 3px 4px;
-}
-
-/* State icon — identical size to EV icons */
-.garage-state-icon {
-  width: 32px;
-  height: 32px;
-  filter: brightness(0) invert(1);  /* white */
-}
-
-/* Default (closed) text */
-.garage-state-text {
-  font-size: 0.75rem;
-  text-align: center;
-  color: white;
-}
-
-/* ---------- CLOSED ---------- */
-.device.garage-tile.garage-closed .garage-state-container {
-  border-color: #00cc66;    /* green border */
-  background: transparent;  /* no fill */
-}
-
-.device.garage-tile.garage-closed .garage-state-text {
-  color: #00cc66;           /* green text */
-}
-
-/* ---------- OPEN ---------- */
-.device.garage-tile.garage-open .garage-state-container {
-  border-color: #ff3333;    /* red border */
-  background: #ff3333;      /* red fill (alarm) */
-}
-
-.device.garage-tile.garage-open .garage-state-text {
-  color: white;
-}
-
-
-
 
 /* -------------------------------------------------------------
    WIND TILE - layout for compact arrow (Option C)
@@ -908,17 +847,15 @@ a {
     opacity: 0.95;
     filter: brightness(0) invert(1);
     position: absolute;
-    top: 30px;
-    left: 10px;
+    top: 20px;
+    left: 20px;
 }
 
 /* Arrow + numbers group */
 .wind-data {
     position: absolute;
-    top: 20px;
-    right: 10px;       /* tuned for Option C’s width */
-    height: 60px;
-    width: 80px;
+    top: 10px;
+    right: 22px;       /* tuned for Option C’s width */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -989,8 +926,8 @@ a {
 
 .ev-brand-icon {
   position: absolute;
-  top: 30px;
-  left: 10px;
+  top: 20px;
+  left: 20px;
   width: 40px;
   height: 40px;
 }
@@ -1051,42 +988,10 @@ a {
 }
 
 
-/* ============================
-   Temperature Tiles – Shared
-   ============================ */
-
-.temp-state-container {
-    position: absolute;
-    top: 20px;
-    right: 10px;
-    width: 60px;
-    height: 60px; 
-    text-align: center;
-    font-weight: 300;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px; /* space between temp + humidity */
-}
-
-/* Temperature (primary metric) */
-.temp-value {
-    font-size: 20px;
-}
-
-/* Humidity (secondary metric) */
-.humidity-value {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.65);
-}
-
-
-.weather-decimal {
-  font-size: 0.5em;
-  vertical-align: super;
-  margin-left: 1px;
-}
-
+/* Future colours (currently inactive)
+.ev-state-charging  .ev-bg { background: rgba(0,255,0,0.1); }
+.ev-state-unplugged .ev-bg { background: rgba(255,0,0,0.2); }
+*/
 
 
 
