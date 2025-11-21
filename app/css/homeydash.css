@@ -944,20 +944,22 @@ a {
   animation: wind-shake 0.25s infinite;
 }
 
+
 /* Hide state/capability icons for the 4 weather tiles (but keep the tile icon) */
 #device\:f470dd76-96d5-4d8f-a251-78e9961d0815 .icon-capability,
-#device\:f470dd76-96d5-4d8f-a251-78e9961d0815 div[id^="icon"],
+/*#device\:f470dd76-96d5-4d8f-a251-78e9961d0815 div[id^="icon"],*/
 
 #device\:a6be1609-9230-4259-9a41-9af4a8dee5cb .icon-capability,
-#device\:a6be1609-9230-4259-9a41-9af4a8dee5cb div[id^="icon"],
+/*#device\:a6be1609-9230-4259-9a41-9af4a8dee5cb div[id^="icon"],*/
 
 #device\:9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5 .icon-capability,
-#device\:9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5 div[id^="icon"],
+/*#device\:9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5 div[id^="icon"],*/
 
 #device\:8047feb8-7795-489c-8861-c32671c76624 .icon-capability,
-#device\:8047feb8-7795-489c-8861-c32671c76624 div[id^="icon"] {
+/*#device\:8047feb8-7795-489c-8861-c32671c76624 div[id^="icon"]*/ {
     display: none !important;
 }
+
 
 
 /* Hide EVERYTHING related to Easee default icons */
