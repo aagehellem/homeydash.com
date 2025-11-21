@@ -1360,6 +1360,35 @@ if (windArrowNode && windSpeedNode) {
         }
     }
 }  
+
+
+// -----------------------------------------------------------
+// PRECIPITATION TILE UPDATE (all 3 tiles)
+// -----------------------------------------------------------
+WEATHER_TILES.forEach(tileInfo => {
+    if (tileInfo.key === 'uv') return;   // skip UV tile
+
+    const device = favoriteDevices.find(d => d.id === tileInfo.deviceId);
+    if (!device) return;
+
+    const tile = document.getElementById('device:' + tileInfo.deviceId);
+    if (!tile) return;
+
+    const valueNode = tile.querySelector('.precip-value');
+    if (!valueNode) return;
+
+    // Read capability value
+    const value = device.capabilitiesObj[tileInfo.capability]?.value;
+
+    // Format output
+    let formatted =
+        (value !== null && value !== undefined)
+        ? `${value} ${tileInfo.unit}`
+        : "-";
+
+    valueNode.textContent = formatted;
+});
+
   
   
 //-----------------------------------------------------
