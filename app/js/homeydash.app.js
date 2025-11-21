@@ -1289,7 +1289,7 @@ if (uvTileDevice) {
 
     if (uvTileEl) {
         const uvValueNode = uvTileEl.querySelector(".uv-value");
-        const uvValue = uvTileDevice.capabilitiesObj.measure_ultravioletUltraviolet?.value;
+        const uvValue = uvTileDevice.capabilitiesObj.measure_ultraviolet?.value;
 
         if (uvValueNode) {
             uvValueNode.textContent =
