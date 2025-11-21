@@ -1444,29 +1444,6 @@ WEATHER_TILES.forEach(tileInfo => {
 
 
 //-----------------------------------------------------
-// Toggle Lights — update icon from "Collage" lamp
-//-----------------------------------------------------
-{
-    const toggleTile  = document.getElementById("device:" + toggleDeviceId);
-    if (!toggleTile) return;
-
-    const iconEl = toggleTile.querySelector(".toggle-icon");
-    if (!iconEl) return;
-
-    // Collage lamp
-    const collageDeviceId = "a2839be1-cd55-4932-a737-78b351465aa7";
-    const collageDevice = favoriteDevices.find(d => d.id === collageDeviceId);
-    if (!collageDevice) return;
-
-    const isOn = collageDevice.capabilitiesObj?.onoff?.value === true;
-
-    iconEl.src = isOn
-        ? "/homeydash.com/app/img/icons/BulbOn.svg"
-        : "/homeydash.com/app/img/icons/BulbOff.svg";
-}
-  
-  
-//-----------------------------------------------------
 // EV + Temperature dynamic updater (runs every interval)
 //-----------------------------------------------------
 const evDevices = [
