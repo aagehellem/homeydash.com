@@ -1143,23 +1143,31 @@ WEATHER_TILES.forEach(tileInfo => {
     // Wrapper for our custom structure
     const wrapper = document.createElement('div');
     wrapper.className = `weather-wrapper weather-${tileInfo.key}`;
-    wrapper.innerHTML = `
-        <div class="uv-data">
-            <svg class="uv-sun-icon" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="5" fill="white"/>
-                <line x1="12" y1="1"  x2="12" y2="4"  stroke="white" stroke-width="2"/>
-                <line x1="12" y1="20" x2="12" y2="23" stroke="white" stroke-width="2"/>
-                <line x1="1"  y1="12" x2="4"  y2="12" stroke="white" stroke-width="2"/>
-                <line x1="20" y1="12" x2="23" y2="12" stroke="white" stroke-width="2"/>
-                <line x1="4.5" y1="4.5" x2="6.5" y2="6.5" stroke="white" stroke-width="2"/>
-                <line x1="17.5" y1="17.5" x2="19.5" y2="19.5" stroke="white" stroke-width="2"/>
-                <line x1="4.5" y1="19.5" x2="6.5" y2="17.5" stroke="white" stroke-width="2"/>
-                <line x1="17.5" y1="6.5" x2="19.5" y2="4.5" stroke="white" stroke-width="2"/>
-            </svg>
-            <div class="uv-value"></div>
-        </div>
-    `;
-
+    if (tileInfo.key === 'uv') {
+        wrapper.innerHTML = `
+            <div class="uv-data">
+                <svg class="uv-sun-icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5" fill="white"/>
+                    <line x1="12" y1="1"  x2="12" y2="4"  stroke="white" stroke-width="2"/>
+                    <line x1="12" y1="20" x2="12" y2="23" stroke="white" stroke-width="2"/>
+                    <line x1="1"  y1="12" x2="4"  y2="12" stroke="white" stroke-width="2"/>
+                    <line x1="20" y1="12" x2="23" y2="12" stroke="white" stroke-width="2"/>
+                    <line x1="4.5" y1="4.5" x2="6.5" y2="6.5" stroke="white" stroke-width="2"/>
+                    <line x1="17.5" y1="17.5" x2="19.5" y2="19.5" stroke="white" stroke-width="2"/>
+                    <line x1="4.5" y1="19.5" x2="6.5" y2="17.5" stroke="white" stroke-width="2"/>
+                    <line x1="17.5" y1="6.5" x2="19.5" y2="4.5" stroke="white" stroke-width="2"/>
+                </svg>
+                <div class="uv-value"></div>
+            </div>
+        `;
+    } else {
+        // Temporary placeholder for precip tiles
+        wrapper.innerHTML = `
+            <div class="precip-data">
+                <div class="precip-value"></div>
+            </div>
+        `;
+    }
     tile.appendChild(wrapper);
 });  
 
