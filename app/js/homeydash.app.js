@@ -1197,6 +1197,33 @@ WEATHER_TILES.forEach(tileInfo => {
     tile.appendChild(wrapper);
 });  
 
+
+// ---------------------------------------------------------
+// TOGGLE LIGHTS TILE — initial DOM injection
+// ---------------------------------------------------------
+
+const toggleDeviceId = "f9659e2f-5ae4-4518-9ad6-254eedca92e4";
+
+const toggleTile = document.getElementById("device:" + toggleDeviceId);
+if (toggleTile && !toggleTile.querySelector(".toggle-wrapper")) {
+
+    // Hide all native Homey values/icons
+    toggleTile.querySelectorAll('.value, .icon-capability').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "toggle-wrapper";
+
+    wrapper.innerHTML = `
+        <div class="toggle-state-container">
+            <img class="toggle-icon" src="app/img/icons/BulbOff.svg">
+        </div>
+    `;
+
+    toggleTile.appendChild(wrapper);
+}
+
   
 
 //-----------------------------------------------------
