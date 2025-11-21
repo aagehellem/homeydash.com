@@ -954,6 +954,15 @@ a {
 }
 
 
+/* Prevent dimming of YR tile icons for weather tiles */
+#device\:f470dd76-96d5-4d8f-a251-78e9961d0815 .icon,
+#device\:a6be1609-9230-4259-9a41-9af4a8dee5cb .icon,
+#device\:9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5 .icon,
+#device\:8047feb8-7795-489c-8861-c32671c76624 .icon {
+    opacity: 1 !important;
+}
+
+
 
 /* Hide EVERYTHING related to Easee default icons */
 #device\:972ddbe2-b4d2-4e27-8c90-d958d4c06775 .icon,
