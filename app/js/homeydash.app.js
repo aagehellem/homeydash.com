@@ -1071,6 +1071,18 @@ favoriteDevices.forEach(device => {
   }
 });
 
+
+function cleanWeatherTile(tile) {
+    tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
+
+    const stateIcon = tile.querySelector('.state-icon, .state-image, .state');
+    if (stateIcon) {
+        stateIcon.style.display = 'none';
+    }
+}
+  
+
+  
 //-----------------------------------------------------
 // ---------- Weather tiles configuration ----------
 //-----------------------------------------------------  
@@ -1108,6 +1120,8 @@ const WEATHER_TILES = [
 
 
   
+
+  
 //-----------------------------------------------------
 // Weather tiles — initial DOM setup (runs once)
 //-----------------------------------------------------
@@ -1123,6 +1137,9 @@ WEATHER_TILES.forEach(tileInfo => {
     // Prevent duplicate insertion
     if (tile.querySelector('.weather-wrapper')) return;
 
+    // Remove all native values + state icons for weather tiles
+    cleanWeatherTile(tile);
+  
     // Wrapper for our custom structure
     const wrapper = document.createElement('div');
     wrapper.className = `weather-wrapper weather-${tileInfo.key}`;
