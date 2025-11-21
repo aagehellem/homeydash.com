@@ -1284,11 +1284,17 @@ const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
 const uvTileDevice = favoriteDevices.find(d => d.id === uvDeviceId);
 
 if (uvTileDevice) {
-    const uvTileEl = document.getElementById("device:" + uvDeviceId);
-
-    if (uvTileEl) {
-        const uvValueNode = uvTileEl.querySelector(".uv-value");
-        const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
+  const uvTileEl = document.getElementById("device:" + uvDeviceId);
+  
+  if (uvTileEl) {
+  
+      // 🛠 FIX: auto-inject wrapper if missing
+      if (!uvTileEl.querySelector(".uv-wrapper")) {
+          setupUvTile(uvTileEl, uvTileDevice);
+      }
+  
+      const uvValueNode = uvTileEl.querySelector(".uv-value");
+      const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
 
         const uvValue = uvTileDevice.capabilitiesObj.measure_ultraviolet?.value;
 
