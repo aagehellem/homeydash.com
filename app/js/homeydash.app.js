@@ -903,7 +903,7 @@ setTimeout(() => {
   const iconPath = '/homeydash.com/app/img/icons/';  
   
 
-  const windDeviceId = '5c7cc0e7-3343-40ca-9a13-dd89f636493e';
+  const windDeviceId = 'e2fee901-e600-4917-9623-bd28e0059c50';
   let windArrowNode = null;
   let windSpeedNode = null;
 
