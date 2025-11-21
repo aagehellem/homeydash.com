@@ -977,16 +977,36 @@ a {
 
 
 /* --------------------------------------------------
-   UV TILE FORMATTING
+   UV TILE LAYOUT
 -------------------------------------------------- */
 
-/* UV sun icon */
+.uv-data {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    height: 60px;
+    width: 80px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff !important;
+}
+
+/* Sun icon */
 .uv-sun-icon {
     width: 32px;
     height: 32px;
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    margin-bottom: 6px;
+}
+
+/* UV numeric text (populated in step 4c) */
+.uv-value {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
 
