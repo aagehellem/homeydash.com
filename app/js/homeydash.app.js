@@ -1275,6 +1275,30 @@ if (windArrowNode && windSpeedNode) {
   }
 }
 
+
+// -----------------------------------------------------------
+// UV TILE UPDATE
+// -----------------------------------------------------------
+const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
+
+// Find the UV device in the favorites list
+const uvTileDevice = favoriteDevices.find(d => d.id === uvDeviceId);
+
+if (uvTileDevice) {
+    const uvTileEl = document.getElementById("device:" + uvDeviceId);
+
+    if (uvTileEl) {
+        const uvValueNode = uvTileEl.querySelector(".uv-value");
+        const uvValue = uvTileDevice.capabilitiesObj.measure_ultravioletUltraviolet?.value;
+
+        if (uvValueNode) {
+            uvValueNode.textContent =
+                (uvValue !== null && uvValue !== undefined)
+                ? uvValue
+                : "-";
+        }
+    }
+}  
   
   
 //-----------------------------------------------------
