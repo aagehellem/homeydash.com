@@ -1275,56 +1275,46 @@ if (windArrowNode && windSpeedNode) {
   }
 }
 
+  
+  
 
 // -----------------------------------------------------------
 // UV TILE UPDATE
 // -----------------------------------------------------------
-const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
+{
+    const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
+    const uvDevice = favoriteDevices.find(d => d.id === uvDeviceId);
 
-const uvTileDevice = favoriteDevices.find(d => d.id === uvDeviceId);
+    if (uvDevice) {
+        const tile = document.getElementById("device:" + uvDeviceId);
+        if (tile) {
+            const uvValueNode = tile.querySelector(".uv-value");
+            const icon = tile.querySelector(".uv-icon");
 
-if (uvTileDevice) {
-  const uvTileEl = document.getElementById("device:" + uvDeviceId);
-  
-  if (uvTileEl) {
-  
-      // 🛠 FIX: auto-inject wrapper if missing
-      if (!uvTileEl.querySelector(".uv-wrapper")) {
-          setupUvTile(uvTileEl, uvTileDevice);
-      }
-  
-      const uvValueNode = uvTileEl.querySelector(".uv-value");
-      const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
+            const caps = uvDevice.capabilitiesObj || {};
+            const value = caps.measure_ultraviolet?.value;
 
-        const uvValue = uvTileDevice.capabilitiesObj.measure_ultraviolet?.value;
+            if (uvValueNode) {
+                if (value !== null && value !== undefined) {
+                    uvValueNode.textContent = value;
+                } else {
+                    uvValueNode.textContent = "-";
+                }
+            }
 
-        if (uvValueNode) {
-            uvValueNode.textContent =
-                (uvValue !== null && uvValue !== undefined)
-                ? uvValue
-                : "-";
-        }
+            if (icon) {
+                let color = "#ffffff";  // fallback
 
-        // -----------------------------------------------
-        // UV COLOUR LOGIC (colour icon ONLY)
-        // -----------------------------------------------
-        let col = "white";
-        
-        if (uvValue >= 0 && uvValue <= 2)      col = "#00FF66";   // green
-        else if (uvValue >= 3 && uvValue <= 5) col = "#FFD500";   // yellow
-        else if (uvValue >= 6 && uvValue <= 7) col = "#FFA500";   // amber
-        else if (uvValue >= 8 && uvValue <= 10) col = "#FF3333";  // red
-        else if (uvValue >= 11)                col = "#CC33FF";   // violet
-        
-        // Keep UV value text white
-        if (uvValueNode) uvValueNode.style.color = "white";
-        
-        // Colour ONLY the sun icon
-        if (sunIcon) {
-            sunIcon.querySelectorAll("*").forEach(el => {
-                el.setAttribute("stroke", col);
-                el.setAttribute("fill", col);
-            });
+                if (value <= 2)      color = "#00cc66";   // green
+                else if (value <= 5) color = "#ffdd57";   // yellow
+                else if (value <= 7) color = "#ff8c00";   // amber
+                else                 color = "#ff3860";   // red
+
+                icon.querySelectorAll("*").forEach(el => {
+                    el.style.fill = color;
+                    el.style.stroke = color;
+                });
+            }
         }
     }
 }  
