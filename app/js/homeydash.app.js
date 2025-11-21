@@ -1164,8 +1164,7 @@ WEATHER_TILES.forEach(tileInfo => {
         // Precipitation tiles wrapper (30m / 1h / 6h)
         wrapper.innerHTML = `
             <div class="precip-data">
-                <img class="precip-icon" src="${iconPath}RainDrops.svg">
-                <div class="precip-value"></div>
+                 <div class="precip-value"></div>
             </div>
         `;
     }
