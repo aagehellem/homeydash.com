@@ -925,7 +925,7 @@ setTimeout(() => {
     }
 
     const iconNode = tile.querySelector('.icon');
-    if (iconNode) iconNode.style.display = 'none';
+    
 
     tile.querySelectorAll('.value').forEach(v => {
       v.style.display = 'none';
@@ -937,8 +937,7 @@ setTimeout(() => {
     const wrapper = document.createElement('div');
     wrapper.className = 'wind-tile-wrapper';
     wrapper.innerHTML = `
-      <img src="${iconPath}yr-logo.svg" class="wind-yr-logo">
-      <div class="wind-data">
+            <div class="wind-data">
         <svg class="wind-arrow-svg" viewBox="0 0 24 24">
           <path d="M6 12 L14 12 L14 9 L20 14 L14 19 L14 16 L6 16 Z" fill="white"/>
         </svg>
