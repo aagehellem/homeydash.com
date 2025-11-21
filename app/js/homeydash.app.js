@@ -1214,7 +1214,7 @@ favoriteDevices.forEach(device => {
     if (stateIcon) {
         stateIcon.style.display = 'none';
     }  
-
+  }
 
   
   const capabilities = Object.keys(device.capabilitiesObj || {});
