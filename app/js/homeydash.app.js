@@ -1209,12 +1209,11 @@ favoriteDevices.forEach(device => {
       v.style.display = 'none';
     });
 
-    // Hide the default icon so only our custom layout shows later
-    const iconNode = tile.querySelector('.icon');
-    if (iconNode) {
-      iconNode.style.display = 'none';
-    }
-  }  
+    // Hide the default state icon for weather tiles
+    const stateIcon = tile.querySelector('.state-icon, .state-image, .state');
+    if (stateIcon) {
+        stateIcon.style.display = 'none';
+    }  
 
 
   
