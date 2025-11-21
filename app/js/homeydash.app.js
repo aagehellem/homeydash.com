@@ -952,6 +952,37 @@ setTimeout(() => {
 
   // Try once after initial render; the update loop can retry if needed
   setupWindTile();  
+
+
+
+// ===========================================
+// UV Tile setup
+// ===========================================
+    
+function setupUvTile(tile, device) {
+    // Prevent double injection
+    if (tile.querySelector('.uv-wrapper')) return;
+
+    // Hide the default value and default state icons (we already do this in update loop),
+    // BUT we also hide them here so the tile is clean even before the first update.
+    tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
+
+    const iconNode = tile.querySelector('.icon-capability');
+    if (iconNode) iconNode.style.display = 'none';
+
+    // Create wrapper for UV tile
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uv-wrapper';
+    wrapper.innerHTML = `
+        <div class="uv-icon"></div>
+        <div class="uv-value"></div>
+    `;
+
+    tile.appendChild(wrapper);
+}
+
+
+  
   
 // ===========================================
 // Garage Tile setup
@@ -1077,6 +1108,32 @@ const WEATHER_TILES = [
 
 
   
+//-----------------------------------------------------
+// Weather tiles — initial DOM setup (runs once)
+//-----------------------------------------------------
+WEATHER_TILES.forEach(tileInfo => {
+    const tile = document.getElementById('device:' + tileInfo.deviceId);
+    if (!tile) return;
+
+    // Hide native value + state
+    tile.querySelectorAll('.value, .icon-capability').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    // Prevent duplicate insertion
+    if (tile.querySelector('.weather-wrapper')) return;
+
+    // Wrapper for our custom structure
+    const wrapper = document.createElement('div');
+    wrapper.className = `weather-wrapper weather-${tileInfo.key}`;
+    wrapper.innerHTML = `
+        <div class="weather-icon"></div>
+        <div class="weather-value"></div>
+    `;
+
+    tile.appendChild(wrapper);
+});  
+
   
 
 //-----------------------------------------------------
