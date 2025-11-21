@@ -974,7 +974,7 @@ function setupUvTile(tile, device) {
     const wrapper = document.createElement('div');
     wrapper.className = 'uv-wrapper';
     wrapper.innerHTML = `
-        <div class="uv-icon"></div>
+        <div class="uv-sun-icon"></div>
         <div class="uv-value"></div>
     `;
 
@@ -1289,7 +1289,7 @@ if (windArrowNode && windSpeedNode) {
         const tile = document.getElementById("device:" + uvDeviceId);
         if (tile) {
             const uvValueNode = tile.querySelector(".uv-value");
-            const icon = tile.querySelector(".uv-icon");
+            const icon = tile.querySelector(".uv-sun-icon");
 
             const caps = uvDevice.capabilitiesObj || {};
             const value = caps.measure_ultraviolet?.value;
