@@ -1201,6 +1201,23 @@ favoriteDevices.forEach(device => {
   const tile = document.getElementById('device:' + device.id);
   if (!tile) return;
 
+
+  // Hide native value + icon for our 4 weather tiles
+  if (WEATHER_TILES.some(w => w.deviceId === device.id)) {
+    // Hide all default value fields
+    tile.querySelectorAll('.value').forEach(v => {
+      v.style.display = 'none';
+    });
+
+    // Hide the default icon so only our custom layout shows later
+    const iconNode = tile.querySelector('.icon');
+    if (iconNode) {
+      iconNode.style.display = 'none';
+    }
+  }  
+
+
+  
   const capabilities = Object.keys(device.capabilitiesObj || {});
 
   // ---------------------------
