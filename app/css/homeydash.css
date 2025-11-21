@@ -817,31 +817,7 @@ a {
   background-color: inherit !important;
 }
 
-/* -----------------------------------------------------------
-   ---------- Normalize default tile icon size ---------------
-/* -----------------------------------------------------------
 
-.tile .device-icon img,
-.tile .device-icon svg {
-    width: 40px !important;
-    height: 40px !important;
-    max-width: 40px !important;
-    max-height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    object-fit: contain !important;
-}
-
-/* Absolute positioning to match EV tile icons */
-.tile .device-icon {
-    position: absolute !important;
-    top: 10px !important;
-    left: 10px !important;
-    width: 40px !important;
-    height: 40px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
 
 
 /* -----------------------------------------------------------
