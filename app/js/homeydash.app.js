@@ -660,6 +660,32 @@ window.addEventListener('load', function() {
               }
             });
           }
+
+          if (device.capabilitiesObj.measure_rain_intensity) {
+              device.makeCapabilityInstance('measure_rain_intensity', function (value) {
+                  const tile = document.getElementById('device:' + device.id);
+                  if (!tile) return;
+          
+                  const valueNode = tile.querySelector('.precip-value');
+                  if (!valueNode) return;
+          
+                  valueNode.textContent = `${value} mm`;
+              });
+          }
+          
+          if (device.capabilitiesObj.meter_rain) {
+              device.makeCapabilityInstance('meter_rain', function (value) {
+                  const tile = document.getElementById('device:' + device.id);
+                  if (!tile) return;
+          
+                  const valueNode = tile.querySelector('.precip-value');
+                  if (!valueNode) return;
+          
+                  valueNode.textContent = `${value} mm`;
+              });
+          }
+
+          
           if ( device.capabilitiesObj.measure_rain_day ) {
             device.makeCapabilityInstance('measure_rain_day', function(value){
               var $deviceElement = document.getElementById('device:' + device.id);
