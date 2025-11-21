@@ -1161,13 +1161,13 @@ WEATHER_TILES.forEach(tileInfo => {
             </div>
         `;
     } else {
-        // Precipitation tiles wrapper (30m / 1h / 6h)
+        // Precipitation tiles (30m / 1h / 6h) – layout identical to temp tiles
         wrapper.innerHTML = `
-            <div class="precip-data">
-                 <div class="precip-value"></div>
+            <div class="precip-container">
+                <div class="precip-value"></div>
             </div>
         `;
-    }
+    }    
     tile.appendChild(wrapper);
 });  
 
