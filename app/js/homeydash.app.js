@@ -1283,6 +1283,48 @@ if (windArrowNode && windSpeedNode) {
 // -----------------------------------------------------------
 {
     const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
+
+    // -----------------------------------------------------------
+    // UV TILE — live capability listener
+    // -----------------------------------------------------------
+    const uvDeviceObj = favoriteDevices.find(d => d.id === uvDeviceId);
+    
+    if (uvDeviceObj && uvDeviceObj.makeCapabilityInstance) {
+    
+        uvDeviceObj.makeCapabilityInstance('measure_ultraviolet', (newValue) => {
+    
+            const uvTileEl = document.getElementById("device:" + uvDeviceId);
+            if (!uvTileEl) return;
+    
+            const uvValueNode = uvTileEl.querySelector(".uv-value");
+            const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
+    
+            // Update value text
+            if (uvValueNode) {
+                uvValueNode.textContent =
+                    (newValue !== null && newValue !== undefined) ? newValue : "-";
+            }
+    
+            // Apply colour logic
+            let col = "white";
+            if      (newValue >= 0 && newValue <= 2)  col = "#00FF66";
+            else if (newValue <= 5)                   col = "#FFD500";
+            else if (newValue <= 7)                   col = "#FFA500";
+            else if (newValue <= 10)                  col = "#FF3333";
+            else if (newValue >= 11)                  col = "#CC33FF";
+    
+            if (sunIcon) {
+                sunIcon.querySelectorAll("*").forEach(el => {
+                    el.setAttribute("stroke", col);
+                    el.setAttribute("fill", col);
+                });
+            }
+        });
+    }
+
+
+
+  
     const uvDevice = favoriteDevices.find(d => d.id === uvDeviceId);
 
     if (uvDevice) {
