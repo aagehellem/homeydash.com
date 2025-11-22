@@ -1152,19 +1152,20 @@ a {
    -------------------------------------------------------- */
 
 .toggle-state-container {
-    position: absolute;
-    top: 20px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: absolute;
+  top: 20px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.toggle-icon {
-    width: 32px;
-    height: 32px;
+.toggle-state-container img.toggle-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 
