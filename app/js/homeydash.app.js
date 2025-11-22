@@ -1443,27 +1443,7 @@ WEATHER_TILES.forEach(tileInfo => {
 });
 
 
-// ---------------------------------------------
-// Toggle Lights – dynamic icon updater
-// ---------------------------------------------
-{
-    const toggleTile = document.getElementById("device:f9659e2f-5ae4-4518-9ad6-254eedca92e4");
-    if (toggleTile) {
 
-        const iconEl = toggleTile.querySelector(".toggle-icon");
-        if (!iconEl) return;
-
-        const collageDeviceId = "a2839be1-cd55-4932-a737-78b351465aa7";
-        const collageDevice = favoriteDevices.find(d => d.id === collageDeviceId);
-        if (!collageDevice) return;
-
-        const isOn = collageDevice.capabilitiesObj.onoff?.value === true;
-
-        iconEl.src = isOn
-            ? "/homeydash.com/app/img/icons/BulbOn.svg"
-            : "/homeydash.com/app/img/icons/BulbOff.svg";
-    }
-}
 
 
   
