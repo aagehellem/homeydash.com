@@ -1570,6 +1570,29 @@ favoriteDevices.forEach(device => {
       // colour of humidity stays subtle grey via CSS
     }
   }
+
+  // -----------------------------------------------------
+  // Toggle Lights – dynamic bulb icon updater
+  // -----------------------------------------------------
+  {
+      const toggleTile = document.getElementById("device:" + toggleDeviceId);
+      if (!toggleTile) return;
+  
+      const iconEl = toggleTile.querySelector(".toggle-icon");
+      if (!iconEl) return;
+  
+      // Collage lamp
+      const collage = favoriteDevices.find(d => d.id === collageDeviceId);
+      if (!collage) return;
+  
+      const isOn = collage.capabilitiesObj?.onoff?.value === true;
+  
+      iconEl.src = isOn
+          ? "/app/img/icons/BulbOn.svg"
+          : "/app/img/icons/BulbOff.svg";
+  }
+  
+  
 });
   
   
