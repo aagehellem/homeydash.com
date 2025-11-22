@@ -1460,8 +1460,8 @@ WEATHER_TILES.forEach(tileInfo => {
         const isOn = collageDevice.capabilitiesObj.onoff?.value === true;
 
         iconEl.src = isOn
-            ? "/app/img/icons/BulbOn.svg"
-            : "/app/img/icons/BulbOff.svg";
+            ? "/homeydash.com/app/img/icons/BulbOn.svg"
+            : "/homeydash.com/app/img/icons/BulbOff.svg";
     }
 }
 
