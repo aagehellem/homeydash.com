@@ -1444,6 +1444,27 @@ WEATHER_TILES.forEach(tileInfo => {
 
 
 
+// -----------------------------------------------------------
+// Toggle Lights — update state icon from "Collage" lamp
+// -----------------------------------------------------------
+{
+    const toggleTile = document.getElementById("device:" + toggleDeviceId);
+    if (!toggleTile) return;
+
+    const iconEl = toggleTile.querySelector(".toggle-icon");
+    if (!iconEl) return;
+
+    const collageDeviceId = "a2839be1-cd55-4932-a737-78b351465aa7";
+    const collageDevice = favoriteDevices.find(d => d.id === collageDeviceId);
+    if (!collageDevice) return;
+
+    const isOn = collageDevice.capabilitiesObj?.onoff?.value === true;
+
+    iconEl.src = isOn
+        ? "/homeydash.com/app/img/icons/BulbOn.svg"
+        : "/homeydash.com/app/img/icons/BulbOff.svg";
+}  
+
 
 
   
@@ -1571,26 +1592,7 @@ favoriteDevices.forEach(device => {
     }
   }
 
-  // -----------------------------------------------------
-  // Toggle Lights – dynamic bulb icon updater
-  // -----------------------------------------------------
-  {
-      const toggleTile = document.getElementById("device:" + toggleDeviceId);
-      if (!toggleTile) return;
-  
-      const iconEl = toggleTile.querySelector(".toggle-icon");
-      if (!iconEl) return;
-  
-      // Collage lamp
-      const collage = favoriteDevices.find(d => d.id === collageDeviceId);
-      if (!collage) return;
-  
-      const isOn = collage.capabilitiesObj?.onoff?.value === true;
-  
-      iconEl.src = isOn
-          ? "/app/img/icons/BulbOn.svg"
-          : "/app/img/icons/BulbOff.svg";
-  }
+
   
   
 });
