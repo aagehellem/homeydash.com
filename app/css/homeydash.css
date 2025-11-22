@@ -1169,3 +1169,10 @@ a {
 }
 
 
+/* Toggle Lights – invert bulb icons to make them white */
+.toggle-icon {
+    filter: invert(1);
+    opacity: 0.9;        /* optional: soften pure white */
+}
+
+
