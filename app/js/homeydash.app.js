@@ -1577,6 +1577,8 @@ favoriteDevices.forEach(device => {
   // ------------------------------------------------------
   // Toggle Lights – dynamic icon update (safe version)
   // ------------------------------------------------------
+  const collageDeviceId = "a2839be1-cd55-4932-a737-78b351465aa7";
+
   if (device.id === toggleDeviceId) {
   
       const tile = document.getElementById("device:" + toggleDeviceId);
