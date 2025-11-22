@@ -1217,7 +1217,7 @@ if (toggleTile && !toggleTile.querySelector(".toggle-wrapper")) {
 
     wrapper.innerHTML = `
         <div class="toggle-state-container">
-            <img class="toggle-icon" src="app/img/icons/BulbOff.svg">
+            <img class="toggle-icon" src="/homeydash.com/app/img/icons/BulbOff.svg">
         </div>
     `;
 
