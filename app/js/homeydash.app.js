@@ -74,12 +74,24 @@ function getEvState(device) {
   }
 
   // ---------------------------------------------
-  // 3) Connected → AMBER
+  // 3a) Connected → YELLOW
   // ---------------------------------------------
-  if (raw === 'car connected' || raw === 'paused') {
+  if (raw === 'car connected') {
     return {
       key:   'connected',
       label: 'Connected',
+      icon:  '/homeydash.com/app/img/icons/Connected.svg',
+      color: '#ffd500'      // yellow
+    };
+  }
+
+  // ---------------------------------------------
+  // 3b) Paused → YELLOW
+  // ---------------------------------------------
+  if (raw === 'paused') {
+    return {
+      key:   'paused',
+      label: 'Paused',
       icon:  '/homeydash.com/app/img/icons/Connected.svg',
       color: '#ffd500'      // yellow
     };
