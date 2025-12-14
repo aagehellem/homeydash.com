@@ -53,14 +53,14 @@ function isEvAtHome(device) {
 
     if (!presenceName) return true; // fail-safe
 
-    const presenceDevice = devices.find(d =>
+    const presenceDevice = homey.devices.find(d =>
         (d.name || '').toLowerCase() === presenceName
     );
 
-    if (!presenceDevice) return true;
+    if (!presenceDevice) return true; // fail-safe
 
     const atHome = presenceDevice.capabilitiesObj?.onoff?.value;
-    return atHome !== false;
+    return atHome === true;
 }
 
 function getEvState(device) {
