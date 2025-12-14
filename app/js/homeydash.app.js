@@ -44,37 +44,7 @@ function getEvBrandIcon(device) {
   return base + 'BMW.svg';
 }
 
-function isEvAtHome(device) {
-    const evName = (device.name || device.title || '').toLowerCase();
-
-    let presenceName = null;
-    if (evName.includes('ella')) presenceName = 'ella presence';
-    if (evName.includes('elois')) presenceName = 'elois presence';
-
-    if (!presenceName) return true; // fail-safe
-
-    const presenceDevice = homey.devices.find(d =>
-        (d.name || '').toLowerCase() === presenceName
-    );
-
-    if (!presenceDevice) return true; // fail-safe
-
-    const atHome = presenceDevice.capabilitiesObj?.onoff?.value;
-    return atHome === true;
-}
-
 function getEvState(device) {
-
-  if (!isEvAtHome(device)) {
-      return {
-          key: 'away',
-          label: 'Away',
-          icon: '/homeydash.com/app/img/icons/Away.svg',
-          color: '#888888'
-      };
-  }  
-  
-  
   const caps = device.capabilitiesObj || {};
   const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
   const power = caps['measure_power']?.value ?? 0;
