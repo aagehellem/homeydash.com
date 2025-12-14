@@ -98,12 +98,24 @@ function getEvState(device) {
   }
 
   // ---------------------------------------------
-  // 4) Warning → RED
+  // 4) Error → AMBER
   // ---------------------------------------------
-  if (raw === 'error' || raw === 'offline') {
+  if (raw === 'error') {
     return {
-      key:   'warning',
-      label: 'Warning',
+      key:   'error',
+      label: 'Error',
+      icon:  '/homeydash.com/app/img/icons/Warning.svg',
+      color: '#ffbf00'   // amber
+    };
+  }
+
+  // ---------------------------------------------
+  // 4) Offline → AMBER
+  // ---------------------------------------------
+  if (raw === 'offline') {
+    return {
+      key:   'offline',
+      label: 'Offline',
       icon:  '/homeydash.com/app/img/icons/Warning.svg',
       color: '#ffbf00'   // amber
     };
