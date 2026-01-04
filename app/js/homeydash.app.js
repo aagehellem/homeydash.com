@@ -44,7 +44,30 @@ function getEvBrandIcon(device) {
   return base + 'BMW.svg';
 }
 
-function getEvState(device) {
+
+// ------------------------------------------------
+// EV → Presence mapping (do NOT rely on device names)
+// Charger device IDs -> Presence device IDs
+// ------------------------------------------------
+const EV_PRESENCE_BY_CHARGER_ID = {
+  // Easee Elois charger -> Elois Presence
+  'e2d83fdf-a014-4cd3-a880-de909c543179': '69e8d79c-c188-4279-9a46-4d4d522baa51',
+  // Easee Ella charger -> Ella Presence
+  '972ddbe2-b4d2-4e27-8c90-d958d4c06775': 'dcd7157c-0824-4b97-9842-519aa6f794e8',
+};
+
+function isChargerAway(chargerDevice, devicesById) {
+  const presenceId = EV_PRESENCE_BY_CHARGER_ID[chargerDevice.id];
+  if (!presenceId) return null;
+
+  const presenceDev = devicesById?.[presenceId];
+  const atHome = presenceDev?.capabilitiesObj?.onoff?.value; // boolean
+  if (typeof atHome !== 'boolean') return null;
+
+  return !atHome;
+}
+
+function getEvState(device, devicesById) {
   const caps = device.capabilitiesObj || {};
   const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
   const power = caps['measure_power']?.value ?? 0;
@@ -122,9 +145,23 @@ function getEvState(device) {
   }
 
   // ---------------------------------------------
-  // 5) Disconnected (Standby) → RED
+  // 5) Disconnected (Standby) → RED (or AWAY → GREY)
   // ---------------------------------------------
   if (raw === 'standby') {
+
+    // If the associated car is away, treat "Disconnected" as "Away"
+    // (This preserves normal charger states for guest cars, charging, etc.)
+    const away = isChargerAway(device, devicesById) === true;
+
+    if (away) {
+      return {
+        key:   'away',
+        label: 'Away',
+        icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+        color: '#9aa0a6'   // grey
+      };
+    }
+
     return {
       key:   'disconnected',
       label: 'Disconnected',
@@ -1524,14 +1561,16 @@ favoriteDevices.forEach(device => {
         brandEl.src = newBrand;
       }
 
-      const state = getEvState(device);
+      const state = getEvState(device, devices);
 
       overlay.classList.remove(
         'ev-state-charging',
         'ev-state-connected',
         'ev-state-unplugged',
         'ev-state-completed',
-        'ev-state-error'
+        'ev-state-error',
+        'ev-state-disconnected',
+        'ev-state-away'
       );
       overlay.classList.add('ev-state-' + state.key);
 
