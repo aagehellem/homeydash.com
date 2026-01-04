@@ -1083,7 +1083,12 @@ setTimeout(() => {
   // Try once after initial render; the update loop can retry if needed
   setupWindTile();  
 
-
+  
+// ==============================
+// UV Tile state (once-only)
+// ==============================
+let uvCapInstance = null;
+let uvLastValue = null;
 
 // ===========================================
 // UV Tile setup
@@ -1446,10 +1451,12 @@ if (windArrowNode && windSpeedNode) {
     // -----------------------------------------------------------
     const uvDeviceObj = favoriteDevices.find(d => d.id === uvDeviceId);
     
-    if (uvDeviceObj && uvDeviceObj.makeCapabilityInstance) {
+    if (!uvCapInstance && uvDeviceObj && uvDeviceObj.makeCapabilityInstance) {
     
-        uvDeviceObj.makeCapabilityInstance('measure_ultraviolet', (newValue) => {
-    
+        uvCapInstance = uvDeviceObj.makeCapabilityInstance('measure_ultraviolet', (newValue) => {
+            
+            uvLastValue = newValue;
+          
             const uvTileEl = document.getElementById("device:" + uvDeviceId);
             if (!uvTileEl) return;
     
@@ -1491,7 +1498,9 @@ if (windArrowNode && windSpeedNode) {
             const icon = tile.querySelector(".uv-sun-icon");
 
             const caps = uvDevice.capabilitiesObj || {};
-            const value = caps.measure_ultraviolet?.value;
+            const value = (uvLastValue !== null && uvLastValue !== undefined)
+              ? uvLastValue
+              : caps.measure_ultraviolet?.value;
 
             if (uvValueNode) {
                 if (value !== null && value !== undefined) {
