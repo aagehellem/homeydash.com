@@ -1093,7 +1093,42 @@ let uvLastValue = null;
 // ===========================================
 // UV Tile setup
 // ===========================================
-    
+
+function getUvColour(uv) {
+  const v = (uv === null || uv === undefined) ? NaN : Number(uv);
+  if (!Number.isFinite(v)) return "#ffffff";
+
+  if (v <= 2) return "#00FF66";  // Low
+  if (v <= 5) return "#FFD500";  // Moderate
+  if (v <= 7) return "#FFA500";  // High
+  if (v <= 10) return "#FF3333"; // Very High
+  return "#CC33FF";              // Extreme
+}
+
+function renderUvTile(uvDeviceId, uvValue) {
+  const tile = document.getElementById("device:" + uvDeviceId);
+  if (!tile) return;
+
+  const uvValueNode = tile.querySelector(".uv-value");
+  const icon = tile.querySelector(".uv-sun-icon");
+
+  if (uvValueNode) {
+    uvValueNode.textContent =
+      (uvValue !== null && uvValue !== undefined) ? uvValue : "--";
+  }
+
+  if (icon) {
+    const col = getUvColour(uvValue);
+    icon.querySelectorAll("*").forEach(el => {
+      el.setAttribute("stroke", col);
+      el.setAttribute("fill", col);
+      el.style.stroke = col;
+      el.style.fill = col;
+    });
+  }
+}
+
+  
 function setupUvTile(tile, device) {
     // Prevent double injection
     if (tile.querySelector('.uv-wrapper')) return;
@@ -1456,34 +1491,9 @@ if (windArrowNode && windSpeedNode) {
         uvCapInstance = uvDeviceObj.makeCapabilityInstance('measure_ultraviolet', (newValue) => {
             
             uvLastValue = newValue;
-          
-            const uvTileEl = document.getElementById("device:" + uvDeviceId);
-            if (!uvTileEl) return;
-    
-            const uvValueNode = uvTileEl.querySelector(".uv-value");
-            const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
-    
-            // Update value text
-            if (uvValueNode) {
-                uvValueNode.textContent =
-                    (newValue !== null && newValue !== undefined) ? newValue : "-";
-            }
-    
-            // Apply colour logic
-            let col = "white";
-            if      (newValue >= 0 && newValue <= 2)  col = "#00FF66";
-            else if (newValue <= 5)                   col = "#FFD500";
-            else if (newValue <= 7)                   col = "#FFA500";
-            else if (newValue <= 10)                  col = "#FF3333";
-            else if (newValue >= 11)                  col = "#CC33FF";
-    
-            if (sunIcon) {
-                sunIcon.querySelectorAll("*").forEach(el => {
-                    el.setAttribute("stroke", col);
-                    el.setAttribute("fill", col);
-                });
-            }
-        });
+            renderUvTile(uvDeviceId, newValue);
+          }
+        );
     }
 
 
@@ -1492,38 +1502,12 @@ if (windArrowNode && windSpeedNode) {
     const uvDevice = favoriteDevices.find(d => d.id === uvDeviceId);
 
     if (uvDevice) {
-        const tile = document.getElementById("device:" + uvDeviceId);
-        if (tile) {
-            const uvValueNode = tile.querySelector(".uv-value");
-            const icon = tile.querySelector(".uv-sun-icon");
+      const caps = uvDevice.capabilitiesObj || {};
+      const value = (uvLastValue !== null && uvLastValue !== undefined)
+        ? uvLastValue
+        : caps.measure_ultraviolet?.value;
 
-            const caps = uvDevice.capabilitiesObj || {};
-            const value = (uvLastValue !== null && uvLastValue !== undefined)
-              ? uvLastValue
-              : caps.measure_ultraviolet?.value;
-
-            if (uvValueNode) {
-                if (value !== null && value !== undefined) {
-                    uvValueNode.textContent = value;
-                } else {
-                    uvValueNode.textContent = "-";
-                }
-            }
-
-            if (icon) {
-                let color = "#ffffff";  // fallback
-
-                if (value <= 2)      color = "#00cc66";   // green
-                else if (value <= 5) color = "#ffdd57";   // yellow
-                else if (value <= 7) color = "#ff8c00";   // amber
-                else                 color = "#ff3860";   // red
-
-                icon.querySelectorAll("*").forEach(el => {
-                    el.style.fill = color;
-                    el.style.stroke = color;
-                });
-            }
-        }
+      renderUvTile(uvDeviceId, value);
     }
 }  
 
