@@ -1,0 +1,2629 @@
+var version = "1.1.3"
+
+var CLIENT_ID = '5cbb504da1fc782009f52e46';
+var CLIENT_SECRET = 'gvhs0gebgir8vz8yo2l0jfb49u9xzzhrkuo1uvs8';
+
+var homey;
+var outdoortemperature
+var indoortemperature
+var homeydashdevicebrightness
+var locale = 'en'
+var theme;
+var urltoken;
+var uid;
+var styleElem;
+var $content
+var $settingspanel
+var iframesettings;
+var lang = getQueryVariable('lang');
+if ( lang ) {
+  locale = lang;
+}
+var texts = getTexts(locale)
+loadScript(locale, setLocale)
+
+
+// ------------------------------------------------------
+// EV HELPER FUNCTIONS
+// ------------------------------------------------------
+
+function isEvCharger(device) {
+  const uri = (device.driverUri || '').toLowerCase();
+  const cls = (device.class || '').toLowerCase();
+  return uri.includes('easee') || cls === 'evcharger' || cls === 'charger';
+}
+
+function getEvBrandIcon(device) {
+  const base = '/homeydash.com/app/img/icons/';
+  const name = (device.name || device.title || '').toLowerCase();
+
+  if (name.includes('ella') || name.includes('fiat')) {
+    return base + 'Fiat.svg';
+  }
+
+  return base + 'BMW.svg';
+}
+
+
+// ------------------------------------------------
+// EV → Presence mapping (do NOT rely on device names)
+// Charger device IDs -> Presence device IDs
+// ------------------------------------------------
+const EV_PRESENCE_BY_CHARGER_ID = {
+  // Easee Elois charger -> Elois Presence
+  'e2d83fdf-a014-4cd3-a880-de909c543179': '69e8d79c-c188-4279-9a46-4d4d522baa51',
+  // Easee Ella charger -> Ella Presence
+  '972ddbe2-b4d2-4e27-8c90-d958d4c06775': 'dcd7157c-0824-4b97-9842-519aa6f794e8',
+};
+
+function isChargerAway(chargerDevice, devicesById) {
+  const presenceId = EV_PRESENCE_BY_CHARGER_ID[chargerDevice.id];
+  if (!presenceId) return null;
+
+  const presenceDev = devicesById?.[presenceId];
+  const atHome = presenceDev?.capabilitiesObj?.onoff?.value; // boolean
+  if (typeof atHome !== 'boolean') return null;
+
+  return !atHome;
+}
+
+function getEvState(device, devicesById) {
+  const caps = device.capabilitiesObj || {};
+  const raw = caps['charger_status']?.value?.toLowerCase() ?? "";
+  const power = caps['measure_power']?.value ?? 0;
+
+  // ---------------------------------------------
+  // 1) Charging → BLUE
+  // ---------------------------------------------
+  if (raw === 'charging' || power > 0) {
+    return {
+      key:   'charging',
+      label: 'Charging',
+      icon:  '/homeydash.com/app/img/icons/Charging.svg',
+      color: '#4da6ff'   // blue
+    };
+  }
+
+  // ---------------------------------------------
+  // 2) Completed → GREEN
+  // ---------------------------------------------
+  if (raw === 'completed') {
+    return {
+      key:   'completed',
+      label: 'Completed',
+      icon:  '/homeydash.com/app/img/icons/BatteryFull.svg',
+      color: '#00cc66'   // green
+    };
+  }
+
+  // ---------------------------------------------
+  // 3a) Connected → YELLOW
+  // ---------------------------------------------
+  if (raw === 'car connected') {
+    return {
+      key:   'connected',
+      label: 'Connected',
+      icon:  '/homeydash.com/app/img/icons/Connected.svg',
+      color: '#ffd500'      // yellow
+    };
+  }
+
+  // ---------------------------------------------
+  // 3b) Paused → YELLOW
+  // ---------------------------------------------
+  if (raw === 'paused') {
+    return {
+      key:   'paused',
+      label: 'Paused',
+      icon:  '/homeydash.com/app/img/icons/Connected.svg',
+      color: '#ffd500'      // yellow
+    };
+  }
+
+  // ---------------------------------------------
+  // 4) Error → AMBER
+  // ---------------------------------------------
+  if (raw === 'error') {
+    return {
+      key:   'error',
+      label: 'Error',
+      icon:  '/homeydash.com/app/img/icons/Warning.svg',
+      color: '#ffbf00'   // amber
+    };
+  }
+
+  // ---------------------------------------------
+  // 4) Offline → AMBER
+  // ---------------------------------------------
+  if (raw === 'offline') {
+    return {
+      key:   'offline',
+      label: 'Offline',
+      icon:  '/homeydash.com/app/img/icons/Warning.svg',
+      color: '#ffbf00'   // amber
+    };
+  }
+
+  // ---------------------------------------------
+  // 5) Disconnected (Standby) → RED (or AWAY → GREY)
+  // ---------------------------------------------
+  if (raw === 'standby') {
+
+    // If the associated car is away, treat "Disconnected" as "Away"
+    // (This preserves normal charger states for guest cars, charging, etc.)
+    const away = isChargerAway(device, devicesById) === true;
+
+    if (away) {
+      return {
+        key:   'away',
+        label: 'Away',
+        icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+        color: '#9aa0a6'   // grey
+      };
+    }
+
+    return {
+      key:   'disconnected',
+      label: 'Disconnected',
+      icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+      color: '#ff4c4c'   // red
+    };
+  }
+
+  // ---------------------------------------------
+  // 6) Fallback → Disconnected
+  // ---------------------------------------------
+  return {
+    key:   'disconnected',
+    label: 'Disconnected',
+    icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+    color: '#ff4c4c'  // red
+  };
+}
+
+
+
+
+window.addEventListener('load', function() {
+
+  //var homey;
+  var me;
+  var sunrise = "";
+  var sunset = "";
+  var tod = "";
+  var dn = "";
+  var batteryDetails = [];
+  var batteryAlarm = false;
+  var sensorDetails =[];
+  var nrMsg = 8;
+  var faultyDevice = false;
+  var nameChange = false;
+  var longtouch = false;
+  var showTime;
+  var cancelUndim = false;
+  var currentBrightness;
+  var selectedDevice;
+  var slideDebounce = false;
+  var sliderUnit = "";
+
+  var $infopanel = document.getElementById('info-panel');
+  $settingspanel = document.getElementById('settings-panel');
+  var $sliderpanel = document.getElementById('slider-panel');
+  var $slider = document.getElementById('slider');
+  var $sliderclose = document.getElementById('slider-close');
+  var $slidericon = document.getElementById('slider-icon');
+  var $slidercapability = document.getElementById('slider-capability');
+  var $slidername = document.getElementById('slider-name');
+  var $slidervalue = document.getElementById('slider-value');
+  var $container = document.getElementById('container');
+
+  var $containerinner = document.getElementById('container-inner');
+
+    var $header = document.getElementById('header');
+      var $weather = document.getElementById('weather');
+        var $sunrisetime = document.getElementById('sunrise-time');
+        var $sunsettime = document.getElementById('sunset-time');
+        var $weatherStateIcon = document.getElementById('weather-state-icon');
+        var $weatherTemperature = document.getElementById('weather-temperature');
+        var $weatherroof = document.getElementById('weather-roof');
+        var $weathertemperatureinside = document.getElementById('weather-temperature-inside');
+      var $text = document.getElementById('text');
+        var $textLarge = document.getElementById('text-large');
+        var $textSmall = document.getElementById('text-small');
+      var $details = document.getElementById('details');
+        var $versionIcon = document.getElementById('version-icon');
+        var $batterydetails = document.getElementById('battery-details');
+        var $notificationdetails = document.getElementById('notification-details');
+        var $sensordetails = document.getElementById('sensor-details');
+        var $settingsIcon = document.getElementById('settings-icon');
+        var $logo = document.getElementById('logo');
+    $content = document.getElementById('content');
+      var $row1 = document.getElementById('row1'); 
+        var $flows = document.getElementById('flows');
+          var $favoriteflows = document.getElementById('favorite-flows');  
+            var $flowsInner = document.getElementById('flows-inner');
+      var $row2 = document.getElementById('row2');
+        var $devices = document.getElementById('devices');
+          var $favoritedevices = document.getElementById('favorite-devices');
+            var $devicesInner = document.getElementById('devices-inner');
+      var $row3 = document.getElementById('row3');
+        var $alarms = document.getElementById('alarms');
+          var $favoritealarms = document.getElementById('favorite-alarms');
+            var $alarmsInner = document.getElementById('alarms-inner');
+
+  var order = getCookie("order")
+  if ( order != "") {
+    row = order.split(",")
+  } else {
+    row = "1,2,3".split(",")
+  }
+  
+  $row1.style.order = row[0]
+  $row2.style.order = row[1]
+  $row3.style.order = row[2]
+
+  try {
+    $favoriteflows.innerHTML = texts.favoriteflows
+    $favoritedevices.innerHTML = texts.favoritedevices
+    $favoritealarms.innerHTML = texts.alarms
+  } catch(err) {}
+
+  $infopanel.addEventListener('click', function() {
+    $containerinner.classList.remove('container-dark');
+    $infopanel.style.visibility = "hidden";
+  });
+
+  $logo.addEventListener('mousedown', function() {
+    logoStart();
+  });
+  
+  $logo.addEventListener('touchstart', function() {
+    logoStart();
+  });
+
+  $logo.addEventListener('mouseup', function() {
+    timeout = setTimeout(function() {
+      longtouch = false;
+    },100)
+    $logo.classList.remove('startTouch')
+  });
+
+  $logo.addEventListener('touchend', function() {
+    timeout = setTimeout(function() {
+      longtouch = false;
+    },200)
+    $logo.classList.remove('startTouch')
+  });
+
+  $logo.addEventListener('click', function(){
+    if ( longtouch ) {return} // No click when longtouch was performed
+    window.location.reload();
+  });
+
+  $sliderclose.addEventListener('click', function(){
+    $sliderpanel.style.display = "none"
+  })
+
+  function logoStart() {
+    longtouch = false;
+    $logo.classList.add('startTouch')
+    timeout = setTimeout(function() {
+      if ( $logo.classList.contains('startTouch') ) {
+        longtouch = true;
+        currentBrightness = $container.style.opacity*100
+        var undim = ( currentBrightness + 50)
+        if ( undim > 100 ) { undim = 100}
+        setBrightness(undim)
+        timeout2 = setTimeout(function() {
+          if ( !cancelUndim ) {
+            setBrightness(currentBrightness)
+          }
+        }, 7500)
+      }
+    }, 300)
+  }
+
+  $settingsIcon.addEventListener('click', function() {
+    renderSettingsPanel();
+  })
+
+  $text.addEventListener('click', function() {
+    homey.notifications.getNotifications().then(function(notifications) {
+      return renderInfoPanel('t',notifications);
+    })
+  });
+
+  $weather.addEventListener('click', function() {
+    homey.weather.getWeather().then(function(weather) {
+      return renderInfoPanel("w", weather)
+    }).catch(console.error);
+  })
+
+  $batterydetails.addEventListener('click', function() {
+    return renderInfoPanel("b")
+  })
+
+  $sensordetails.addEventListener('click', function() {
+    return renderInfoPanel("s")
+  })
+
+  $notificationdetails.addEventListener('click', function() {
+    homey.notifications.getNotifications().then(function(notifications) {
+      return renderInfoPanel('t',notifications);
+    })
+  });
+
+  outdoortemperature = getCookie("outdoortemperature")
+  if ( outdoortemperature == undefined || outdoortemperature == "" ) { outdoortemperature = "homey"}
+
+  indoortemperature = getCookie("indoortemperature")
+  if ( indoortemperature != "" && indoortemperature != "none" ) {
+    $weatherroof.style.visibility = "visible"
+    $weathertemperatureinside.style.visibility = "visible"
+  }
+
+  showTime = getCookie("showtime")
+  showTime = ( showTime == "true") ? true: false;
+  renderText();
+  later.setInterval(function(){
+    renderText();
+  }, later.parse.text('every 1 second'));
+
+  var api = new AthomCloudAPI({
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+  });
+
+  theme = getQueryVariable('theme');
+  if ( theme == undefined) {
+    theme = "web";
+  }
+
+  var $css = document.createElement('link');
+  $css.rel = 'stylesheet';
+  $css.type = 'text/css';
+  $css.href = './css/themes/' + theme + '.css';
+  document.head.appendChild($css);
+
+  var backgroundfromurl = getQueryVariable('background');
+  if ( backgroundfromurl == undefined ) { backgroundfromurl = "" }
+  
+  var vadjust = getQueryVariable('vadjust');
+  if ( vadjust == undefined ) { vadjust = 0}
+
+  var logofromurl = getQueryVariable('logo');
+  if ( logofromurl == undefined ) { logofromurl = "" }
+
+  var zoom = getCookie("zoom")
+
+  $content.style.zoom = zoom;
+
+  var token = getQueryVariable('token');
+  urltoken = token;
+
+  if ( token == undefined || token == "undefined" || token == "") {
+    $container.innerHTML ="<br /><br /><br /><br /><center>homeydash.com<br /><br />Please log-in at<br /><br /><a href='https://homey.ink'>homey.ink</a></center><br /><br /><center><a href='https://community.athom.com/t/homeydash-com-a-homey-dashboard/13509'>More information</a></center>"
+    return
+  }
+  /*
+  uid = token.slice(-5)
+  this.console.log(uid) // MzIn0
+  */
+  try { token = atob(token) }
+  catch(err) {
+    $container.innerHTML ="<br /><br /><br /><br /><center>homeydash.com<br /><br />Token invalid. Please log-in again.<br /><br /><a href='https://homey.ink'>homey.ink</a></center><br /><br /><center><a href='https://community.athom.com/t/homeydash-com-a-homey-dashboard/13509'>More information</a></center>"
+    return
+  }
+  token = JSON.parse(token);
+  api.setToken(token);
+
+  api.isLoggedIn().then(function(loggedIn) {
+    if(!loggedIn)
+      $container.innerHTML ="<br /><br /><br /><br /><center>homeydash.com<br /><br />Token Expired. Please log-in again.<br /><br /><a href='https://homey.ink'>homey.ink</a></center>"
+      return
+      //throw new Error('Token Expired. Please log-in again.');
+  }).then(function(){
+    return api.getAuthenticatedUser();
+  }).then(function(user) {
+    return user.getFirstHomey();
+  }).then(function(homey) {
+    return homey.authenticate();
+  }).then(function(homey_) {
+    homey = homey_;
+
+    renderHomey();
+    later.setInterval(function(){
+      renderHomey();
+    }, later.parse.text('every 1 hour'));
+  }).catch(console.error);
+
+  function renderHomey() {
+
+    homey.users.getUsers().then(function(users) {
+      for ( user in users) {
+        /*
+        console.log("avatar:   " + users[user].avatar)
+        console.log("asleep:   " + users[user].asleep)
+        console.log("present:  " + users[user].present)
+        console.log("enabled:  " + users[user].enabled)
+        console.log("verifeid: " + users[user].verified)
+        */
+      }
+    }).catch(console.error);
+
+    homey.users.getUserMe().then(function(user) {
+      me = user;
+      me.properties = me.properties || {};
+      me.properties.favoriteFlows = me.properties.favoriteFlows || [];
+      me.properties.favoriteDevices = me.properties.favoriteDevices || [];
+
+      homey.i18n.getOptionLanguage().then(function(language) {
+      }).catch(console.error);
+
+      batteryDetails = [];
+
+      homey.flowToken.getFlowTokens().then(function(tokens) {
+        for ( token in tokens) {
+          if ( tokens[token].id == "sunrise" && tokens[token].uri == "homey:manager:cron" ) {
+            sunrise = tokens[token].value
+          }
+          if ( tokens[token].id == "sunset" && tokens[token].uri == "homey:manager:cron" ) {
+            sunset = tokens[token].value
+          }
+          if ( tokens[token].id == "measure_battery" ) {
+            var batteryLevel = tokens[token].value
+            if ( batteryLevel != null ) {
+              var element = {}
+              element.name = tokens[token].uriObj.name
+              element.zone = tokens[token].uriObj.meta.zoneName
+              element.level = batteryLevel
+              batteryDetails.push(element)
+              if ( batteryLevel < 20 ) {
+                batteryAlarm = true
+              }
+            }
+          }
+        }
+        batteryDetails.sort(dynamicSort("level"))
+        if (sunrise != "" || sunset != "") {
+          calculateTOD();
+          renderSunevents();
+        }
+        if ( batteryAlarm ) {
+          $batterydetails.classList.add('alarm')
+        } else {
+          $batterydetails.classList.remove('alarm')
+        }
+      }).catch(console.error);
+
+      checkSensorStates();
+
+      renderVersion();
+
+      renderImages();
+
+
+      /*
+      homey.weather.getWeather().then(function(weather) {
+        return renderWeather(weather);
+      }).catch(console.error);
+      */
+
+      homey.flow.getFlows().then(function(flows) {
+        var favoriteFlows = me.properties.favoriteFlows.map(function(flowId){
+          return flows[flowId];
+        }).filter(function(flow){
+          return !!flow;
+        });
+        return renderFlows(favoriteFlows);
+      }).catch(console.error);
+
+      homey.alarms.getAlarms().then(function(alarms) {
+        return renderAlarms(alarms);
+      }).catch(console.error);
+
+      homey.devices.getDevices().then(function(devices) {
+        var favoriteDevices = me.properties.favoriteDevices.map(function(deviceId){
+          return devices[deviceId];
+        }).filter(function(device){
+          return !!device;
+        }).filter(function(device){
+          if(!device.ui) return false;
+          return true;
+        });
+      
+
+        const iconPath = '/homeydash.com/app/img/icons/';        
+        
+        // Weather icon from YR device
+        for (const id in devices) {
+          const device = devices[id];
+       
+          if (device.driverUri === "homey:app:no.yr" && device.ready) {
+            console.log("Found YR device");
+      
+            if (device.capabilitiesObj.weather_description) {
+              const condition = device.capabilitiesObj.weather_description.value
+                .toLowerCase()
+                .replace(/\s+/g, '');
+      
+              console.log("YR condition:", condition);
+      
+              if ($weatherStateIcon && condition) {
+                // $weatherStateIcon.classList.add(condition);
+                $weatherStateIcon.style.backgroundImage = `url(img/weather/${condition}.svg)`;
+                $weatherStateIcon.style.webkitMaskImage = `url(img/weather/${condition}.svg)`;
+              }
+
+            } else {
+              console.warn("YR device has no weather_description capability at this time.");
+            }
+      
+            break;
+          }
+        }
+      
+         
+        favoriteDevices.forEach(function(device){
+          // console.log(device.name)
+          // console.log(device.capabilitiesObj)
+          if (!device.ready) {
+            faultyDevice=true;
+            $sensordetails.classList.add('fault')
+            return
+          }
+
+          
+
+          
+          
+          
+          if ( device.ui.quickAction ) {
+            device.makeCapabilityInstance(device.ui.quickAction, function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('on', !!value);
+              }
+            });
+          }
+          if ( device.capabilitiesObj.locked ) {
+            device.makeCapabilityInstance('locked', function(value){
+              var $valueElement = document.getElementById('lock:' + device.id);
+              if( $valueElement ) {
+                console.log("Locked: " + value)
+                $valueElement.classList.toggle('locked', !!value);
+                $valueElement.classList.toggle('unlocked', !value);
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_generic ) {
+            device.makeCapabilityInstance('alarm_generic', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('alarm', !!value);
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_motion ) {
+            device.makeCapabilityInstance('alarm_motion', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('alarm', !!value);
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_contact ) {
+            device.makeCapabilityInstance('alarm_contact', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('alarm', !!value);
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_connected ) {
+            device.makeCapabilityInstance('alarm_connected', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('away', !value);
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_night ) {
+            device.makeCapabilityInstance('alarm_night', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('day', !value);
+              }
+            });
+          }
+          if ( device.capabilitiesObj.alarm_vibration ) {
+            device.makeCapabilityInstance('alarm_vibration', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                $deviceElement.classList.toggle('alarm', !!value);
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_temperature ) {
+            device.makeCapabilityInstance('measure_temperature', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_temperature");
+                capability = device.capabilitiesObj['measure_temperature']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.target_temperature ) {
+            device.makeCapabilityInstance('target_temperature', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":target_temperature");
+                capability = device.capabilitiesObj['target_temperature']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+                if (device.name=="Bier") {renderValue($valueElement, capability.id, capability.value, "")}
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_humidity ) {
+            device.makeCapabilityInstance('measure_humidity', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_humidity");
+                capability = device.capabilitiesObj['measure_humidity']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_pressure ) {
+            device.makeCapabilityInstance('measure_pressure', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_pressure");
+                capability = device.capabilitiesObj['measure_pressure']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_luminance ) {
+            device.makeCapabilityInstance('measure_luminance', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_luminance");
+                capability = device.capabilitiesObj['measure_luminance']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          // new 1.1.1.9
+          if ( device.capabilitiesObj.measure_gust_strength ) {
+            device.makeCapabilityInstance('measure_gust_strength', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_gust_strength");
+                capability = device.capabilitiesObj['measure_gust_strength']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_rain ) {
+            device.makeCapabilityInstance('measure_rain', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_rain");
+                capability = device.capabilitiesObj['measure_rain']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+
+          if (device.capabilitiesObj.measure_rain_intensity) {
+              device.makeCapabilityInstance('measure_rain_intensity', function (value) {
+                  const tile = document.getElementById('device:' + device.id);
+                  if (!tile) return;
+          
+                  const valueNode = tile.querySelector('.precip-value');
+                  if (!valueNode) return;
+          
+                  valueNode.textContent = `${value} mm`;
+              });
+          }
+          
+          if (device.capabilitiesObj.meter_rain) {
+              device.makeCapabilityInstance('meter_rain', function (value) {
+                  const tile = document.getElementById('device:' + device.id);
+                  if (!tile) return;
+          
+                  const valueNode = tile.querySelector('.precip-value');
+                  if (!valueNode) return;
+          
+                  valueNode.textContent = `${value} mm`;
+              });
+          }
+
+          
+          if ( device.capabilitiesObj.measure_rain_day ) {
+            device.makeCapabilityInstance('measure_rain_day', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_rain_day");
+                capability = device.capabilitiesObj['measure_rain_day']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_solarradiation ) {
+            device.makeCapabilityInstance('measure_solarradiation', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_solarradiation");
+                capability = device.capabilitiesObj['measure_solarradiation']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_uv ) {
+            device.makeCapabilityInstance('measure_uv', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_uv");
+                capability = device.capabilitiesObj['measure_uv']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_wind_angle ) {
+            device.makeCapabilityInstance('measure_wind_angle', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_wind_angle");
+                capability = device.capabilitiesObj['measure_wind_angle']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_wind_strength ) {
+            device.makeCapabilityInstance('measure_wind_strength', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_wind_strength");
+                capability = device.capabilitiesObj['measure_wind_strength']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          // /new 1.1.1.9
+          if ( device.capabilitiesObj.measure_power ) {
+            device.makeCapabilityInstance('measure_power', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_power");
+                capability = device.capabilitiesObj['measure_power']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.meter_power ) {
+            device.makeCapabilityInstance('meter_power', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":meter_power");
+                capability = device.capabilitiesObj['meter_power']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_current ) {
+            device.makeCapabilityInstance('measure_current', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_current");
+                capability = device.capabilitiesObj['measure_current']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_voltage ) {
+            device.makeCapabilityInstance('measure_voltage', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_voltage");
+                capability = device.capabilitiesObj['measure_voltage']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.meter_gas ) {
+            device.makeCapabilityInstance('meter_gas', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":meter_gas");
+                capability = device.capabilitiesObj['meter_gas']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.measure_water ) {
+            device.makeCapabilityInstance('measure_water', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":measure_water");
+                capability = device.capabilitiesObj['measure_water']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.daily_production ) {
+            device.makeCapabilityInstance('daily_production', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":daily_production");
+                capability = device.capabilitiesObj['daily_production']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.production ) {
+            device.makeCapabilityInstance('production', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":production");
+                capability = device.capabilitiesObj['production']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.dim ) {
+            device.makeCapabilityInstance('dim', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":dim");
+                capability = device.capabilitiesObj['dim']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.volume_set ) {
+            device.makeCapabilityInstance('volume_set', function(value){
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement ) {
+                var $valueElement = document.getElementById('value:' + device.id + ":volume_set");
+                capability = device.capabilitiesObj['volume_set']
+                renderValue($valueElement, capability.id, capability.value, capability.units)
+              }
+            });
+          }
+          if ( device.capabilitiesObj.flora_measure_moisture ) {
+            device.makeCapabilityInstance('flora_measure_moisture', function(value) {
+              var $deviceElement = document.getElementById('device:' + device.id);
+              var moisture = value;
+              if( $deviceElement) {
+                var $element = document.getElementById('value:' + device.id +":flora_measure_moisture");
+                $element.innerHTML = Math.round(moisture) + "<span id='decimal'>%</span><br />"
+                console.log(moisture)
+                if ( moisture < 15 || moisture > 65 ) {
+                  console.log("moisture out of bounds")
+                  $deviceElement.classList.add('alarm')
+                  selectValue(device, $element)
+                  selectIcon($element, $element.id, device, device.capabilitiesObj['flora_measure_moisture'])
+                } else {
+                  $deviceElement.classList.remove('alarm')
+                }
+                checkSensorStates();
+              }
+            });
+          }
+          if ( device.capabilitiesObj.flora_measure_fertility ) {
+            device.makeCapabilityInstance('flora_measure_fertility', function(fertility) {
+              var $deviceElement = document.getElementById('device:' + device.id);
+              if( $deviceElement) {
+                var $element = document.getElementById('value:' + device.id +":flora_measure_fertility");
+                $element.innerHTML = Math.round(fertility) + "<span id='decimal'>%</span><br />"
+              }
+            });
+          }
+        });
+        homeydashdevicebrightness = getCookie("homeydashdevicebrightness")
+        var brightness = 100
+        for (item in devices) {
+          device = devices[item]
+          if ( device.ready ) {
+              if ( device.id == indoortemperature ) {
+                if ( device.capabilitiesObj.measure_temperature ) {
+                  value = device.capabilitiesObj.measure_temperature.value
+                  renderValue($weathertemperatureinside, 'measure_temperature', value)
+                  device.makeCapabilityInstance('measure_temperature', function(value){
+                    renderValue($weathertemperatureinside, 'measure_temperature', value)
+                  });
+                }
+              }
+              if ( device.id == outdoortemperature ) {
+                if ( device.capabilitiesObj.measure_temperature ) {
+                  value = device.capabilitiesObj.measure_temperature.value
+                  renderValue($weatherTemperature, 'measure_temperature', value)
+                  device.makeCapabilityInstance('measure_temperature', function(value){
+                    renderValue($weatherTemperature, 'measure_temperature', value)
+                  });
+                }
+              }
+              if ( device.id == homeydashdevicebrightness ) {
+                if ( device.capabilitiesObj.dim) {
+                  brightness = Math.round(device.capabilitiesObj.dim.value*100)
+                  if ( brightness == null ) { brightness = 100 }
+                  if ( brightness <0 || brightness > 100 ) {
+                    console.log(device.name + " dim value is out of bounds")
+                    break
+                  }
+                  device.makeCapabilityInstance('dim', function(value){
+                    value = Math.round(value * 100)
+                    if ( value <0 || value > 100 ) {
+                      console.log(device.name + " dim value is out of bounds")
+                    }
+                    cancelUndim = true
+                    setBrightness(value)
+                    timeout2 = setTimeout(function() {
+                      cancelUndim = false
+                    }, 7500)
+                  });
+                } else {
+                  console.log(device.name + " device found, device does not have dim capability!")
+                }
+              }
+          }
+        }
+
+        setBrightness(brightness)
+
+        console.log("📌 Reached before renderDevices");
+        
+        renderDevices(favoriteDevices);        
+
+        
+
+setTimeout(() => {
+
+  const iconPath = '/homeydash.com/app/img/icons/';  
+  
+
+  const windDeviceId = 'e2fee901-e600-4917-9623-bd28e0059c50';
+  let windArrowNode = null;
+  let windSpeedNode = null;
+
+  function setupWindTile() {
+    const tile = document.getElementById('device:' + windDeviceId);
+    if (!tile) {
+      console.warn('Wind tile not found yet');
+      return;
+    }
+
+    // Avoid duplicate wrapper
+    if (tile.querySelector('.wind-tile-wrapper')) {
+      windArrowNode = tile.querySelector('.wind-arrow-svg');
+      if (windArrowNode) {
+          windArrowNode.style.filter = 'none';
+      }      
+      windSpeedNode = tile.querySelector('.wind-speed');
+      return;
+    }
+
+    const iconNode = tile.querySelector('.icon');
+    
+
+    tile.querySelectorAll('.value').forEach(v => {
+      v.style.display = 'none';
+    });
+
+    const nameNode = tile.querySelector('.name');
+    if (nameNode) nameNode.textContent = 'Wind (m/s)';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'wind-tile-wrapper';
+    wrapper.innerHTML = `
+            <div class="wind-data">
+        <svg class="wind-arrow-svg" viewBox="0 0 24 24">
+          <path d="M6 12 L14 12 L14 9 L20 14 L14 19 L14 16 L6 16 Z" fill="white"/>
+        </svg>
+        <div class="wind-speed"></div>
+      </div>
+    `;
+
+    tile.appendChild(wrapper);
+    windArrowNode = tile.querySelector('.wind-arrow-svg');
+    windSpeedNode = tile.querySelector('.wind-speed');
+  }
+
+  // Try once after initial render; the update loop can retry if needed
+  setupWindTile();  
+
+
+
+// ===========================================
+// UV Tile setup
+// ===========================================
+    
+function setupUvTile(tile, device) {
+    // Prevent double injection
+    if (tile.querySelector('.uv-wrapper')) return;
+
+    // Hide the default value and default state icons (we already do this in update loop),
+    // BUT we also hide them here so the tile is clean even before the first update.
+    tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
+
+    const iconNode = tile.querySelector('.icon-capability');
+    if (iconNode) iconNode.style.display = 'none';
+
+    // Create wrapper for UV tile
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uv-wrapper';
+    wrapper.innerHTML = `
+        <div class="uv-sun-icon"></div>
+        <div class="uv-value"></div>
+    `;
+
+    tile.appendChild(wrapper);
+}
+
+
+  
+  
+// ===========================================
+// Garage Tile setup
+// ===========================================
+    
+console.log("🚗 Garage tile EV-style state setup");
+
+const garageTiles = [
+  {
+    id: '7bfb95ee-653d-482b-a020-f8054d424fd5',
+    label: 'Garage 1'
+  },
+  {
+    id: 'a74a489f-90d8-417f-92c6-c9c57c5175ad',
+    label: 'Garage 2'
+  }
+];
+
+garageTiles.forEach(({ id, label }) => {
+  const tile   = document.getElementById('device:' + id);
+  const nameEl = document.getElementById('name:' + id);
+
+  if (!tile || !nameEl) return;
+
+  tile.classList.add('garage-tile');
+  nameEl.textContent = label;
+  nameEl.style.color = 'white';
+
+  tile.style.removeProperty('background-color');
+
+  /* STATE CONTAINER */
+  let stateContainer = tile.querySelector('.garage-state-container');
+  if (!stateContainer) {
+    stateContainer = document.createElement('div');
+    stateContainer.className = 'garage-state-container';
+
+    const iconEl = document.createElement('img');
+    iconEl.className = 'garage-state-icon';
+
+    const textEl = document.createElement('span');
+    textEl.className = 'garage-state-text';
+
+    stateContainer.appendChild(iconEl);
+    stateContainer.appendChild(textEl);
+
+    tile.appendChild(stateContainer);
+  }
+});
+
+
+// ===========================================
+// Temperature tile setup (Dogs + Wine Cellar)
+// ===========================================
+favoriteDevices.forEach(device => {
+  const capabilities = Object.keys(device.capabilitiesObj || {});
+
+  if (capabilities.includes("measure_temperature")) {
+
+    const tile = document.getElementById('device:' + device.id);
+    if (!tile) return;
+
+    // Create container once
+    let stateContainer = tile.querySelector(".temp-state-container");
+    if (!stateContainer) {
+      stateContainer = document.createElement("div");
+      stateContainer.classList.add("temp-state-container");
+      tile.appendChild(stateContainer);
+    }
+
+    // Clear previous content
+    stateContainer.innerHTML = "";
+
+    // Temperature line
+    const tempEl = document.createElement("div");
+    tempEl.classList.add("temp-value");
+    tempEl.textContent = "--°C";
+    stateContainer.appendChild(tempEl);
+
+    // Humidity line only for Wine Cellar
+    if (capabilities.includes("measure_humidity")) {
+      const humEl = document.createElement("div");
+      humEl.classList.add("humidity-value");
+      humEl.textContent = "--%";
+      stateContainer.appendChild(humEl);
+    }
+  }
+});
+
+
+function cleanWeatherTile(tile) {
+    tile.querySelectorAll('.value').forEach(v => v.style.display = 'none');
+
+    const stateIcon = tile.querySelector('.state-icon, .state-image, .state');
+    if (stateIcon) {
+        stateIcon.style.display = 'none';
+    }
+}
+  
+
+  
+//-----------------------------------------------------
+// ---------- Weather tiles configuration ----------
+//-----------------------------------------------------  
+
+const WEATHER_TILES = [
+  {
+    key: 'uv',
+    deviceId: 'f470dd76-96d5-4d8f-a251-78e9961d0815',
+    capability: 'measure_ultraviolet',
+    title: 'UV level',
+    unit: '', // UV index has no unit suffix
+  },
+  {
+    key: 'precip30',
+    deviceId: 'a6be1609-9230-4259-9a41-9af4a8dee5cb',
+    capability: 'measure_rain',
+    title: 'Precip next 30 min',
+    unit: 'mm',
+  },
+  {
+    key: 'precip1h',
+    deviceId: '9ea2dbd3-ed39-4138-aa2e-fbdd4b6cc7e5',
+    capability: 'measure_rain_intensity',
+    title: 'Precip next hour',
+    unit: 'mm',
+  },
+  {
+    key: 'precip6h',
+    deviceId: '8047feb8-7795-489c-8861-c32671c76624',
+    capability: 'meter_rain',
+    title: 'Precip next 6 hours',
+    unit: 'mm',
+  },
+];
+
+
+  
+
+  
+//-----------------------------------------------------
+// Weather tiles — initial DOM setup (runs once)
+//-----------------------------------------------------
+WEATHER_TILES.forEach(tileInfo => {
+    const tile = document.getElementById('device:' + tileInfo.deviceId);
+    if (!tile) return;
+
+    // Hide native value + state
+    tile.querySelectorAll('.value, .icon-capability').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    // Prevent duplicate insertion
+    if (tile.querySelector('.weather-wrapper')) return;
+
+    // Remove all native values + state icons for weather tiles
+    cleanWeatherTile(tile);
+  
+    // Wrapper for our custom structure
+    const wrapper = document.createElement('div');
+    wrapper.className = `weather-wrapper weather-${tileInfo.key}`;
+    if (tileInfo.key === 'uv') {
+        wrapper.innerHTML = `
+            <div class="uv-data">
+                <svg class="uv-sun-icon" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5" fill="white"/>
+                    <line x1="12" y1="1"  x2="12" y2="4"  stroke="white" stroke-width="2"/>
+                    <line x1="12" y1="20" x2="12" y2="23" stroke="white" stroke-width="2"/>
+                    <line x1="1"  y1="12" x2="4"  y2="12" stroke="white" stroke-width="2"/>
+                    <line x1="20" y1="12" x2="23" y2="12" stroke="white" stroke-width="2"/>
+                    <line x1="4.5" y1="4.5" x2="6.5" y2="6.5" stroke="white" stroke-width="2"/>
+                    <line x1="17.5" y1="17.5" x2="19.5" y2="19.5" stroke="white" stroke-width="2"/>
+                    <line x1="4.5" y1="19.5" x2="6.5" y2="17.5" stroke="white" stroke-width="2"/>
+                    <line x1="17.5" y1="6.5" x2="19.5" y2="4.5" stroke="white" stroke-width="2"/>
+                </svg>
+                <div class="uv-value"></div>
+            </div>
+        `;
+    } else {
+        // Precipitation tiles (30m / 1h / 6h) – layout identical to temp tiles
+        wrapper.innerHTML = `
+            <div class="precip-container">
+                <div class="precip-value"></div>
+            </div>
+        `;
+    }    
+    tile.appendChild(wrapper);
+});  
+
+
+// ---------------------------------------------------------
+// TOGGLE LIGHTS TILE — initial DOM injection
+// ---------------------------------------------------------
+
+const toggleDeviceId = "f9659e2f-5ae4-4518-9ad6-254eedca92e4";
+
+const toggleTile = document.getElementById("device:" + toggleDeviceId);
+if (toggleTile && !toggleTile.querySelector(".toggle-wrapper")) {
+
+    // Hide all native Homey values/icons
+    toggleTile.querySelectorAll('.value, .icon-capability').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "toggle-wrapper";
+
+    wrapper.innerHTML = `
+        <div class="toggle-state-container">
+            <img class="toggle-icon" src="/homeydash.com/app/img/icons/BulbOff.svg">
+        </div>
+    `;
+
+    toggleTile.appendChild(wrapper);
+}
+
+  
+
+//-----------------------------------------------------
+// START OF UPDATE LOOP FOR ALL TILE TYPES
+//-----------------------------------------------------
+
+  
+setInterval(() => {
+
+//-----------------------------------------------------
+// Garage tiles dynamic updater (runs every interval)
+//-----------------------------------------------------
+  
+garageTiles.forEach(({ id }) => {
+  const device = favoriteDevices.find(d => d.id === id);
+  if (!device) return;
+
+  const tile           = document.getElementById('device:' + id);
+  const stateContainer = tile?.querySelector('.garage-state-container');
+  const iconEl         = stateContainer?.querySelector('.garage-state-icon');
+  const textEl         = stateContainer?.querySelector('.garage-state-text');
+
+  if (!tile || !stateContainer || !iconEl || !textEl) return;
+
+  const statusCap = 'devicecapabilities_boolean.boolean1';
+  const isOpen = device.capabilitiesObj?.[statusCap]?.value === true;
+
+  tile.classList.remove('garage-open', 'garage-closed');
+
+  if (isOpen) {
+    tile.classList.add('garage-open');
+    textEl.textContent = 'Open';
+    iconEl.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+  } else {
+    tile.classList.add('garage-closed');
+    textEl.textContent = 'Closed';
+    iconEl.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+  }
+});
+  
+  
+// --- Wind Tile (AVD) ---
+// Runs inside the same update loop as Garage/YR
+if (windArrowNode && windSpeedNode) {
+  const windDevice = favoriteDevices.find(d => d.id === windDeviceId);
+
+  if (windDevice) {
+    const caps = windDevice.capabilitiesObj || {};
+
+    windArrowNode.style.filter = 'none';
+    
+    const angle = caps['measure_wind_angle']?.value ?? 0;
+    const rawSpeed = caps['measure_wind_strength']?.value ?? 0;
+    const rawGust  = caps['measure_gust_strength']?.value ?? 0;
+
+    const speed = Math.round(rawSpeed);
+    const gust  = Math.round(rawGust);    
+
+    // --- Arrow colour code (your thresholds) ---
+    let arrowColor = '#ffffff'; // fallback
+    
+    if (speed <= 3) {
+        arrowColor = '#00cc66';            // green (0–3)
+    } else if (speed <= 10) {
+        arrowColor = '#ffdd57';            // yellow (4–10)
+    } else if (speed <= 20) {
+        arrowColor = '#ff8c00';            // amber (11–20)
+    } else {
+        arrowColor = '#ff3860';            // red (21+)
+    }
+    
+    windArrowNode.querySelectorAll('*').forEach(el => {
+        el.style.fill = arrowColor;
+        el.style.stroke = arrowColor;
+    });    
+
+    
+    // --- Apply rotation (with CSS variable for animation) ---
+    const rotationDegrees = angle + 90;
+    
+    // Set CSS variable used by the shake animation
+    windArrowNode.style.setProperty("--wind-rotate", `${rotationDegrees}deg`);
+    
+    // Apply the rotation normally
+    windArrowNode.style.transform = `rotate(${rotationDegrees}deg)`;
+    
+    // --- Shake animation trigger ---
+    if (speed > 32) {
+        windArrowNode.classList.add("wind-arrow-shake");
+    } else {
+        windArrowNode.classList.remove("wind-arrow-shake");
+    }
+    
+    // --- Update text ---
+    windSpeedNode.textContent = `${speed} (${gust})`;    
+
+    
+    
+    // Apply rotation and text
+    // windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
+    // windSpeedNode.textContent = `${speed} (${gust})`;
+  }
+}
+
+  
+  
+
+// -----------------------------------------------------------
+// UV TILE UPDATE
+// -----------------------------------------------------------
+{
+    const uvDeviceId = "f470dd76-96d5-4d8f-a251-78e9961d0815";
+
+    // -----------------------------------------------------------
+    // UV TILE — live capability listener
+    // -----------------------------------------------------------
+    const uvDeviceObj = favoriteDevices.find(d => d.id === uvDeviceId);
+    
+    if (uvDeviceObj && uvDeviceObj.makeCapabilityInstance) {
+    
+        uvDeviceObj.makeCapabilityInstance('measure_ultraviolet', (newValue) => {
+    
+            const uvTileEl = document.getElementById("device:" + uvDeviceId);
+            if (!uvTileEl) return;
+    
+            const uvValueNode = uvTileEl.querySelector(".uv-value");
+            const sunIcon = uvTileEl.querySelector(".uv-sun-icon");
+    
+            // Update value text
+            if (uvValueNode) {
+                uvValueNode.textContent =
+                    (newValue !== null && newValue !== undefined) ? newValue : "-";
+            }
+    
+            // Apply colour logic
+            let col = "white";
+            if      (newValue >= 0 && newValue <= 2)  col = "#00FF66";
+            else if (newValue <= 5)                   col = "#FFD500";
+            else if (newValue <= 7)                   col = "#FFA500";
+            else if (newValue <= 10)                  col = "#FF3333";
+            else if (newValue >= 11)                  col = "#CC33FF";
+    
+            if (sunIcon) {
+                sunIcon.querySelectorAll("*").forEach(el => {
+                    el.setAttribute("stroke", col);
+                    el.setAttribute("fill", col);
+                });
+            }
+        });
+    }
+
+
+
+  
+    const uvDevice = favoriteDevices.find(d => d.id === uvDeviceId);
+
+    if (uvDevice) {
+        const tile = document.getElementById("device:" + uvDeviceId);
+        if (tile) {
+            const uvValueNode = tile.querySelector(".uv-value");
+            const icon = tile.querySelector(".uv-sun-icon");
+
+            const caps = uvDevice.capabilitiesObj || {};
+            const value = caps.measure_ultraviolet?.value;
+
+            if (uvValueNode) {
+                if (value !== null && value !== undefined) {
+                    uvValueNode.textContent = value;
+                } else {
+                    uvValueNode.textContent = "-";
+                }
+            }
+
+            if (icon) {
+                let color = "#ffffff";  // fallback
+
+                if (value <= 2)      color = "#00cc66";   // green
+                else if (value <= 5) color = "#ffdd57";   // yellow
+                else if (value <= 7) color = "#ff8c00";   // amber
+                else                 color = "#ff3860";   // red
+
+                icon.querySelectorAll("*").forEach(el => {
+                    el.style.fill = color;
+                    el.style.stroke = color;
+                });
+            }
+        }
+    }
+}  
+
+
+// -----------------------------------------------------------
+// PRECIPITATION TILE UPDATE (all 3 tiles)
+// -----------------------------------------------------------
+WEATHER_TILES.forEach(tileInfo => {
+    if (tileInfo.key === 'uv') return;   // skip UV tile
+
+    const device = favoriteDevices.find(d => d.id === tileInfo.deviceId);
+    if (!device) return;
+
+    const tile = document.getElementById('device:' + tileInfo.deviceId);
+    if (!tile) return;
+
+    const valueNode = tile.querySelector('.precip-value');
+    if (!valueNode) return;
+
+    // Read capability value
+    const value = device.capabilitiesObj[tileInfo.capability]?.value;
+
+    // Format output
+    let formatted =
+        (value !== null && value !== undefined)
+        ? `${value} ${tileInfo.unit}`
+        : "-";
+
+    valueNode.textContent = formatted;
+});
+
+
+
+
+
+
+
+  
+//-----------------------------------------------------
+// EV + Temperature dynamic updater (runs every interval)
+//-----------------------------------------------------
+const evDevices = [
+  {
+    id: '972ddbe2-b4d2-4e27-8c90-d958d4c06775',  // Ella
+    brand: 'Fiat.svg'
+  },
+  {
+    id: 'e2d83fdf-a014-4cd3-a880-de909c543179',  // Elois
+    brand: 'BMW.svg'
+  }
+];
+
+favoriteDevices.forEach(device => {
+  const tile = document.getElementById('device:' + device.id);
+  if (!tile) return;
+
+
+  // Hide native value + icon for our 4 weather tiles
+  if (WEATHER_TILES.some(w => w.deviceId === device.id)) {
+    // Hide all default value fields
+    tile.querySelectorAll('.value').forEach(v => {
+      v.style.display = 'none';
+    });
+
+    // Hide the default state icon for weather tiles
+    const stateIcon = tile.querySelector('.state-icon, .state-image, .state');
+    if (stateIcon) {
+        stateIcon.style.display = 'none';
+    }  
+  }
+
+  
+  const capabilities = Object.keys(device.capabilitiesObj || {});
+
+  // ---------------------------
+  // EV overlay update
+  // ---------------------------
+  if (isEvCharger(device)) {
+    const overlay    = tile.querySelector('.ev-overlay');
+    if (overlay) {
+      const brandEl   = overlay.querySelector('.ev-brand-icon');
+      const stateIcon = overlay.querySelector('.ev-state-icon');
+      const stateText = overlay.querySelector('.ev-state-text');
+
+      const newBrand = getEvBrandIcon(device);
+      if (brandEl && brandEl.src !== newBrand) {
+        brandEl.src = newBrand;
+      }
+
+      const state = getEvState(device, devices);
+
+      overlay.classList.remove(
+        'ev-state-charging',
+        'ev-state-connected',
+        'ev-state-unplugged',
+        'ev-state-completed',
+        'ev-state-error',
+        'ev-state-disconnected',
+        'ev-state-away'
+      );
+      overlay.classList.add('ev-state-' + state.key);
+
+      if (stateIcon) stateIcon.src = state.icon;
+      if (stateText) {
+        stateText.textContent = state.label;
+        stateText.style.color = state.color;
+      }
+
+      const stateContainer = tile.querySelector('.ev-state-container');
+      const hour = new Date().getHours();
+      const isNight = (hour >= 22 || hour < 4);
+
+      if (stateContainer) {
+        if (state.key === 'disconnected' && isNight) {
+          stateContainer.classList.add('night-alert');
+        } else {
+          stateContainer.classList.remove('night-alert');
+        }
+      }
+
+      overlay.style.setProperty('--ev-state-colour', state.color);
+    }
+  }
+
+  // ---------------------------
+  // Temperature update (Dogs + Wine)
+  // ---------------------------
+  if (capabilities.includes("measure_temperature")) {
+    const stateContainer = tile.querySelector(".temp-state-container");
+    if (!stateContainer) return;
+
+    const tempEl = stateContainer.querySelector(".temp-value");
+    const humEl  = stateContainer.querySelector(".humidity-value");
+
+    let temp = device.capabilitiesObj.measure_temperature?.value;
+    if (temp !== null && temp !== undefined) {
+      temp = Math.round(temp * 10) / 10;
+      const formattedTemp = temp.toFixed(1);
+      if (tempEl) tempEl.textContent = `${formattedTemp}°C`;
+    }
+
+    // Colour thresholds
+    if (device.name.includes("Dogs") || device.name.includes("Dog")) {
+      if (temp < 20)      tempEl.style.color = "#5ab8ff";  // blue
+      else if (temp > 25) tempEl.style.color = "#ff4d4d";  // red
+      else                tempEl.style.color = "#ffffff";  // normal
+    }
+
+    if (device.name.includes("Wine") || capabilities.includes("measure_humidity")) {
+      if (temp < 10)      tempEl.style.color = "#5ab8ff";  // blue
+      else if (temp > 16) tempEl.style.color = "#ff4d4d";  // red
+      else                tempEl.style.color = "#ffffff";  // normal
+    }
+
+    if (humEl) {
+      let humidity = device.capabilitiesObj.measure_humidity?.value;
+      if (humidity !== null && humidity !== undefined) {
+        humidity = Math.round(humidity);
+        humEl.textContent = `${humidity}%`;
+      }
+      // colour of humidity stays subtle grey via CSS
+    }
+  }
+
+
+
+  
+  
+  
+});
+  
+  
+  
+}, 1000);
+  
+}, 0);
+
+    
+        
+      }).catch(console.error);
+    }).catch(console.error);
+  }
+
+  function renderVersion() {
+    var newVersion = false;
+    var savedVersion = getCookie('version')
+    if ( savedVersion != version) {
+      newVersion = true;
+      $versionIcon.style.visibility = 'visible';
+      $versionIcon.addEventListener('click', function() {
+        setCookie('version', version ,12)
+        changeLog = ""
+        changeLog = changeLog + "* Added lock status icon<br />"
+        changeLog = changeLog + "* Prevent unloadable device icons causing display problems<br />"
+        changeLog = changeLog + "* Corrected Italian translations<br />"
+        renderInfoPanel("u",changeLog)
+      })
+    }
+  }
+
+  function renderImages() {
+    var backgroundUrl = getCookie('background')
+    var backgroundColor = getCookie('backgroundcolor')
+    var backgroundOpacity = getCookie('backgroundopacity')
+    var logo = getCookie('logo')
+    var css = ""
+    if ( backgroundUrl != "" ) {
+      document.body.style.background = backgroundColor;
+      css = "content: ''; background: url('" + backgroundUrl + "');"
+      css = css + " top: " + vadjust + "px; left: 0; bottom: 0; right: 0; position: absolute; z-index: -1; background-size:cover;"
+      css = css + " opacity: " + backgroundOpacity + ";"
+    }
+    if ( backgroundUrl == "" && backgroundfromurl != "" ) {
+      document.body.style.background = backgroundColor;
+      css = "content: ''; background: url('" + backgroundfromurl + "');"
+      css = css + " top: " + vadjust + "px; left: 0; bottom: 0; right: 0; position: absolute; z-index: -1; background-size:cover;"
+      css = css + " opacity: " + backgroundOpacity + ";"
+    }
+
+    styleElem = document.head.appendChild(document.createElement("style"));
+    styleElem.innerHTML = "#body:after {" + css + "}";
+    if ( logo != "" ) {
+      $logo.style.background = "no-repeat center center";
+      $logo.style.backgroundImage = "url('" + logo + "')";
+      $logo.style.backgroundSize = "contain";
+    }
+    if ( logo == "" && logofromurl != "") {
+      $logo.style.background = "no-repeat center center";
+      $logo.style.backgroundImage = "url('" + logofromurl + "')";
+      $logo.style.backgroundSize = "contain";
+    }
+  }
+
+  function checkSensorStates() {
+    homey.flowToken.getFlowTokens().then(function(tokens) {
+      var sensorAlarm = false
+      sensorDetails = [];
+      for ( token in tokens) {
+        if (tokens[token].id == "alarm_generic" && tokens[token].value == true ||
+            tokens[token].id == "alarm_motion" && tokens[token].value == true ||
+            tokens[token].id == "alarm_contact" && tokens[token].value == true ||
+            tokens[token].id == "alarm_vibration" && tokens[token].value == true
+          ) {
+            var element = {}
+            element.name = tokens[token].uriObj.name
+            element.zone = tokens[token].uriObj.meta.zoneName
+            sensorDetails.push(element)
+            sensorAlarm = true
+        }
+      }
+      if ( sensorAlarm ) {
+        $sensordetails.classList.add('alarm')
+      } else {
+        $sensordetails.classList.remove('alarm')
+      }
+    }).catch(console.error);
+  }
+
+  function renderInfoPanel(type,info) {
+    switch(type) {
+      case "t":
+        $infopanel.innerHTML = '';
+        var $infoPanelNotifications = document.createElement('div');
+        $infoPanelNotifications.id = "infopanel-notifications"
+        $infopanel.appendChild($infoPanelNotifications);
+        $ni = "<center><h1>" + texts.notification.title + "</h1></center><br />"
+        var nots =[];
+        for ( inf in info) {
+            nots.push(info[inf]);
+        }
+        nots.sort(dynamicSort("-dateCreated"));
+
+        if ( nots.length < nrMsg) {
+          nrNot = nots.length
+        } else {
+          nrNot = nrMsg
+        }
+
+        if ( nots.length > 0 ) {
+          for (not = 0; not < nrNot; not++) {
+              var formatedDate = new Date(nots[not].dateCreated);
+              today = new Date
+              if ( formatedDate.toLocaleDateString() != new Date().toLocaleDateString() ) {
+                formatedDate = formatedDate.toLocaleTimeString() + " (" +formatedDate.toLocaleDateString() + ")"
+              } else {
+                formatedDate = formatedDate.toLocaleTimeString()
+              }
+              $ni = $ni + "<div><h2>" + nots[not].excerpt.replace("**","").replace("**","").replace("**","").replace("**","") + "</h2></div> ";
+              $ni = $ni + "<div class='info-date'> " + formatedDate+ "</div>"
+          }
+        } else {
+          $ni = $ni + texts.notification.nonotification
+        }
+
+        $infoPanelNotifications.innerHTML = $ni
+        break;
+      case "w":
+        $infopanel.innerHTML = '';
+        var $infoPanelWeather = document.createElement('div');
+        $infoPanelWeather.id = "infopanel-weather"
+        $infopanel.appendChild($infoPanelWeather);
+        $wi = "<center><h1>" + texts.weather.title + info.city + "</h1><br />"
+        $wi = $wi + "<h2>" + texts.weather.temperature + Math.round(info.temperature*10)/10 + texts.weather.degrees
+        $wi = $wi + texts.weather.humidity + Math.round(info.humidity*100) + texts.weather.pressure
+        $wi = $wi + Math.round(info.pressure*1000) + texts.weather.mbar + "</h2></center>";
+
+        $infoPanelWeather.innerHTML = $wi
+
+        var $infopanelState = document.createElement('div');
+        $infopanelState.id = "weather-state"
+        $infopanel.appendChild($infopanelState);
+        $infopanelState.innerHTML = "";
+        $infopanelState.classList.add('weather-state');
+        var $icon = document.createElement('div');
+        $icon.id = 'weather-state-icon';
+        $icon.classList.add(info.state.toLowerCase());
+        $icon.style.backgroundImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
+        $icon.style.webkitMaskImage = 'url(img/weather/' + info.state.toLowerCase() + dn + '.svg)';
+
+        $infopanelState.appendChild($icon)
+
+        var $infoPanelSunevents = document.createElement('div');
+        $infoPanelSunevents.id = "infopanel-sunevents"
+        $infopanel.appendChild($infoPanelSunevents);
+
+        switch(tod) {
+          case 1:
+            $se = "<center><h2>" + texts.sunevent.presunrise + sunrise + texts.sunevent.presunset + sunset + "</h2></center>"
+            break;
+          case 2:
+            $se = "<center><h2>" + texts.sunevent.postsunrise  + sunrise + texts.sunevent.presunset + sunset + "</h2></center>"
+            break;
+          case 3:
+            $se = "<center><h2>" + texts.sunevent.postsunrise  + sunrise + texts.sunevent.postsunset + sunset + "</h2></center>"
+            break;
+          default:
+            $se = "<center><h2>" + texts.sunevent.postsunrise  + sunrise + texts.sunevent.postsunset + sunset + "</h2></center>"
+            break;
+        }
+        $infoPanelSunevents.innerHTML = $se
+
+        break;
+      case "b":
+        $infopanel.innerHTML = '';
+        var $infoPanelBattery = document.createElement('div');
+        $infoPanelBattery.id = "infopanel-battery"
+        $infopanel.appendChild($infoPanelBattery);
+        $bi = "<center><h1>" + texts.battery.title + "</h1></center><br /><br />"
+        for ( device in batteryDetails) {
+          $bi = $bi + "<h2>" + batteryDetails[device].name + texts.battery.in
+          $bi = $bi + batteryDetails[device].zone + texts.battery.has
+          $bi = $bi + batteryDetails[device].level + texts.battery.left + "</h2>"
+        }
+        $infopanel.innerHTML = $bi
+
+        break;
+      case "s":
+        $infopanel.innerHTML = '';
+        var $infoPanelSensors = document.createElement('div');
+        $infoPanelSensors.id = "infopanel-sensor"
+        $infopanel.appendChild($infoPanelSensors);
+        $si = "<center><h1>" + texts.sensor.title + "</h1></center><br /><br />"
+        if ( Object.keys(sensorDetails).length ) {
+          for ( device in sensorDetails) {
+            $si = $si + "<h2>" + sensorDetails[device].name + texts.sensor.in
+            $si = $si + sensorDetails[device].zone + texts.sensor.alarm + "</h2>"
+          }
+        } else {
+          $si = $si + "<h2>" + texts.sensor.noalarm + "</h2>"
+        }
+        if ( faultyDevice ) {
+          $si = $si +"<br /><h2>" + texts.sensor.fault + "</h2>"
+        }
+        $infopanel.innerHTML = $si
+        break;
+      case "u":
+
+        $infopanel.innerHTML = '';
+        var $infoPanelUpdate = document.createElement('div');
+        $infoPanelUpdate.id = "infopanel-update"
+        $infopanel.appendChild($infoPanelUpdate);
+        $ui = "<center><h1>New Version</h1></center><br /><br />"
+        $ui = $ui + "<h2>Changes</h2><br /><h3>"
+        $ui = $ui + info +"</h3>"
+        $infopanel.innerHTML = $ui
+        break;
+    }
+    $sliderpanel.style.display = "none"
+    $infopanel.style.visibility = "visible";
+    $containerinner.classList.add('container-dark');
+  }
+
+  function renderSunevents() {
+    $sunrisetime.innerHTML = sunrise;
+    $sunsettime.innerHTML = sunset;
+  }
+
+  /*
+  function renderWeather(weather) {
+    if ( outdoortemperature == "homey" ) {
+      $weatherTemperature.innerHTML = Math.round(weather.temperature);
+    }
+    $weatherStateIcon.classList.add(weather.state.toLowerCase());
+    $weatherStateIcon.style.backgroundImage = 'url(img/weather/' + weather.state.toLowerCase() + '.svg)';
+    $weatherStateIcon.style.webkitMaskImage = 'url(img/weather/' + weather.state.toLowerCase() + '.svg)';
+  }
+  */
+
+  function renderAlarms(alarms) {
+    if ( Object.keys(alarms).length != 0 ) {
+      $alarmsInner.innerHTML = '';
+
+      for (var key in alarms) {
+        var alarm = alarms[key];
+        var week = ""
+        var weekend = ""
+        var schedule = ""
+
+        if ( alarm.repetition["monday"] ) { week = week + moment.weekdaysMin(1) + ","}
+        if ( alarm.repetition["tuesday"] ) { week = week + moment.weekdaysMin(2) + ","}
+        if ( alarm.repetition["wednesday"] ) { week = week + moment.weekdaysMin(3) + ","}
+        if ( alarm.repetition["thursday"] ) { week = week + moment.weekdaysMin(4) + ","}
+        if ( alarm.repetition["friday"] ) { week = week + moment.weekdaysMin(5) + ","}
+
+        if ( week == moment.weekdaysMin(1) + "," +
+              moment.weekdaysMin(2) + "," +
+              moment.weekdaysMin(3) + "," +
+              moment.weekdaysMin(4) + "," +
+              moment.weekdaysMin(5) + ","
+            ) { week = texts.schedules.weekdays + "," }
+
+        if ( alarm.repetition["saturday"] ) { weekend = weekend + moment.weekdaysMin(6) + ","}
+        if ( alarm.repetition["sunday"] ) { weekend = weekend + moment.weekdaysMin(7) + ","}
+        if ( weekend == moment.weekdaysMin(6) + "," +
+              moment.weekdaysMin(7) + "," 
+            ) { weekend = texts.schedules.weekend + "," }
+        schedule = week + weekend
+        schedule = schedule.substr(schedule,schedule.length-1)
+        if ( schedule == texts.schedules.weekdays + "," + texts.schedules.weekend ) {
+          schedule = texts.schedules.alldays
+        }
+
+        var $alarmElement = document.createElement('div');
+        $alarmElement.id = 'alarm:' + alarm.id;
+        $alarmElement.classList.add('alarm');
+        if(alarm.enabled)
+        {
+          $alarmElement.classList.add('on');
+        }
+        $alarmsInner.appendChild($alarmElement);
+
+        // Time
+        var $time = document.createElement('div');
+        $time.classList.add('value');
+        $time.innerHTML = alarm.time;
+        $alarmElement.appendChild($time);
+
+        // Name
+        var $name = document.createElement('div');
+        $name.classList.add('name');
+        $name.innerHTML = alarm.name
+        $alarmElement.appendChild($name);
+
+        // Schedule
+        var $schedule = document.createElement('div');
+        $schedule.classList.add('schedule');
+        $schedule.innerHTML = schedule
+        $alarmElement.appendChild($schedule);
+
+        attachEvent($alarmElement,alarm)
+
+      }
+    } else {
+      $alarms.style.visibility = 'hidden';
+      $alarms.style.height = '0';
+      $alarms.style.marginBottom = '0';
+    }
+  }
+
+  function attachEvent($alarmElement,alarm) {
+    $alarmElement.addEventListener('click', function(){
+      var value = !$alarmElement.classList.contains('on');
+      $alarmElement.classList.toggle('on', value);
+      var newValue = {enabled:value}
+      homey.alarms.updateAlarm({
+        id: alarm.id,
+        alarm: newValue,
+      }).catch(console.error);
+    });
+  }
+  
+  function renderFlows(flows) {
+    if ( flows != "" ) {
+    $flowsInner.innerHTML = '';
+      flows.forEach(function(flow) {
+        var $flow = document.createElement('div');
+        $flow.id = 'flow-' + flow.id;
+        $flow.classList.add('flow');
+        $flow.addEventListener('click', function(){
+          if( $flow.classList.contains('running') ) return;
+          homey.flow.triggerFlow({
+            id: flow.id,
+          }).then(function(){
+
+            $flow.classList.add('running');
+            setTimeout(function(){
+              $flow.classList.remove('running');
+            }, 3000);
+          }).catch(console.error);
+        });
+        $flowsInner.appendChild($flow);
+
+        var $play = document.createElement('div');
+        $play.classList.add('play');
+        $flow.appendChild($play);
+
+        var $name = document.createElement('div');
+        $name.classList.add('name');
+        $name.innerHTML = flow.name;
+        $flow.appendChild($name);
+      });
+    } else {
+      $flows.style.visibility = 'hidden';
+      $flows.style.height = '0';
+      $flows.style.marginBottom = '0';
+    }
+  }
+
+  function renderDevices(devices) {
+    $devicesInner.innerHTML = '';
+    devices.forEach(function(device) {
+      if (!device.ready) {return}
+      var $deviceElement = document.createElement('div');
+
+      
+
+      // ------------------------------------------------------
+      // EV OVERLAY INITIALISER (runs once per EV tile)
+      // ------------------------------------------------------
+      if (isEvCharger(device)) {
+      
+        const tile = $deviceElement;
+      
+        // Avoid double injection
+        if (!tile.querySelector('.ev-overlay')) {
+      
+          const overlay = document.createElement('div');
+          overlay.classList.add('ev-overlay');
+      
+          overlay.innerHTML = `
+            <div class="ev-bg"></div>
+      
+            <img class="ev-brand-icon" src="${getEvBrandIcon(device)}" />
+      
+            <div class="ev-state-container">
+              <img class="ev-state-icon" src="/app/img/icons/Connected.svg" />
+              <span class="ev-state-text">Connected</span>
+            </div>
+          `;
+      
+          tile.appendChild(overlay);
+        }
+      }      
+      
+      
+      
+      $deviceElement.id = 'device:' + device.id;
+      $deviceElement.classList.add('device');
+      $deviceElement.classList.toggle('on', device.capabilitiesObj && device.capabilitiesObj[device.ui.quickAction] && device.capabilitiesObj[device.ui.quickAction].value === true);
+      if ( device.capabilitiesObj && device.capabilitiesObj.button ) {
+        $deviceElement.classList.toggle('on', true)
+      }
+      $devicesInner.appendChild($deviceElement);
+
+      
+
+      
+      
+      
+      if (device.capabilitiesObj && device.capabilitiesObj.alarm_generic && device.capabilitiesObj.alarm_generic.value ||
+          device.capabilitiesObj && device.capabilitiesObj.alarm_motion && device.capabilitiesObj.alarm_motion.value ||
+          device.capabilitiesObj && device.capabilitiesObj.alarm_contact && device.capabilitiesObj.alarm_contact.value ||
+          device.capabilitiesObj && device.capabilitiesObj.alarm_vibration && device.capabilitiesObj.alarm_vibration.value
+          ) {
+            $deviceElement.classList.add('alarm')
+      }
+
+      if ( device.capabilitiesObj && device.capabilitiesObj.flora_measure_moisture ) {
+        var moisture = device.capabilitiesObj.flora_measure_moisture.value
+        console.log(moisture)
+        if ( moisture < 15 || moisture > 65 ) {
+          console.log("moisture out of bounds")
+          $deviceElement.classList.add('alarm')
+          //selectValue(device, $element)
+          //selectIcon($element, $element.id, device, device.capabilitiesObj['flora_measure_moisture'])
+        }
+      }
+
+      if ( device.capabilitiesObj && device.capabilitiesObj.alarm_connected ) {
+        if ( device.capabilitiesObj.alarm_connected.value ) {
+          $deviceElement.classList.remove('away')
+        } else {
+          $deviceElement.classList.add('away')
+        }
+      }
+
+      if ( device.capabilitiesObj && device.capabilitiesObj.alarm_night ) {
+        if ( device.capabilitiesObj.alarm_night.value ) {
+          $deviceElement.classList.remove('day')
+        } else {
+          $deviceElement.classList.add('day')
+        }
+      }
+
+      var $icon = document.createElement('div');
+      $icon.id = 'icon:' + device.id
+      $icon.classList.add('icon');
+      if ( device.iconObj ) {
+        $icon.style.webkitMaskImage = 'url(https://icons-cdn.athom.com/' + device.iconObj.id + '-128.png)';
+      } else if ( device.icon ) {
+        $icon.style.webkitMaskImage ='url(img/capabilities/blank.png)';
+      }
+      if ( device.name == "Bier" || device.name == "Bier temperatuur" ) {
+        $icon.style.webkitMaskImage = 'url(img/capabilities/beer.png)';
+        $icon.style.backgroundImage = 'url(img/capabilities/beer.png)';
+        $icon.style.backgroundSize = 'contain'
+      }
+
+      $deviceElement.appendChild($icon);
+
+      var $iconCapability = document.createElement('div');
+      $iconCapability.id = 'icon-capability:' + device.id
+      $iconCapability.classList.add('icon-capability');
+      $iconCapability.style.webkitMaskImage ='url(img/capabilities/blank.png)';
+      $deviceElement.appendChild($iconCapability);
+
+      if ( device.capabilitiesObj ) {
+        itemNr = 0
+        for ( item in device.capabilitiesObj ) {
+          capability = device.capabilitiesObj[item]
+          if ( capability.type == "number"  ) {
+            var $value = document.createElement('div');
+            $value.id = 'value:' + device.id + ':' + capability.id;
+            $value.title = capability.title
+            $value.classList.add('value');
+            selectIcon($value, getCookie(device.id), device, capability)
+            renderValue($value, capability.id, capability.value, capability.units)
+            if (device.name=="Bier") {renderValue($value, capability.id, capability.value, "")}
+            $deviceElement.appendChild($value)
+            itemNr =itemNr + 1
+          } else 
+          if ( capability.id == "locked" ) {
+            var $lock = document.createElement('div');
+            $lock.id = 'lock:' + device.id
+            $lock.title = capability.title
+            $lock.classList.add('icon-capability-lock');
+            if ( device.capabilitiesObj.locked.value ) {
+              $lock.classList.add('locked');
+            } else {
+              $lock.classList.add('unlocked');
+            }
+            $deviceElement.appendChild($lock)
+            itemNr =itemNr + 1
+          }
+        }
+        if ( itemNr > 0 ) {
+          // start touch/click functions
+          $deviceElement.addEventListener('touchstart', function(event) {
+            deviceStart($deviceElement, device, event)
+          });
+          $deviceElement.addEventListener('mousedown', function(event) {
+            deviceStart($deviceElement, device, event)
+          });
+
+          // stop touch/click functions
+          $deviceElement.addEventListener('touchend', function() {
+            deviceStop($deviceElement)
+          });
+          $deviceElement.addEventListener('mouseup', function() {
+            deviceStop($deviceElement)
+          });
+        }
+
+        if ( device.capabilitiesObj[device.ui.quickAction] ) {
+          if( itemNr == 0 ) {
+            // Touch functions
+            $deviceElement.addEventListener('touchstart', function() {
+              $deviceElement.classList.add('push')
+            });
+            $deviceElement.addEventListener('touchend', function() {
+              $deviceElement.classList.remove('push')
+            });
+            // Mouse functions
+            $deviceElement.addEventListener('mousedown', function() {
+              $deviceElement.classList.add('push')
+            });
+            $deviceElement.addEventListener('mouseup', function() {
+              $deviceElement.classList.remove('push')
+            });
+          }
+
+          $deviceElement.addEventListener('click', function() {
+            if ( nameChange ) { return } // No click when shown capability just changed
+            if ( longtouch ) {return} // No click when longtouch was performed
+            var value = !$deviceElement.classList.contains('on');
+            if ( device.capabilitiesObj && device.capabilitiesObj.onoff ) {
+              $deviceElement.classList.toggle('on', value);
+            }
+            homey.devices.setCapabilityValue({
+              deviceId: device.id,
+              capabilityId: device.ui.quickAction,
+              value: value,
+            }).catch(console.error);
+          });
+        }
+      }
+
+      var $nameElement = document.createElement('div');
+      $nameElement.id = 'name:' + device.id
+      $nameElement.classList.add('name');
+      $nameElement.innerHTML = device.name;
+      $deviceElement.appendChild($nameElement);
+    });
+  }
+
+// New code start    
+  function deviceStart($deviceElement, device, event) {
+    if ( nameChange ) { return }
+    longtouch = false;
+    $deviceElement.classList.add('startTouch')
+         
+    timeout = setTimeout(function() {
+      if ( $deviceElement.classList.contains('startTouch') ) {
+        //console.log("first timeout");
+        longtouch = true;
+        showSecondary(device, event);
+      }
+    }, 300)
+    timeout2 = setTimeout(function() {
+      if ( $deviceElement.classList.contains('startTouch') ) {
+        //console.log("second timeout");
+        longtouch = true;
+        $deviceElement.classList.add('push-long');
+        hideSecondary(device);
+        valueCycle(device);
+      }
+    }, 900)
+  }
+
+  function deviceStop($deviceElement) {
+    timeout = setTimeout(function() {
+      longtouch = false;
+    },100)
+    $deviceElement.classList.remove('startTouch')
+  }
+// New code end
+
+  function renderText() {
+    var now = new Date();
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    var currentTime = hours + ":" + minutes;
+
+    var tod;
+    if( hours >= 18 ) {
+      tod = texts.text.evening;
+    } else if( hours >= 12 ) {
+      tod = texts.text.afternoon;
+    } else if( hours >= 6 ) {
+      tod = texts.text.morning;
+    } else {
+      tod = texts.text.night;
+    }
+
+    if ( showTime ) {
+      $textLarge.innerHTML = currentTime
+    } else {
+      $textLarge.innerHTML = texts.text.good + tod + '!';
+    }
+    $textSmall.innerHTML = moment(now).format('D MMMM YYYY');
+  }
+
+  function renderValue ($value, capabilityId, capabilityValue, capabilityUnits) {
+    if ( capabilityUnits == null ) { capabilityUnits = "" }
+    if ( capabilityUnits == "W/m^2" ) { capabilityUnits = "W/m²" }
+    if ( capabilityValue == null ) { capabilityValue = "-" }
+    if (capabilityId == "measure_temperature" ||
+        capabilityId == "target_temperature" ||
+        capabilityId == "measure_humidity"
+        ) {
+      capabilityValue = Math.round(capabilityValue*10)/10
+      //var integer = Math.floor(capabilityValue)
+      var integer = parseInt(capabilityValue)
+      n = Math.abs(capabilityValue)
+      var decimal = Math.round((n - Math.floor(n))*10)/10 + "-"
+      var decimal = decimal.substring(2,3)
+
+      $value.innerHTML = integer + "<span id='decimal'>" + decimal + capabilityUnits.substring(0,1) + "</span>"
+    } else if ( capabilityId == "measure_pressure" ) {
+      $value.innerHTML = Math.round(capabilityValue) + "<br /><sup>" + capabilityUnits + "</sup>"
+    } else if ( capabilityId == "dim" || capabilityId == "volume_set") {
+      $value.innerHTML = Math.round(capabilityValue*100) + "<br /><sup>" + capabilityUnits + "</sup>"
+    } else {
+      $value.innerHTML = capabilityValue + "<br /><sup>" + capabilityUnits + "</sup>"
+    }
+  }
+  
+
+  function renderName(device, elementToShow) {
+    nameElement = document.getElementById('name:' + device.id)
+    deviceElement = document.getElementById('device:' + device.id)
+    if ( !nameChange ) {
+      currentName = nameElement.innerHTML;
+    }
+    nameChange=true;
+    nameElement.classList.add('highlight')
+    nameElement.innerHTML = elementToShow.title
+    setTimeout( function(){
+      nameChange = false;
+      nameElement.innerHTML = currentName
+      nameElement.classList.remove('highlight')
+      deviceElement.classList.remove('push-long')
+    }, 1000);
+  }
+
+  function setBrightness(brightness) {
+    brightness = brightness/100
+    //if ( brightness < 0.01) { brightness = 0.01}
+    $container.style.opacity = brightness
+      var style = styleElem.innerHTML
+      oldStyle = style.split(";")
+      newStyle = ""
+      for (i=0; i < 9 ;i++) {
+          newStyle = newStyle + oldStyle[i] +";"
+      }
+      var backgroundOpacity = getCookie('backgroundopacity')
+      var newOpacity = backgroundOpacity * brightness
+      //if ( newOpacity < 0.01 ) { newOpacity = 0.01 }
+      newStyle = newStyle + " opacity: " + newOpacity + ";}"
+      styleElem.innerHTML = newStyle
+  }
+
+  function selectValue(device, elementToShow) {
+    for ( item in device.capabilitiesObj ) {
+      capability = device.capabilitiesObj[item]
+      if ( capability.type == "number"  ) {
+        searchElement = document.getElementById('value:' + device.id + ':' + capability.id)
+        if ( searchElement.classList.contains('visible') ) {
+          searchElement.classList.remove('visible')
+          searchElement.classList.add('hidden')
+        }
+      }
+    }
+    elementToShow.classList.remove('hidden')
+    elementToShow.classList.add('visible')
+    renderName(device,elementToShow)
+  }
+
+  function selectIcon($value, searchFor, device, capability) {
+    // measure_uv and measure_solarradiation icons are broken at icons-cdn.athom.com
+    if ( capability.iconObj && capability.id != "measure_uv" && capability.id != "measure_solarradiation" ) {
+      iconToShow = 'https://icons-cdn.athom.com/' + capability.iconObj.id + '-128.png'
+    } else {
+      iconToShow = 'img/capabilities/' + capability.id + '.png'
+    }
+    if (device.name == "Bier") {iconToShow = 'img/capabilities/tap.png'}
+    $icon = document.getElementById('icon:'+device.id);
+    $iconcapability = document.getElementById('icon-capability:'+device.id);
+    if ( $value.id == searchFor ) {
+      $value.classList.add('visible')
+      $icon.style.opacity = 0.1
+      if (device.name == "Bier" || device.name == "Bier temperatuur") { $icon.style.opacity = 0.5}
+      $iconcapability.style.webkitMaskImage = 'url(' + iconToShow + ')';
+      $iconcapability.style.visibility = 'visible';
+    } else {
+      $value.classList.add('hidden')
+    }
+  }
+
+  function renderSettingsPanel() {
+    $sliderpanel.style.display = "none"
+    if ( !$settingsiframe ) {
+      var $settingsiframe = document.createElement('iframe')
+      $settingsiframe.id = "settings-iframe"
+      $settingsiframe.src = "./settings.html"
+      $settingspanel.appendChild($settingsiframe)
+    }
+
+    var $buttonssettings = document.createElement('div')
+    $buttonssettings.id = "buttons-settings"
+    $settingspanel.appendChild($buttonssettings)
+
+    var $savesettings = document.createElement('a')
+    $savesettings.id = "save-settings"
+    $savesettings.classList.add("btn")
+    $buttonssettings.appendChild($savesettings)
+    $savesettings.innerHTML = "save"
+
+    var $cancelsettings = document.createElement('a')
+    $cancelsettings.id = "save-settings"
+    $cancelsettings.classList.add("btn")
+    $buttonssettings.appendChild($cancelsettings)
+    $cancelsettings.innerHTML = "cancel"
+
+    $savesettings.addEventListener('click', function() {
+      saveSettings();
+    })
+
+    $cancelsettings.addEventListener('click', function() {
+      cancelsettings();
+    })
+
+    $settingspanel.style.visibility = "visible"
+
+    $containerinner.classList.add('container-dark');
+  }
+
+  function saveSettings() {
+    if ( iframesettings.urllogoerror ) {
+      alert(texts.settings.errors.logo)
+      return
+    }
+    if ( iframesettings.urlbackgrounderror ) {
+      alert(texts.settings.errors.background)
+      return
+    }
+    if ( iframesettings.urlbackground != undefined ) {
+      setCookie("background",iframesettings.urlbackground,12)
+      setCookie('backgroundopacity',iframesettings.opacitybackground,12)
+      setCookie('backgroundcolor',"black",12)
+    } else {
+      setCookie("background","",12)
+      setCookie('backgroundopacity',"",12)
+      setCookie('backgroundcolor',"",12)
+    }
+    if ( iframesettings.urllogo != undefined ) {
+      setCookie("logo",iframesettings.urllogo,12)
+    } else {
+      setCookie("logo","",12)
+    }
+    setCookie("outdoortemperature",iframesettings.newoutdoortemperature,12)
+    setCookie("indoortemperature",iframesettings.newindoortemperature,12)
+    setCookie("homeydashdevicebrightness",iframesettings.newhomeydashdevicebrightness,12)
+    setCookie("showtime",iframesettings.newshowTime,12)
+    setCookie("zoom",iframesettings.newZoom,12)   
+    setCookie("order",iframesettings.neworder,12)
+    location.assign(location.protocol + "//" + location.host + location.pathname + "?theme="+iframesettings.newtheme+"&lang="+iframesettings.newlanguage+"&token="+iframesettings.token+"&background="+encodeURIComponent(iframesettings.urlbackground)+"&logo="+encodeURIComponent(iframesettings.urllogo))
+  }
+
+  function cancelsettings() {
+    $settingspanel.style.visibility = "hidden"
+    $containerinner.classList.remove('container-dark');
+
+    $settingspanel.removeChild($settingsiframe)
+    $settingsiframe = null
+    location.reload(true)
+  }
+
+  function showSecondary(device, event) {
+    var showSlider = false
+    var xpos
+    try {
+      //xpos = event.touches[0].clientX
+      xpos = Math.round( 25 + ( parseInt((event.touches[0].clientX - 25)/(163*zoom) ) * (163*zoom) ) )
+    }
+    catch(err) {
+      if ( theme == "web" ) { 
+        xpos = event.clientX - event.offsetX
+      } else {
+        xpos = Math.round( 25 + ( parseInt((event.clientX - 25)/(163*zoom) ) * (163*zoom) ) )
+      }
+      /*
+      console.log( event.clientX - event.offsetX )
+      console.log( event.clientX )
+      console.log( zoom )
+      console.log( (event.clientX-25)/163/zoom )
+      console.log( parseInt((event.clientX-25)/(163*zoom)) )
+      console.log( Math.round( 25 + ( parseInt((event.clientX-25)/(163*zoom) ) * (163*zoom) ) ) )
+      */
+    }
+
+    var newX = xpos + (150*zoom) + 5
+    if ( newX + window.innerWidth* 0.35 > window.innerWidth ) {
+      var newX = (xpos - (0.35 * window.innerWidth)) - 13
+    }
+
+    $sliderpanel.style.left = newX  + "px"
+    $slidericon.style.webkitMaskImage = 'url(https://icons-cdn.athom.com/' + device.iconObj.id + '-128.png)';
+    $slidername.innerHTML = device.name
+
+    if ( device.capabilitiesObj && device.capabilitiesObj.dim || device.capabilitiesObj && device.capabilitiesObj.volume_set ) {
+      $slider.min = 0
+      $slider.max = 100
+      $slider.step = 1
+      sliderUnit = " %"
+      if ( device.capabilitiesObj.dim ) {
+        $slidercapability.style.webkitMaskImage = 'url(img/capabilities/dim.png)';
+        $slider.value = device.capabilitiesObj.dim.value*100
+      } else if ( device.capabilitiesObj.volume_set ) {
+        $slidercapability.style.webkitMaskImage = 'url(img/capabilities/volume_set.png)';
+        $slider.value = device.capabilitiesObj.volume_set.value*100
+      }
+      $slidervalue.innerHTML = $slider.value + sliderUnit
+      showSlider = true
+    } else if ( device.capabilitiesObj && device.capabilitiesObj.target_temperature ) {
+      $slider.min = device.capabilitiesObj.target_temperature.min
+      $slider.max = device.capabilitiesObj.target_temperature.max
+      $slider.step = device.capabilitiesObj.target_temperature.step
+      $slidercapability.style.webkitMaskImage = 'url(img/capabilities/target_temperature.png)';
+      sliderUnit = "°"
+      $slider.value = device.capabilitiesObj.target_temperature.value
+      $slidervalue.innerHTML = $slider.value + sliderUnit
+      showSlider = true
+    }
+    if ( showSlider ) {
+      $sliderpanel.style.display = "block"
+      selectedDevice = device
+    }
+  }
+
+  function hideSecondary() {
+    $sliderpanel.style.display = "none"
+
+  }
+
+  $slider.oninput = function() {
+    $slidervalue.innerHTML = $slider.value + sliderUnit
+    if ( slideDebounce ) {return}
+    slideDebounce = true
+    var newCapabilityValue
+    var newCapabilityId
+    setTimeout( function () {
+      if ( selectedDevice.capabilitiesObj && selectedDevice.capabilitiesObj.dim ) {
+        newCapabilityId = 'dim'
+        newCapabilityValue = ($slider.value/100)
+      } else if ( selectedDevice.capabilitiesObj && selectedDevice.capabilitiesObj.volume_set ) {
+        newCapabilityId = 'volume_set'
+        newCapabilityValue = ($slider.value/100)
+      } else if ( selectedDevice.capabilitiesObj && selectedDevice.capabilitiesObj.target_temperature ) {
+        newCapabilityId = 'target_temperature'
+        newCapabilityValue = ($slider.value/1)
+      }
+      //console.log(newCapabilityId)
+      homey.devices.setCapabilityValue({
+        deviceId: selectedDevice.id,
+        capabilityId: newCapabilityId,
+        value: newCapabilityValue,
+      }).catch(console.error);
+      slideDebounce = false
+    },200)
+    
+  }
+
+  function valueCycle(device) {
+    var itemMax = 0
+    var itemNr = 0
+    var showElement = 0
+    for ( item in device.capabilitiesObj ) {
+      capability = device.capabilitiesObj[item]
+      if ( capability.type == "number") {
+        itemMax = itemMax + 1
+      }
+    }
+    for ( item in device.capabilitiesObj ) {
+      capability = device.capabilitiesObj[item]
+      if ( capability.type == "number" ) {
+        if (
+            capability.id == "light_temperature" ||
+            capability.id == "light_saturation" ||
+            capability.id == "light_hue"
+            ) {
+          continue;
+        }
+        searchElement = document.getElementById('value:' + device.id + ':' + capability.id)
+        if ( itemNr == showElement ) {
+          elementToShow = searchElement
+          capabilityToShow = capability.id
+          // measure_uv and measure_solarradiation icons are broken at icons-cdn.athom.com
+          if ( capability.iconObj && capability.id != "measure_uv" && capability.id != "measure_solarradiation" ) {
+          //if ( capability.iconObj ) {
+            iconToShow = 'https://icons-cdn.athom.com/' + capability.iconObj.id + '-128.png'
+            console.log(iconToShow)
+          } else {
+            iconToShow = 'img/capabilities/' + capability.id + '.png'
+          }
+          if (device.name == "Bier") {iconToShow = 'img/capabilities/tap.png'}
+          itemNrVisible = itemNr
+        }
+        if ( searchElement.classList.contains('visible') ) {
+          searchElement.classList.remove('visible')
+          searchElement.classList.add('hidden')
+          currentElement = itemNr
+          showElement = itemNr + 1
+        }
+        itemNr = itemNr + 1
+      }
+    }
+    $icon = document.getElementById('icon:'+device.id);
+    $iconcapability = document.getElementById('icon-capability:'+device.id);
+    if ( showElement != itemNr ) {
+      elementToShow.classList.remove('hidden')
+      elementToShow.classList.add('visible')
+      renderName(device,elementToShow)
+      setCookie(device.id,elementToShow.id,12)
+      $icon.style.opacity = 0.1
+      if (device.name == "Bier" || device.name == "Bier temperatuur") {$icon.style.opacity = .5}
+      $iconcapability.style.webkitMaskImage = 'url(' + iconToShow + ')';
+      $iconcapability.style.visibility = 'visible';
+    } else {
+      setCookie(device.id,"-",12)
+      $icon.style.opacity = 1
+      $iconcapability.style.visibility = 'hidden';
+      deviceElement = document.getElementById('device:' + device.id)
+      nameChange=true;
+      setTimeout( function(){
+        nameChange = false;
+        deviceElement.classList.remove('push-long')
+      }, 1000);
+    }
+  }
+
+  function calculateTOD() {
+    var d = new Date();
+    var m = d.getMinutes();
+    var h = d.getHours();
+    if(h == '0') {h = 24}
+
+    var currentTime = h+"."+m;
+    var time = sunrise.split(":");
+    var hour = time[0];
+    if(hour == '00') {hour = 24}
+    var min = time[1];
+    var sunriseTime = hour+"."+min;
+
+    var time = sunset.split(":");
+    var hour = time[0];
+    if(hour == '00') {hour = 24}
+    var min = time[1];
+    var sunsetTime = hour+"."+min;
+
+    if ( parseFloat(currentTime,10) < parseFloat(sunriseTime,10)  ) {
+      tod = 1;
+      dn = "n";
+    }
+    else if ( parseFloat(currentTime,10) < parseFloat(sunsetTime,10) ) {
+      tod = 2;
+      dn = "";
+    } else {
+      tod = 3;
+      dn = "n";
+    }
+  }});
