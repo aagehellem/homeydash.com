@@ -171,13 +171,13 @@ function getEvState(device, devicesById) {
   }
 
   // ---------------------------------------------
-  // 6) Fallback → Disconnected
+  // 6) Fallback → Error
   // ---------------------------------------------
   return {
-    key:   'disconnected',
-    label: 'Disconnected',
-    icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
-    color: '#ff4c4c'  // red
+    key:   'error',
+    label: 'Error',
+    icon:  '/homeydash.com/app/img/icons/Warning.svg',
+    color: '#ffbf00'   // amber
   };
 }
 
