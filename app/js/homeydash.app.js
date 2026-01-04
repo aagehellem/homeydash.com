@@ -56,12 +56,26 @@ const EV_PRESENCE_BY_CHARGER_ID = {
   '972ddbe2-b4d2-4e27-8c90-d958d4c06775': 'dcd7157c-0824-4b97-9842-519aa6f794e8',
 };
 
+// Live presence cache (updates instantly via capability listeners)
+var PRESENCE_AT_HOME_CACHE = {}; // presenceDeviceId -> boolean
+var PRESENCE_LISTENERS_INITIALISED = false;
+
+
 function isChargerAway(chargerDevice, devicesById) {
   const presenceId = EV_PRESENCE_BY_CHARGER_ID[chargerDevice.id];
   if (!presenceId) return null;
 
-  const presenceDev = devicesById?.[presenceId];
-  const atHome = presenceDev?.capabilitiesObj?.onoff?.value; // boolean
+  // Prefer live cache (updates without page refresh)
+  if (typeof PRESENCE_AT_HOME_CACHE[presenceId] === 'boolean') {
+    return !PRESENCE_AT_HOME_CACHE[presenceId];
+  }
+
+  // Fallback to snapshot if cache not yet initialised
+  const presenceDev = devicesById && devicesById[presenceId];
+  const atHome = presenceDev && presenceDev.capabilitiesObj && presenceDev.capabilitiesObj.onoff
+    ? presenceDev.capabilitiesObj.onoff.value
+    : undefined;
+
   if (typeof atHome !== 'boolean') return null;
 
   return !atHome;
@@ -980,6 +994,35 @@ window.addEventListener('load', function() {
         setBrightness(brightness)
 
         console.log("📌 Reached before renderDevices");
+
+        // ------------------------------------------------------------
+        // Presence listeners (so AtHome changes update EV tiles live)
+        // ------------------------------------------------------------
+        if (!PRESENCE_LISTENERS_INITIALISED) {
+          PRESENCE_LISTENERS_INITIALISED = true;
+        
+          Object.keys(EV_PRESENCE_BY_CHARGER_ID).forEach(function(chargerId) {
+            const presenceId = EV_PRESENCE_BY_CHARGER_ID[chargerId];
+            const pDev = devices[presenceId];
+            if (!pDev || typeof pDev.makeCapabilityInstance !== 'function') return;
+        
+            // Seed cache from current snapshot
+            const seeded = pDev.capabilitiesObj && pDev.capabilitiesObj.onoff
+              ? pDev.capabilitiesObj.onoff.value
+              : undefined;
+        
+            if (typeof seeded === 'boolean') {
+              PRESENCE_AT_HOME_CACHE[presenceId] = seeded;
+            }
+        
+            // Subscribe to live updates
+            pDev.makeCapabilityInstance('onoff', function(value) {
+              if (typeof value === 'boolean') {
+                PRESENCE_AT_HOME_CACHE[presenceId] = value;
+              }
+            });
+          });
+        }
         
         renderDevices(favoriteDevices);        
 
