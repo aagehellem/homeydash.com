@@ -157,7 +157,7 @@ function getEvState(device, devicesById) {
       return {
         key:   'away',
         label: 'Away',
-        icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
+        icon:  '/homeydash.com/app/img/icons/Away.svg',
         color: '#9aa0a6'   // grey
       };
     }
@@ -165,7 +165,7 @@ function getEvState(device, devicesById) {
     return {
       key:   'disconnected',
       label: 'Disconnected',
-      icon:  '/homeydash.com/app/img/icons/Away.svg',
+      icon:  '/homeydash.com/app/img/icons/Disconnected.svg',
       color: '#ff4c4c'   // red
     };
   }
