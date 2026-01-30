@@ -1656,7 +1656,7 @@ favoriteDevices.forEach(device => {
       else                tempEl.style.color = "#ffffff";  // normal
     }
 
-    if (device.name.includes("Wine") || capabilities.includes("measure_humidity")) {
+    if (device.name.includes("Wine")) {
       if (temp < 10)      tempEl.style.color = "#5ab8ff";  // blue
       else if (temp > 16) tempEl.style.color = "#ff4d4d";  // red
       else                tempEl.style.color = "#ffffff";  // normal
