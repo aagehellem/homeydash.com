@@ -1420,55 +1420,53 @@ if (windArrowNode && windSpeedNode) {
     windArrowNode.style.filter = 'none';
     
     const angle = caps['measure_wind_angle']?.value ?? 0;
+    
     const rawSpeed = caps['measure_wind_strength']?.value ?? 0;
     const rawGust  = caps['measure_gust_strength']?.value ?? 0;
-
-    const speed = Math.round(rawSpeed);
-    const gust  = Math.round(rawGust);    
-
-    // --- Arrow colour code (your thresholds) ---
-    let arrowColor = '#ffffff'; // fallback
     
-    if (speed <= 3) {
-        arrowColor = '#00cc66';            // green (0–3)
-    } else if (speed <= 10) {
-        arrowColor = '#ffdd57';            // yellow (4–10)
-    } else if (speed <= 20) {
-        arrowColor = '#ff8c00';            // amber (11–20)
+    // Rounded values for display
+    const speed = Math.round(rawSpeed);
+    const gust  = Math.round(rawGust);
+    
+    // Average wind used for colour + shake logic
+    const avgWind = (Number(rawSpeed) + Number(rawGust)) / 2;
+    
+    // --- Arrow colour code (Beaufort thresholds using avgWind) ---
+    let arrowColor = '#ffffff';
+    
+    if (avgWind <= 3.3) {
+      arrowColor = '#23d160';        // Green
+    } else if (avgWind <= 10.7) {
+      arrowColor = '#ffdd57';        // Yellow
+    } else if (avgWind <= 20.7) {
+      arrowColor = '#ff8c00';        // Amber
+    } else if (avgWind <= 32.6) {
+      arrowColor = '#ff3860';        // Red
     } else {
-        arrowColor = '#ff3860';            // red (21+)
+      arrowColor = '#CC33FF';        // Purple (Orkan)
     }
     
+    // Apply colour to SVG
     windArrowNode.querySelectorAll('*').forEach(el => {
-        el.style.fill = arrowColor;
-        el.style.stroke = arrowColor;
-    });    
-
+      el.style.fill = arrowColor;
+      el.style.stroke = arrowColor;
+    });
     
-    // --- Apply rotation (with CSS variable for animation) ---
+    // --- Rotation ---
     const rotationDegrees = angle + 90;
-    
-    // Set CSS variable used by the shake animation
     windArrowNode.style.setProperty("--wind-rotate", `${rotationDegrees}deg`);
-    
-    // Apply the rotation normally
     windArrowNode.style.transform = `rotate(${rotationDegrees}deg)`;
     
-    // --- Shake animation trigger ---
-    if (speed > 32) {
-        windArrowNode.classList.add("wind-arrow-shake");
+    // --- Shake trigger (based on avgWind) ---
+    if (avgWind > 32.6) {
+      windArrowNode.classList.add("wind-arrow-shake");
     } else {
-        windArrowNode.classList.remove("wind-arrow-shake");
+      windArrowNode.classList.remove("wind-arrow-shake");
     }
     
-    // --- Update text ---
-    windSpeedNode.textContent = `${speed} (${gust})`;    
-
+    // --- Display text ---
+    windSpeedNode.textContent = `${speed} (${gust})`;
     
-    
-    // Apply rotation and text
-    // windArrowNode.style.transform = `rotate(${angle + 90}deg)`;
-    // windSpeedNode.textContent = `${speed} (${gust})`;
   }
 }
 
