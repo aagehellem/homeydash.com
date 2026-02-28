@@ -20,6 +20,20 @@ body {
   color: white;
 }
 
+/* =========================================================
+   DASHBOARD PALETTE (single source of truth)
+   ========================================================= */
+:root {
+    --c-white:  #ffffff;
+    --c-grey:   #9aa0a6;
+    --c-blue:   #4da6ff;
+    --c-green:  #00cc66;
+    --c-yellow: #ffd500;
+    --c-amber:  #ffbf00;
+    --c-red:    #ff4c4c;
+    --c-purple: #cc33ff;
+}
+
 .tablecell {
   display: table-cell;
 }
