@@ -34,6 +34,20 @@ body {
     --c-purple: #cc33ff;
 }
 
+/* =========================================================
+   Utility Animations
+   ========================================================= */
+
+@keyframes hd-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.is-spinning {
+    animation: hd-spin 0.9s linear infinite;
+}
+
+
 .tablecell {
   display: table-cell;
 }
