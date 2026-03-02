@@ -10,9 +10,26 @@
   }
 
   function parseCapMap(device) {
-    const raw = getCapValue(device, 'devicecapabilities_text.text1'); // CapMap is Text1
+    const raw = getCapValue(device, 'devicecapabilities_text.text1');
     if (!raw || typeof raw !== 'string') return null;
-    try { return JSON.parse(raw); } catch (e) { return null; }
+   
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      console.warn('[V2] Invalid CapMap JSON for device:', device?.name);
+      return null;
+    }
+   
+    if (
+      typeof parsed !== 'object' ||
+      parsed.schema !== 'homeydash-tile-contract' ||
+      parsed.version !== 2
+    ) {
+      return null;
+    }
+   
+    return parsed;
   }
 
   function isV2Contract(capMap) {
