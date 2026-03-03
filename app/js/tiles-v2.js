@@ -50,6 +50,6 @@
   // Expose globally (HomeyDash is global-script based)
   window.HD_TILES_V2 = {
     routeTileV2,
-    parseCapMap
+    getV2Contract
   };
 })();
