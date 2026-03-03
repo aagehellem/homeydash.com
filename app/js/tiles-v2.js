@@ -5,39 +5,33 @@
   'use strict';
 
   function getCapValue(device, capId) {
-    try { return device?.capabilitiesObj?.[capId]?.value; }
+    try { return device.capabilitiesObj?.[capId]?.value; }
     catch (e) { return undefined; }
   }
-
-  function parseCapMap(device) {
-    const raw = getCapValue(device, 'devicecapabilities_text.text1');
+  
+  function getV2Contract(device) {
+    const raw = getCapValue(device, 'devicecapabilities_text.text1'); // CapMap container
     if (!raw || typeof raw !== 'string') return null;
-   
-    let parsed;
+  
+    let capMap;
     try {
-      parsed = JSON.parse(raw);
+      capMap = JSON.parse(raw);
     } catch (e) {
       console.warn('[V2] Invalid CapMap JSON for device:', device?.name);
       return null;
     }
-   
-    if (
-      typeof parsed !== 'object' ||
-      parsed.schema !== 'homeydash-tile-contract' ||
-      parsed.version !== 2
-    ) {
-      return null;
-    }
-   
-    return parsed;
-  }
-
-  function isV2Contract(capMap) {
-    return !!(capMap &&
+  
+    // Single, authoritative validation gate
+    const ok =
+      capMap &&
+      typeof capMap === 'object' &&
       capMap.schema === 'homeydash-tile-contract' &&
       capMap.version === 2 &&
       typeof capMap.type === 'string' &&
-      capMap.caps && typeof capMap.caps === 'object');
+      capMap.caps &&
+      typeof capMap.caps === 'object';
+  
+    return ok ? capMap : null;
   }
 
   // For now: just detect v2. Rendering comes later.
