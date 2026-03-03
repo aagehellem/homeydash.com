@@ -36,14 +36,15 @@
 
   // For now: just detect v2. Rendering comes later.
   function routeTileV2(tileEl, device) {
-    const capMap = parseCapMap(device);
-    if (!isV2Contract(capMap)) return false;
-
-    // Temporary marker so we can confirm it works
-    tileEl.classList.add('tile-v2', `tile-v2-${capMap.type}`);
-    console.log('[tiles-v2] routed:', device.name, capMap.type);
-
-    return true;
+    const capMap = getV2Contract(device);
+    if (!capMap) return false;
+  
+    if (capMap.type === 'garage') {
+      renderGarageV2(tileEl, device, capMap);
+      return true;
+    }
+  
+    return false;
   }
 
   // Expose globally (HomeyDash is global-script based)
