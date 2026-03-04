@@ -34,6 +34,20 @@
     return ok ? capMap : null;
   }
 
+  /* ---------- TEMP STUB RENDERER ---------- */
+  
+  function renderGarageV2(tileEl, device, capMap) {
+    tileEl.innerHTML = `
+      <div class="v2-tile">
+        <div style="font-size:14px;opacity:.8;">V2 Garage</div>
+        <div style="font-size:18px;">${device?.name ?? 'Garage'}</div>
+      </div>
+    `;
+  }
+  
+  /* ----------------------------------------- */   
+
+   
   // For now: just detect v2. Rendering comes later.
   function routeTileV2(tileEl, device) {
     const capMap = getV2Contract(device);
