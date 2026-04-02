@@ -2041,6 +2041,26 @@ favoriteDevices.forEach(device => {
       var $deviceElement = document.createElement('div');
 
       
+      // ------------------------------------------------------
+      // V2 routing hook (non-invasive)
+      // ------------------------------------------------------
+
+      try {
+        if (window.HD_TILES_V2 && typeof window.HD_TILES_V2.routeTileV2 === 'function') {
+          const handledByV2 = window.HD_TILES_V2.routeTileV2($deviceElement, device);
+      
+          if (handledByV2 === true) {
+            $deviceElement.id = 'device:' + device.id;
+            $deviceElement.classList.add('device');
+            $devicesInner.appendChild($deviceElement);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('[V2] routeTileV2 failed; falling back to v1', e);
+      }
+      // ---- End V2 routing hook ----      
+      
 
       // ------------------------------------------------------
       // EV OVERLAY INITIALISER (runs once per EV tile)
