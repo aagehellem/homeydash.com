@@ -2051,7 +2051,7 @@ favoriteDevices.forEach(device => {
       
           if (handledByV2 === true) {
             $deviceElement.id = 'device:' + device.id;
-            $deviceElement.classList.add('device');
+            $deviceElement.classList.add('device', 'tile-v2');
             $devicesInner.appendChild($deviceElement);
             return;
           }
