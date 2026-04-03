@@ -1231,12 +1231,17 @@ garageV2Tiles.forEach(({ id }) => {
     iconEl.style.maskImage = 'url(' + iconUrl + ')';
     iconEl.style.backgroundImage = 'none';
     iconEl.style.backgroundColor = 'white';
+  
     iconEl.style.webkitMaskSize = 'contain';
     iconEl.style.maskSize = 'contain';
     iconEl.style.webkitMaskRepeat = 'no-repeat';
     iconEl.style.maskRepeat = 'no-repeat';
     iconEl.style.webkitMaskPosition = 'center center';
     iconEl.style.maskPosition = 'center center';
+  
+    // 👇 ADD THIS
+    iconEl.style.width = '32px';
+    iconEl.style.height = '32px';
   }
 
   // Add a state container if not already present
