@@ -1197,6 +1197,74 @@ function setupUvTile(tile, device) {
 }
 
 
+
+// ===========================================
+// Garage v2 tile setup (new devices only)
+// ===========================================
+
+const garageV2Tiles = [
+  {
+    id: '6c596fa1-7752-470a-9f63-28e1c6938a6b'
+  }
+];
+
+garageV2Tiles.forEach(({ id }) => {
+  const device = favoriteDevices.find(d => d.id === id);
+  const tile = document.getElementById('device:' + id);
+  const nameEl = document.getElementById('name:' + id);
+
+  if (!device || !tile || !nameEl) return;
+
+  const garageState = getGarageTileState(device);
+
+  tile.classList.add('garage-v2-tile');
+  tile.classList.remove('garage-open', 'garage-closed', 'garage-opening', 'garage-closing', 'garage-unknown');
+  tile.classList.add('garage-' + garageState.key);
+
+  // Use the custom garage icon from the device capability
+  const iconEl = document.getElementById('icon:' + id);
+  if (iconEl && garageState.tileIcon) {
+    iconEl.style.webkitMaskImage = 'url(/homeydash.com/app/img/icons/' + garageState.tileIcon + ')';
+    iconEl.style.backgroundImage = 'url(/homeydash.com/app/img/icons/' + garageState.tileIcon + ')';
+    iconEl.style.backgroundSize = 'contain';
+    iconEl.style.backgroundRepeat = 'no-repeat';
+    iconEl.style.backgroundPosition = 'center center';
+  }
+
+  // Add a state container if not already present
+  let stateContainer = tile.querySelector('.garage-state-container');
+  if (!stateContainer) {
+    stateContainer = document.createElement('div');
+    stateContainer.className = 'garage-state-container';
+
+    const stateIcon = document.createElement('img');
+    stateIcon.className = 'garage-state-icon';
+
+    const stateText = document.createElement('span');
+    stateText.className = 'garage-state-text';
+
+    stateContainer.appendChild(stateIcon);
+    stateContainer.appendChild(stateText);
+    tile.appendChild(stateContainer);
+  }
+
+  const stateIcon = stateContainer.querySelector('.garage-state-icon');
+  const stateText = stateContainer.querySelector('.garage-state-text');
+
+  if (stateIcon) {
+    if (garageState.key === 'open' || garageState.key === 'opening') {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+    } else {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+    }
+  }
+
+  if (stateText) {
+    stateText.textContent = garageState.label;
+  }
+});  
+  
+  
   
   
 // ===========================================
