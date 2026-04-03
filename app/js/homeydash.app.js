@@ -1218,17 +1218,25 @@ garageV2Tiles.forEach(({ id }) => {
   const garageState = getGarageTileState(device);
 
   tile.classList.add('garage-v2-tile');
+  tile.classList.add('garage-tile');
   tile.classList.remove('garage-open', 'garage-closed', 'garage-opening', 'garage-closing', 'garage-unknown');
   tile.classList.add('garage-' + garageState.key);
 
   // Use the custom garage icon from the device capability
   const iconEl = document.getElementById('icon:' + id);
   if (iconEl && garageState.tileIcon) {
-    iconEl.style.webkitMaskImage = 'url(/homeydash.com/app/img/icons/' + garageState.tileIcon + ')';
-    iconEl.style.backgroundImage = 'url(/homeydash.com/app/img/icons/' + garageState.tileIcon + ')';
-    iconEl.style.backgroundSize = 'contain';
-    iconEl.style.backgroundRepeat = 'no-repeat';
-    iconEl.style.backgroundPosition = 'center center';
+    const iconUrl = '/homeydash.com/app/img/icons/' + garageState.tileIcon;
+  
+    iconEl.style.webkitMaskImage = 'url(' + iconUrl + ')';
+    iconEl.style.maskImage = 'url(' + iconUrl + ')';
+    iconEl.style.backgroundImage = 'none';
+    iconEl.style.backgroundColor = 'white';
+    iconEl.style.webkitMaskSize = 'contain';
+    iconEl.style.maskSize = 'contain';
+    iconEl.style.webkitMaskRepeat = 'no-repeat';
+    iconEl.style.maskRepeat = 'no-repeat';
+    iconEl.style.webkitMaskPosition = 'center center';
+    iconEl.style.maskPosition = 'center center';
   }
 
   // Add a state container if not already present
