@@ -196,6 +196,51 @@ function getEvState(device, devicesById) {
 }
 
 
+function getGarageTileState(device) {
+  const caps = device.capabilitiesObj || {};
+
+  const rawGate = caps['measure_devicecapabilities_number.number4RawGate']?.value;
+  const stateText = caps['devicecapabilities_text.text3']?.value || 'Unknown';
+  const tapLock = caps['measure_devicecapabilities_number.number1TapLock']?.value;
+  const tapMinInterval = caps['measure_devicecapabilities_number.number2TapMinInterval']?.value;
+  const isTappable = caps['measure_devicecapabilities_number.number3IsTappable']?.value;
+  const tileIcon = caps['devicecapabilities_text.text2']?.value || '';
+  const battery = caps['measure_battery']?.value;
+
+  let key = 'unknown';
+
+  switch ((stateText || '').toLowerCase()) {
+    case 'closed':
+      key = 'closed';
+      break;
+    case 'open':
+      key = 'open';
+      break;
+    case 'opening':
+      key = 'opening';
+      break;
+    case 'closing':
+      key = 'closing';
+      break;
+    default:
+      if (rawGate === 0) key = 'closed';
+      else if (rawGate === 1) key = 'open';
+      else key = 'unknown';
+      break;
+  }
+
+  return {
+    key,
+    label: stateText,
+    rawGate,
+    locked: Number(tapLock) === 1,
+    tappable: Number(isTappable) === 1,
+    tapMinIntervalS: Number(tapMinInterval) || 0,
+    tileIcon,
+    battery
+  };
+}
+
 
 
 window.addEventListener('load', function() {
