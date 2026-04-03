@@ -899,23 +899,49 @@ a {
 }
 
 /* ---------- CLOSED ---------- */
-.device.garage-tile.garage-closed .garage-state-container {
-  border-color: #00cc66;    /* green border */
-  background: transparent;  /* no fill */
+.device.garage-tile.garage-closed .garage-state-container,
+.device.garage-v2-tile.garage-closed .garage-state-container {
+  border-color: var(--c-green);
+  background: transparent;
 }
 
-.device.garage-tile.garage-closed .garage-state-text {
-  color: #00cc66;           /* green text */
+.device.garage-tile.garage-closed .garage-state-text,
+.device.garage-v2-tile.garage-closed .garage-state-text {
+  color: var(--c-green);
 }
 
 /* ---------- OPEN ---------- */
-.device.garage-tile.garage-open .garage-state-container {
-  border-color: #ff3333;    /* red border */
-  background: #ff3333;      /* red fill (alarm) */
+.device.garage-tile.garage-open .garage-state-container,
+.device.garage-v2-tile.garage-open .garage-state-container {
+  border-color: var(--c-red);
+  background: var(--c-red);
 }
 
-.device.garage-tile.garage-open .garage-state-text {
-  color: white;
+.device.garage-tile.garage-open .garage-state-text,
+.device.garage-v2-tile.garage-open .garage-state-text {
+  color: var(--c-white);
+}
+
+/* ---------- OPENING / CLOSING ---------- */
+.device.garage-v2-tile.garage-opening .garage-state-container,
+.device.garage-v2-tile.garage-closing .garage-state-container {
+  border-color: var(--c-amber);
+  background: transparent;
+}
+
+.device.garage-v2-tile.garage-opening .garage-state-text,
+.device.garage-v2-tile.garage-closing .garage-state-text {
+  color: var(--c-amber);
+}
+
+/* ---------- UNKNOWN ---------- */
+.device.garage-v2-tile.garage-unknown .garage-state-container {
+  border-color: var(--c-grey);
+  background: transparent;
+}
+
+.device.garage-v2-tile.garage-unknown .garage-state-text {
+  color: var(--c-grey);
 }
 
 
