@@ -223,8 +223,8 @@ function getGarageTileState(device) {
       key = 'closing';
       break;
     default:
-      if (rawGate === 0) key = 'closed';
-      else if (rawGate === 1) key = 'open';
+      if ((rawGate || '').toLowerCase() === 'closed') key = 'closed';
+      else if ((rawGate || '').toLowerCase() === 'open') key = 'open';
       else key = 'unknown';
       break;
   }
