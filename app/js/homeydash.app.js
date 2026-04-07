@@ -1589,8 +1589,8 @@ garageV2Tiles.forEach(({ id }) => {
     iconEl.style.maskRepeat = 'no-repeat';
     iconEl.style.webkitMaskPosition = 'center center';
     iconEl.style.maskPosition = 'center center';
-    iconEl.style.width = '32px';
-    iconEl.style.height = '32px';
+    iconEl.style.width = '40px';
+    iconEl.style.height = '40px';
   }
 });  
 
