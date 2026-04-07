@@ -1532,6 +1532,68 @@ garageTiles.forEach(({ id }) => {
     iconEl.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
   }
 });
+
+
+//-----------------------------------------------------
+// Garage v2 tiles dynamic updater (runs every interval)
+//-----------------------------------------------------
+
+garageV2Tiles.forEach(({ id }) => {
+  const device = favoriteDevices.find(d => d.id === id);
+  if (!device) return;
+
+  const tile = document.getElementById('device:' + id);
+  if (!tile) return;
+
+  const garageState = getGarageTileState(device);
+
+  // Update tile state classes
+  tile.classList.remove(
+    'garage-open',
+    'garage-closed',
+    'garage-opening',
+    'garage-closing',
+    'garage-unknown'
+  );
+  tile.classList.add('garage-' + garageState.key);
+
+  // Update state container contents
+  const stateContainer = tile.querySelector('.garage-state-container');
+  const stateIcon = stateContainer?.querySelector('.garage-state-icon');
+  const stateText = stateContainer?.querySelector('.garage-state-text');
+
+  if (stateIcon) {
+    if (garageState.key === 'open' || garageState.key === 'opening') {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+    } else {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+    }
+  }
+
+  if (stateText) {
+    stateText.textContent = garageState.label || 'Unknown';
+  }
+
+  // Update main icon from tileIcon capability
+  const iconEl = document.getElementById('icon:' + id);
+  if (iconEl && garageState.tileIcon) {
+    const iconUrl = '/homeydash.com/app/img/icons/' + garageState.tileIcon;
+
+    iconEl.style.webkitMaskImage = 'url(' + iconUrl + ')';
+    iconEl.style.maskImage = 'url(' + iconUrl + ')';
+    iconEl.style.backgroundImage = 'none';
+    iconEl.style.backgroundColor = 'white';
+    iconEl.style.webkitMaskSize = 'contain';
+    iconEl.style.maskSize = 'contain';
+    iconEl.style.webkitMaskRepeat = 'no-repeat';
+    iconEl.style.maskRepeat = 'no-repeat';
+    iconEl.style.webkitMaskPosition = 'center center';
+    iconEl.style.maskPosition = 'center center';
+    iconEl.style.width = '32px';
+    iconEl.style.height = '32px';
+  }
+});  
+
   
   
 // --- Wind Tile (AVD) ---
