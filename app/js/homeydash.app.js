@@ -1574,24 +1574,7 @@ garageV2Tiles.forEach(({ id }) => {
     stateText.textContent = garageState.label || 'Unknown';
   }
 
-  // Update main icon from tileIcon capability
-  const iconEl = document.getElementById('icon:' + id);
-  if (iconEl && garageState.tileIcon) {
-    const iconUrl = '/homeydash.com/app/img/icons/' + garageState.tileIcon;
 
-    iconEl.style.webkitMaskImage = 'url(' + iconUrl + ')';
-    iconEl.style.maskImage = 'url(' + iconUrl + ')';
-    iconEl.style.backgroundImage = 'none';
-    iconEl.style.backgroundColor = 'white';
-    iconEl.style.webkitMaskSize = 'contain';
-    iconEl.style.maskSize = 'contain';
-    iconEl.style.webkitMaskRepeat = 'no-repeat';
-    iconEl.style.maskRepeat = 'no-repeat';
-    iconEl.style.webkitMaskPosition = 'center center';
-    iconEl.style.maskPosition = 'center center';
-    iconEl.style.width = '40px';
-    iconEl.style.height = '40px';
-  }
 });  
 
   
