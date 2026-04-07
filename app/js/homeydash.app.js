@@ -1566,7 +1566,7 @@ garageV2Tiles.forEach(({ id }) => {
     stateIcon.classList.remove('is-spinning');
   
     if (garageState.key === 'opening' || garageState.key === 'closing') {
-      stateIcon.src = '/homeydash.com/app/img/icons/Connected.svg';
+      stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
       stateIcon.classList.add('is-spinning');
     } else if (garageState.key === 'open') {
       stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
