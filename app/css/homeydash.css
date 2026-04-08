@@ -43,10 +43,6 @@ body {
     to   { transform: rotate(360deg); }
 }
 
-.is-spinning {
-    animation: hd-spin 0.9s linear infinite;
-}
-
 
 .tablecell {
   display: table-cell;
@@ -888,6 +884,10 @@ a {
 .garage-state-icon {
   width: 32px;
   height: 32px;
+  display: block;
+  object-fit: contain;
+  flex: 0 0 32px;
+  transform-origin: center center;
   filter: brightness(0) invert(1);  /* white */
 }
 
@@ -1156,6 +1156,10 @@ a {
 .ev-state-icon {
   width: 32px;
   height: 32px;
+  display: block;
+  object-fit: contain;
+  flex: 0 0 32px;
+  transform-origin: center center;
 }
 
 .ev-state-text {
