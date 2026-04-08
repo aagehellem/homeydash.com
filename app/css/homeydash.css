@@ -891,6 +891,11 @@ a {
   filter: brightness(0) invert(1);  /* white */
 }
 
+.device.garage-v2-tile .garage-state-icon.garage-spin {
+  animation: hd-spin 0.9s linear infinite;
+  will-change: transform;
+}
+
 /* Default (closed) text */
 .garage-state-text {
   font-size: 0.75rem;
