@@ -1563,25 +1563,25 @@ garageV2Tiles.forEach(({ id }) => {
   const stateText = stateContainer?.querySelector('.garage-state-text');
 
   if (stateIcon) {
-//    stateIcon.classList.remove('garage-spin');
-//  
-//    if (garageState.key === 'opening' || garageState.key === 'closing') {
-//      stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
-//      stateIcon.classList.add('garage-spin');
-//    } else if (garageState.key === 'open') {
-//      stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
-//    } else {
-//      stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
-//    }
+    stateIcon.classList.remove('garage-spin');
+  
+    if (garageState.key === 'opening' || garageState.key === 'closing') {
+      stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
+      stateIcon.classList.add('garage-spin');
+    } else if (garageState.key === 'open') {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+    } else {
+      stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+    }
 
-// Temporary removing the spinner animation
-if (garageState.key === 'opening' || garageState.key === 'closing') {
-  stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
-} else if (garageState.key === 'open') {
-  stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
-} else {
-  stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
-}    
+    // Temporary (not) removing the spinner animation
+    //if (garageState.key === 'opening' || garageState.key === 'closing') {
+    //  stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
+    //} else if (garageState.key === 'open') {
+    //  stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
+    //} else {
+    //  stateIcon.src = '/homeydash.com/app/img/icons/GarageClosed.svg';
+    //}    
   
   
   }
