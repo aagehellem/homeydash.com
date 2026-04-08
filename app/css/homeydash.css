@@ -930,23 +930,23 @@ a {
 /* ---------- OPENING / CLOSING ---------- */
 .device.garage-v2-tile.garage-opening .garage-state-container,
 .device.garage-v2-tile.garage-closing .garage-state-container {
-  border-color: var(--c-amber);
+  border-color: var(--c-yellow);
   background: transparent;
 }
 
 .device.garage-v2-tile.garage-opening .garage-state-text,
 .device.garage-v2-tile.garage-closing .garage-state-text {
-  color: var(--c-amber);
+  color: var(--c-yellow);
 }
 
 /* ---------- UNKNOWN ---------- */
 .device.garage-v2-tile.garage-unknown .garage-state-container {
-  border-color: var(--c-grey);
+  border-color: var(--c-amber);
   background: transparent;
 }
 
 .device.garage-v2-tile.garage-unknown .garage-state-text {
-  color: var(--c-grey);
+  color: var(--c-amber);
 }
 
 
