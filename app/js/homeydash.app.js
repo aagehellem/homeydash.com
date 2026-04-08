@@ -1563,11 +1563,11 @@ garageV2Tiles.forEach(({ id }) => {
   const stateText = stateContainer?.querySelector('.garage-state-text');
 
   if (stateIcon) {
-    stateIcon.classList.remove('is-spinning');
+    stateIcon.classList.remove('garage-spin');
   
     if (garageState.key === 'opening' || garageState.key === 'closing') {
       stateIcon.src = '/homeydash.com/app/img/icons/Spinner.svg';
-      stateIcon.classList.add('is-spinning');
+      stateIcon.classList.add('garage-spin');
     } else if (garageState.key === 'open') {
       stateIcon.src = '/homeydash.com/app/img/icons/GarageOpen.svg';
     } else {
