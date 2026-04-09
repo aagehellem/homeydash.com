@@ -2413,12 +2413,22 @@ favoriteDevices.forEach(device => {
           }
 
           $deviceElement.addEventListener('click', function() {
-            if ( nameChange ) { return } // No click when shown capability just changed
-            if ( longtouch ) {return} // No click when longtouch was performed
+            if (nameChange) { return; }
+            if (longtouch) { return; }
+          
+            // Short tap visual for garage v2 tiles
+            if ($deviceElement.classList.contains('garage-v2-tile')) {
+              $deviceElement.classList.add('tap-flash');
+              setTimeout(function() {
+                $deviceElement.classList.remove('tap-flash');
+              }, 180);
+            }
+          
             var value = !$deviceElement.classList.contains('on');
-            if ( device.capabilitiesObj && device.capabilitiesObj.onoff ) {
+            if (device.capabilitiesObj && device.capabilitiesObj.onoff) {
               $deviceElement.classList.toggle('on', value);
             }
+          
             homey.devices.setCapabilityValue({
               deviceId: device.id,
               capabilityId: device.ui.quickAction,
