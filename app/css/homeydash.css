@@ -960,6 +960,14 @@ a {
 }
 
 
+/* Tap visual for garage v2 tiles */
+.device.garage-v2-tile.tap-flash {
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.85),
+    0 0 10px rgba(255,255,255,0.35);
+  transition: box-shadow 0.18s ease;
+}
+
 
 /* -------------------------------------------------------------
    WIND TILE - layout for compact arrow (Option C)
