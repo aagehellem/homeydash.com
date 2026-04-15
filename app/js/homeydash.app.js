@@ -1411,6 +1411,13 @@ const WEATHER_TILES = [
     title: 'Precip next 6 hours',
     unit: 'mm',
   },
+  {
+    key: 'feelslike',
+    deviceId: '01c2b5a3-edb5-491b-97fd-c0eb822ba531',
+    capability: 'measure_temperature',
+    title: 'Feels like',
+    unit: '°C',
+  },  
 ];
 
 
@@ -1697,10 +1704,10 @@ if (windArrowNode && windSpeedNode) {
 
 
 // -----------------------------------------------------------
-// PRECIPITATION TILE UPDATE (all 3 tiles)
+// WEATHER NUMBER TILE UPDATE (all non-UV/wind weather tiles)
 // -----------------------------------------------------------
 WEATHER_TILES.forEach(tileInfo => {
-    if (tileInfo.key === 'uv') return;   // skip UV tile
+    if (tileInfo.key === 'uv') return;
 
     const device = favoriteDevices.find(d => d.id === tileInfo.deviceId);
     if (!device) return;
@@ -1711,14 +1718,18 @@ WEATHER_TILES.forEach(tileInfo => {
     const valueNode = tile.querySelector('.precip-value');
     if (!valueNode) return;
 
-    // Read capability value
     const value = device.capabilitiesObj[tileInfo.capability]?.value;
 
-    // Format output
-    let formatted =
-        (value !== null && value !== undefined)
-        ? `${value} ${tileInfo.unit}`
-        : "-";
+    let formatted = "-";
+
+    if (value !== null && value !== undefined) {
+        if (tileInfo.unit === '°C') {
+            const rounded = Math.round(value * 10) / 10;
+            formatted = `${rounded.toFixed(1)}${tileInfo.unit}`;
+        } else {
+            formatted = `${value} ${tileInfo.unit}`;
+        }
+    }
 
     valueNode.textContent = formatted;
 });
