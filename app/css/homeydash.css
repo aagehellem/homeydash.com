@@ -1268,8 +1268,8 @@ a {
 .device .icon {
   width: 40px !important;
   height: 40px !important;
-  top: 28px !important;
-  left: 12px !important;
+  top: 27px !important;
+  left: 14px !important;
 
   -webkit-mask-size: contain !important;
   mask-size: contain !important;
