@@ -1264,4 +1264,23 @@ a {
 
 
 
+/* Default HomeyDash tile icon size/position */
+.device .icon {
+  width: 40px !important;
+  height: 40px !important;
+  top: 10px !important;
+  left: 10px !important;
+
+  -webkit-mask-size: contain !important;
+  mask-size: contain !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-position: center center !important;
+  mask-position: center center !important;
+
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+}
+
 
