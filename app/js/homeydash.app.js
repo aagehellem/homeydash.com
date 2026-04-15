@@ -1239,8 +1239,6 @@ garageV2Tiles.forEach(({ id }) => {
     iconEl.style.webkitMaskPosition = 'center center';
     iconEl.style.maskPosition = 'center center';
   
-    iconEl.style.width = '40px';
-    iconEl.style.height = '40px';
   }
 
   // Add a state container if not already present
