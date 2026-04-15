@@ -950,16 +950,6 @@ a {
 }
 
 
-/* Main garage icon alignment (v2 only) */
-.device.garage-v2-tile .icon {
-  position: absolute;
-  top: 30px;      /* adjust to 25–26px if needed */
-  left: 12px;
-  width: 32px;
-  height: 32px;
-}
-
-
 /* Tap visual for garage v2 tiles */
 .device.garage-v2-tile.tap-flash {
   box-shadow:
