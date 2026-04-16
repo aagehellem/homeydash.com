@@ -1204,17 +1204,26 @@ function setupUvTile(tile, device) {
 
 const garageV2Tiles = [
   {
-    id: '6c596fa1-7752-470a-9f63-28e1c6938a6b'
+    id: '6c596fa1-7752-470a-9f63-28e1c6938a6b',
+    label: 'Garage 1'
+  },
+  {
+    id: '9e2673ea-58d8-4ca9-be3f-7ef697ae6edf',
+    label: 'Garage 2'
   }
 ];
 
-garageV2Tiles.forEach(({ id }) => {
+garageV2Tiles.forEach(({ id, label }) => {
   const device = favoriteDevices.find(d => d.id === id);
   const tile = document.getElementById('device:' + id);
   const nameEl = document.getElementById('name:' + id);
 
   if (!device || !tile || !nameEl) return;
 
+  if (label) {
+    nameEl.textContent = label;
+  }
+  
   const garageState = getGarageTileState(device);
 
   tile.classList.add('garage-v2-tile');
