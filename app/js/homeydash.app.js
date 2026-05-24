@@ -484,7 +484,32 @@ window.addEventListener('load', function() {
   }).then(function(){
     return api.getAuthenticatedUser();
   }).then(function(user) {
-    return user.getFirstHomey();
+    return user.getHomeys();
+  }).then(function(homeys) {
+    console.log('Available Homeys:', homeys.map(function(h) {
+      return {
+        id: h.id,
+        name: h.name,
+        platform: h.platform,
+        role: h.role
+      };
+    }));
+
+    // Select the migrated HP2026 by name.
+    // Current Homey name: "Nora @ G3D"
+    var selectedHomey = homeys.find(function(h) {
+      return (h.name || '').toLowerCase().includes('nora');
+    });
+
+    // Fallback, but log clearly so we notice if name matching fails.
+    if (!selectedHomey) {
+      console.warn('Nora @ G3D not found. Falling back to first Homey.');
+      selectedHomey = homeys[0];
+    }
+
+    console.log('Selected Homey for HomeyDash:', selectedHomey.name, selectedHomey.id);
+
+    return selectedHomey;
   }).then(function(homey) {
     return homey.authenticate();
   }).then(function(homey_) {
