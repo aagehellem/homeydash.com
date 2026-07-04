@@ -2413,24 +2413,28 @@ favoriteDevices.forEach(device => {
             itemNr =itemNr + 1
           }
         }
-        if ( itemNr > 0 ) {
-          // start touch/click functions
-          $deviceElement.addEventListener('touchstart', function(event) {
-            deviceStart($deviceElement, device, event)
-          });
-          $deviceElement.addEventListener('mousedown', function(event) {
-            deviceStart($deviceElement, device, event)
-          });
+//        if ( itemNr > 0 ) {
+//          // start touch/click functions
+//         $deviceElement.addEventListener('touchstart', function(event) {
+//            deviceStart($deviceElement, device, event)
+//          });
+//          $deviceElement.addEventListener('mousedown', function(event) {
+//            deviceStart($deviceElement, device, event)
+//          });
+//
+//          // stop touch/click functions
+//          $deviceElement.addEventListener('touchend', function() {
+//            deviceStop($deviceElement)
+//          });
+//          $deviceElement.addEventListener('mouseup', function() {
+//            deviceStop($deviceElement)
+//          });
+//        }
 
-          // stop touch/click functions
-          $deviceElement.addEventListener('touchend', function() {
-            deviceStop($deviceElement)
-          });
-          $deviceElement.addEventListener('mouseup', function() {
-            deviceStop($deviceElement)
-          });
-        }
+        // Long-press capability cycling disabled intentionally.
+        // Normal quickAction click/tap handling below is left unchanged.
 
+        
         if ( device.capabilitiesObj[device.ui.quickAction] ) {
           if( itemNr == 0 ) {
             // Touch functions
