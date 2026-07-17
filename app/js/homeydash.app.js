@@ -243,6 +243,59 @@ function getGarageTileState(device) {
 
 
 
+// ------------------------------------------------------
+// Generic tap-feedback tiles
+// Visual-only pressed feedback for selected action tiles
+// ------------------------------------------------------
+
+const TAP_FEEDBACK_TILE_IDS = [
+  // Garage v2 tiles
+  '6c596fa1-7752-470a-9f63-28e1c6938a6b',
+  '9e2673ea-58d8-4ca9-be3f-7ef697ae6edf',
+
+  // Toggle Lights
+  'f9659e2f-5ae4-4518-9ad6-254eedca92e4',
+
+  // Dog action tiles
+  '873c5e08-d410-4834-95df-00399a9ea07f', // Good morning
+  '2fc0ed33-1fdd-492c-8a14-0b00fafb5eac', // Afternoon Shade
+  'b6f0c02c-0883-492e-8538-d774be8af225'  // Good night
+];
+
+function shouldUseTapFeedback(deviceId) {
+  return TAP_FEEDBACK_TILE_IDS.includes(deviceId);
+}
+
+function attachTapFeedbackHandlers(tile) {
+  if (!tile) return;
+
+  function press(event) {
+    // Left mouse button only; touch/pointer events are fine.
+    if (event && event.button && event.button !== 0) return;
+    tile.classList.add('tap-pressed');
+  }
+
+  function release() {
+    tile.classList.remove('tap-pressed');
+  }
+
+  if (window.PointerEvent) {
+    tile.addEventListener('pointerdown', press);
+    tile.addEventListener('pointerup', release);
+    tile.addEventListener('pointercancel', release);
+    tile.addEventListener('pointerleave', release);
+  } else {
+    tile.addEventListener('mousedown', press);
+    tile.addEventListener('mouseup', release);
+    tile.addEventListener('mouseleave', release);
+
+    tile.addEventListener('touchstart', press);
+    tile.addEventListener('touchend', release);
+    tile.addEventListener('touchcancel', release);
+  }
+}
+
+
 window.addEventListener('load', function() {
 
   //var homey;
@@ -2316,6 +2369,12 @@ favoriteDevices.forEach(device => {
       
       $deviceElement.id = 'device:' + device.id;
       $deviceElement.classList.add('device');
+
+      if (shouldUseTapFeedback(device.id)) {
+        $deviceElement.classList.add('tap-feedback-tile');
+        attachTapFeedbackHandlers($deviceElement);
+      }
+
       $deviceElement.classList.toggle('on', device.capabilitiesObj && device.capabilitiesObj[device.ui.quickAction] && device.capabilitiesObj[device.ui.quickAction].value === true);
       if ( device.capabilitiesObj && device.capabilitiesObj.button ) {
         $deviceElement.classList.toggle('on', true)
@@ -2436,7 +2495,7 @@ favoriteDevices.forEach(device => {
 
         
         if ( device.capabilitiesObj[device.ui.quickAction] ) {
-          if( itemNr == 0 ) {
+          if( itemNr == 0 && !$deviceElement.classList.contains('tap-feedback-tile') ) {
             // Touch functions
             $deviceElement.addEventListener('touchstart', function() {
               $deviceElement.classList.add('push')
@@ -2456,15 +2515,7 @@ favoriteDevices.forEach(device => {
           $deviceElement.addEventListener('click', function() {
             if (nameChange) { return; }
             if (longtouch) { return; }
-          
-            // Short tap visual for garage v2 tiles
-            if ($deviceElement.classList.contains('garage-v2-tile')) {
-              $deviceElement.classList.add('tap-flash');
-              setTimeout(function() {
-                $deviceElement.classList.remove('tap-flash');
-              }, 180);
-            }
-          
+
             var value = !$deviceElement.classList.contains('on');
             if (device.capabilitiesObj && device.capabilitiesObj.onoff) {
               $deviceElement.classList.toggle('on', value);
