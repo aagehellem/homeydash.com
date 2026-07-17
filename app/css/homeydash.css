@@ -950,12 +950,16 @@ a {
 }
 
 
-/* Tap visual for garage v2 tiles */
-.device.garage-v2-tile.tap-flash {
+/* Generic visual feedback for explicitly marked action tiles */
+.device.tap-feedback-tile.tap-pressed {
   box-shadow:
     0 0 0 0.5px rgba(255,255,255,0.6),
-    0 0 6px rgba(255,255,255,0.5);
-  transition: box-shadow 0.22s ease;
+    0 0 8px rgba(255,255,255,0.55);
+  transform: scale(0.985);
+  opacity: 1 !important;
+  transition:
+    box-shadow 0.08s ease,
+    transform 0.08s ease;
 }
 
 
