@@ -318,6 +318,123 @@ window.addEventListener('load', function() {
   var slideDebounce = false;
   var sliderUnit = "";
 
+  function formatYrSunTime(value) {
+    if (value === null || value === undefined || value === '') return '';
+
+    if (value instanceof Date && !isNaN(value.getTime())) {
+      return value.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    if (typeof value === 'number') {
+      const ms = value < 1000000000000 ? value * 1000 : value;
+      const d = new Date(ms);
+
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+      }
+    }
+
+    const str = String(value).trim();
+
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    }
+
+    // Handles strings like "07.07.2026 04:10"
+    const match = str.match(/(?:^|\D)(\d{1,2})[:.](\d{2})(?::\d{2})?(?:\D*$)/);
+    if (match) {
+      return match[1].padStart(2, '0') + ':' + match[2];
+    }
+
+    console.warn('Could not parse Yr sun time:', value);
+    return '';
+  }
+
+  function findYrSunCapability(device, type) {
+    const caps = device.capabilitiesObj || {};
+
+    const preferredIds = type === 'sunrise'
+      ? ['sunrise', 'measure_sunrise', 'sunrise_time', 'time_sunrise', 'date_sunrise']
+      : ['sunset', 'measure_sunset', 'sunset_time', 'time_sunset', 'date_sunset'];
+
+    for (const capId of preferredIds) {
+      if (
+        caps[capId] &&
+        caps[capId].value !== null &&
+        caps[capId].value !== undefined &&
+        caps[capId].value !== ''
+      ) {
+        return { id: capId, capability: caps[capId] };
+      }
+    }
+
+    const wantedWords = type === 'sunrise'
+      ? ['sunrise', 'soloppgang']
+      : ['sunset', 'solnedgang'];
+
+    for (const capId in caps) {
+      const cap = caps[capId] || {};
+      const haystack = [
+        capId,
+        cap.id,
+        cap.title,
+        cap.titleFormatted,
+        cap.name,
+        cap.desc
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      if (
+        wantedWords.some(word => haystack.includes(word)) &&
+        cap.value !== null &&
+        cap.value !== undefined &&
+        cap.value !== ''
+      ) {
+        return { id: capId, capability: cap };
+      }
+    }
+
+    return null;
+  }
+
+  function updateSunEventsFromYrDevice(device) {
+    const sunriseCap = findYrSunCapability(device, 'sunrise');
+    const sunsetCap  = findYrSunCapability(device, 'sunset');
+
+    const yrSunrise = formatYrSunTime(sunriseCap && sunriseCap.capability.value);
+    const yrSunset  = formatYrSunTime(sunsetCap && sunsetCap.capability.value);
+
+    sunrise = yrSunrise;
+    sunset  = yrSunset;
+
+    renderSunevents();
+
+    if (sunrise && sunset) {
+      calculateTOD();
+    }
+
+    if (!yrSunrise || !yrSunset) {
+      console.warn(
+        'YR sunrise/sunset capability not found or not parseable.',
+        device.name,
+        Object.keys(device.capabilitiesObj || {})
+      );
+    }
+  }
+
+
   var $infopanel = document.getElementById('info-panel');
   $settingspanel = document.getElementById('settings-panel');
   var $sliderpanel = document.getElementById('slider-panel');
@@ -601,12 +718,6 @@ window.addEventListener('load', function() {
 
       homey.flowToken.getFlowTokens().then(function(tokens) {
         for ( token in tokens) {
-          if ( tokens[token].id == "sunrise" && tokens[token].uri == "homey:manager:cron" ) {
-            sunrise = tokens[token].value
-          }
-          if ( tokens[token].id == "sunset" && tokens[token].uri == "homey:manager:cron" ) {
-            sunset = tokens[token].value
-          }
           if ( tokens[token].id == "measure_battery" ) {
             var batteryLevel = tokens[token].value
             if ( batteryLevel != null ) {
@@ -622,10 +733,6 @@ window.addEventListener('load', function() {
           }
         }
         batteryDetails.sort(dynamicSort("level"))
-        if (sunrise != "" || sunset != "") {
-          calculateTOD();
-          renderSunevents();
-        }
         if ( batteryAlarm ) {
           $batterydetails.classList.add('alarm')
         } else {
@@ -672,12 +779,14 @@ window.addEventListener('load', function() {
 
         const iconPath = '/homeydash.com/app/img/icons/';        
         
-        // Weather icon from YR device
+        // Weather icon + sun events from YR device
         for (const id in devices) {
           const device = devices[id];
        
           if (device.driverUri === "homey:app:no.yr" && device.ready) {
             console.log("Found YR device");
+
+            updateSunEventsFromYrDevice(device);
       
             if (device.capabilitiesObj.weather_description) {
               const condition = device.capabilitiesObj.weather_description.value
